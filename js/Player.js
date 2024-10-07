@@ -15,9 +15,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Variables para controlar animaciones
         this.falling = false;
         this.isHitGroundComplete = false;
-        this.isJumpComplete = true; 
+        this.isJumpComplete = true;
         this.inGround = false;
-        this.jumps = true; 
+
+        //Otras variables
+        this.jumps = true;
+        this.speed = 100;
 
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
@@ -78,20 +81,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create(attack)
     }
 
+    setSpeed(speed) {
+        this.speed = speed;
+    }
+
     update() {
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
 
         //Detecta si la animaicon "hitGround" se completo
         this.on('animationcomplete-hitGround', () => {
-            this.isHitGroundComplete = true; 
+            this.isHitGroundComplete = true;
         });
 
         //Control si el jugador esta colisionando con algo
         if (this.body.blocked.down) {
             this.inGround = true;
             this.jumps = true;
-        }else{
+        } else {
             this.inGround = false;
         }
 
@@ -119,21 +126,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         //Control para saltar
-        if (this.cursors.up.isDown == true && this.jumps>0 || this.joystickCursors.up.isDown && this.jump) {
-            this.setVelocityY(-800);
-            this.jumps = false;
-            console.log(this.jumps)
+        if (this.cursors.up.isDown == true || this.joystickCursors.up.isDown) {
+            if (this.jumps) {
+                this.setVelocityY(-1000);
+                this.jumps = false;
+                console.log(this.jumps)
+            }
+
         }
 
         //Controles de movimiento y animacion de izquierda y derecha
-        if (this.cursors.right.isDown == true || this.joystickCursors.right.isDown && this.body.velocity.y != 0) {
-            this.setVelocityX(300);
+        if (this.cursors.right.isDown == true || this.joystickCursors.right.isDown) {
+            this.setVelocityX(this.speed);
             this.flipX = false;
             //Si no esta en el aire, se ejecuta la animacion de correr
             if (this.body.velocity.y == 0) { this.play("run", true); }
         }
         if (this.cursors.left.isDown == true || this.joystickCursors.left.isDown) {
-            this.setVelocityX(-300);
+            this.setVelocityX(this.speed*-1);
             this.flipX = true;
             //Si no esta en el aire, se ejecuta la animacion de correr
             if (this.body.velocity.y == 0) { this.play("run", true); }

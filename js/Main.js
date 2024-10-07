@@ -1,12 +1,18 @@
 //Import de clases
 import Player from '/js/Player.js';
+import Enemy from '/js/Enemy.js';
 
 class Main extends Phaser.Scene {
 
     //Metodo constructor
     constructor() {
         super({ key: "Main" })
+        //Crea una variable de player vaciamomentaneamente
         this.player = null;
+
+        //Crea dos array vacios, uno para las colisiones y otro para los enemigos
+        this.platforms = [];
+        this.enemies = [];
     }
     preload() {
 
@@ -14,9 +20,18 @@ class Main extends Phaser.Scene {
         let url = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js';
         this.load.plugin('rexvirtualjoystickplugin', url, true);
 
-        //Se precarga la imagen de las plataformas y el spritesheet del jugador
+        //Se precarga la imagen de las plataformas
         this.load.image('ground', '/assets/sprites/ground.png');
+
+        //Se precarga spritesheet del jugador
         this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet-min.png", {
+            //Se mandan las dimensiones de la mascara para cada frame de las animaciones
+            frameWidth: 270,
+            frameHeight: 164,
+        });
+
+        //Se precarga spritesheet del enemigo
+        this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", {
             //Se mandan las dimensiones de la mascara para cada frame de las animaciones
             frameWidth: 270,
             frameHeight: 164,
@@ -38,29 +53,75 @@ class Main extends Phaser.Scene {
         });
         this.joystickCursors = this.joyStick.createCursorKeys();
 
-        //Crea a un nuevo jugar, y le manda la escena, cordenadas, el sprite shee, el controlador de teclas y el joystick
+        //Crea a un nuevo jugador, y le manda la escena, cordenadas, el sprite sheet, el controlador de teclas y el joystick
         this.player = new Player(this, 40, 40, 'playerSheet', this.cursors, this.joystickCursors)
+        this.player.setSpeed(600);
+        
+        //escala el tamaño del jugador
+        this.player.scale = 0.7;
 
-        this.player.scaleX = 0.7;
-        this.player.scaleY = 0.7;
+        //Agrega 2 enemigos al array de enemigos
+        this.enemies.push(new Enemy(this, 80, 60, 'enemySheet', this.player, 50));
+        this.enemies.push(new Enemy(this, 80, 60, 'enemySheet', this.player, 150));
+        //escala a los 2 enemigos
+        this.enemies[0].scale = 0.7;
+        this.enemies[1].scale = 0.6;
 
-        //Crea objectos vacios con fisica estatica      
-        this.platform = this.physics.add.staticGroup();
-        this.platform2 = this.physics.add.staticGroup();
+        //Crea un array de cprdenadas para las plataformas
+        const platformPositions = [
+            { x: 100, y: 300 },
+            { x: 260, y: 300 },
+            { x: 420, y: 300 },
+            { x: 580, y: 300 },
+            { x: 320, y: 150 }
+        ];
 
-        //A los objetos anteriores los añade en una posicion y con una textura y los actualiza
-        this.platform.create(100, 300, 'ground').refreshBody();  
-        this.platform2.create(400, 200, 'ground').refreshBody();  
+        // Crea las plataformas a partir de las coordenadas del array anterior y también las añade al mundo físico
+        platformPositions.forEach(pos => {
+            //Crea una plataforma vacia estatica
+            const platform = this.physics.add.staticGroup();
+            //Crea la plataforma en la escena con sus cordenadas y textura
+            platform.create(pos.x, pos.y, 'ground').refreshBody();
+            //añade esta plataforma al array de plataformas
+            this.platforms.push(platform);
+        });
 
-        //Añade colisiones entre el jugador y las plataformas
-        this.physics.add.collider(this.player, this.platform);
-        this.physics.add.collider(this.player, this.platform2);
+        //Recorre el array de plataformas y le añade colision con el jugador a cada una
+        this.platforms.forEach(platform => {
+            this.physics.add.collider(this.player, platform);
+        });
+
+        //Recorre el array de enemigos, y por cada enemigo recorre el array de plataformas y le agrega colision
+        this.enemies.forEach(enemy => {
+            this.platforms.forEach(platform => {
+                this.physics.add.collider(enemy, platform);
+            });
+        });
     }
 
     update() {
         this.player.update();
+
+        //Recorre el array de enemigos
+        this.enemies.forEach(enemy => {
+            //por cada enemigo llama al metodo update de este
+            enemy.update();
+            //Por cada enemigo checa si hay colision con el jugador y le manda la informacion al enemigo
+            if (this.checkCollision(this.player, enemy)) {
+                enemy.attack(true);
+            } else {
+                enemy.attack(false);
+            }
+        });
+
     }
 
+    //Metodo de checkeo de colisiones
+    checkCollision(player, enemy) {
+        const playerBounds = player.getBounds();
+        const enemyBounds = enemy.getBounds();
+        return Phaser.Geom.Intersects.RectangleToRectangle(playerBounds, enemyBounds);
+    }
 }
 
 //Configuracion del proyecto
@@ -74,7 +135,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 3000},
+            gravity: { y: 3000 },
             debug: false
         }
     }
