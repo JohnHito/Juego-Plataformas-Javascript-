@@ -60,6 +60,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     update() {
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
+
+        //IA
+        //Si el enemigo esta 
         if (this.attacking) {
             this.play("attack", true);
         } else if (this.player.x > this.x+10) {

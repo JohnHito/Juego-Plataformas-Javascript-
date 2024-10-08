@@ -22,9 +22,10 @@ class Main extends Phaser.Scene {
 
         //Se precarga la imagen de las plataformas
         this.load.image('ground', '/assets/sprites/ground.png');
+        this.load.image('button', '/assets/sprites/button.png');
 
         //Se precarga spritesheet del jugador
-        this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet-min.png", {
+        this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", {
             //Se mandan las dimensiones de la mascara para cada frame de las animaciones
             frameWidth: 270,
             frameHeight: 164,
@@ -40,32 +41,32 @@ class Main extends Phaser.Scene {
 
 
     create() {
-        //Crea la detecicon de teclas
-        this.cursors = this.input.keyboard.createCursorKeys();
 
-        //Crea un joystick para moverse desde celular a partir de un pluguin
-        this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-            x: 80,
-            y: 280,
-            radius: 80,
-            base: this.add.circle(0, 0, 50, 0x888888),
-            thumb: this.add.circle(0, 0, 15, 0xcccccc),
-        });
-        this.joystickCursors = this.joyStick.createCursorKeys();
+        //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
+        this.player = new Player(this, 40, 40, 'playerSheet')
+        this.player.setSpeed(400);
 
-        //Crea a un nuevo jugador, y le manda la escena, cordenadas, el sprite sheet, el controlador de teclas y el joystick
-        this.player = new Player(this, 40, 40, 'playerSheet', this.cursors, this.joystickCursors)
-        this.player.setSpeed(600);
-        
         //escala el tamaño del jugador
         this.player.scale = 0.7;
 
+
         //Agrega 2 enemigos al array de enemigos
         this.enemies.push(new Enemy(this, 80, 60, 'enemySheet', this.player, 50));
-        this.enemies.push(new Enemy(this, 80, 60, 'enemySheet', this.player, 150));
+        /*
+        this.enemies.push(new Enemy(this, 90, 60, 'enemySheet', this.player, 150));
+        this.enemies.push(new Enemy(this, 100, 60, 'enemySheet', this.player, 10));
+        this.enemies.push(new Enemy(this, 120, 60, 'enemySheet', this.player, 80));
+        this.enemies.push(new Enemy(this, 130, 60, 'enemySheet', this.player, 100));
+        */
         //escala a los 2 enemigos
         this.enemies[0].scale = 0.7;
+        /*
         this.enemies[1].scale = 0.6;
+        this.enemies[2].scale = 0.55;
+        this.enemies[3].scale = 0.5;
+        this.enemies[4].scale = 0.45;
+        */
+
 
         //Crea un array de cprdenadas para las plataformas
         const platformPositions = [
@@ -97,6 +98,24 @@ class Main extends Phaser.Scene {
                 this.physics.add.collider(enemy, platform);
             });
         });
+
+        this.btnA = this.add.sprite(550, 280, 'button').setInteractive(); 
+        this.btnA.setScale(0.5); 
+
+        //Controles de teclado
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        //Crea un joystick para moverse desde celular a partir de un pluguin
+        this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+            x: 80,
+            y: 280,
+            radius: 80,
+            base: this.add.circle(0, 0, 50, 0x888888),
+            thumb: this.add.circle(0, 0, 15, 0xcccccc),
+        });
+        this.joystickCursors = this.joyStick.createCursorKeys();
+
+        this.player.setControls(this.cursors, this.joystickCursors, this.btnA);
     }
 
     update() {
@@ -143,56 +162,3 @@ const config = {
 
 // Create a new Phaser game instance
 const game = new Phaser.Game(config);
-
-
-/*
-let player;
-let cursors;
-
-// Preload function (if you want to load images or assets, put it here)
-function preload() { }
-
-// Create function to set up the player and controls
-function create() {
-    // Create the player as a simple rectangle using graphics
-    const graphics = this.add.graphics({ fillStyle: { color: 0x00ff00 } }); // Green rectangle
-    graphics.fillRect(0, 0, 50, 50); // Rectangle at position (0, 0), with width 50 and height 50
-
-    // Add physics body to the player
-    player = this.physics.add.existing(graphics);
-    player.body.setCollideWorldBounds(true); // Prevent the player from leaving the game bounds
-
-    // Enable keyboard input (arrow keys)
-    cursors = this.input.keyboard.createCursorKeys();
-
-    // Optional: If you want to use WASD controls too
-    this.input.keyboard.addKeys({
-        up: Phaser.Input.Keyboard.KeyCodes.W,
-        down: Phaser.Input.Keyboard.KeyCodes.S,
-        left: Phaser.Input.Keyboard.KeyCodes.A,
-        right: Phaser.Input.Keyboard.KeyCodes.D
-    });
-}
-
-// Update function, runs every frame
-function update() {
-    const speed = 2000; // Player movement speed
-
-    // Reset the player's velocity to 0 (so they stop when no keys are pressed)
-    player.body.setVelocity(0);
-
-    // Move left/right
-    if (cursors.left.isDown || this.input.keyboard.keys[65].isDown) { // Arrow key left or 'A'
-        player.body.setVelocityX(-speed);
-    } else if (cursors.right.isDown || this.input.keyboard.keys[68].isDown) { // Arrow key right or 'D'
-        player.body.setVelocityX(speed);
-    }
-
-    // Move up/down
-    if (cursors.up.isDown || this.input.keyboard.keys[87].isDown) { // Arrow key up or 'W'
-        player.body.setVelocityY(-speed * 20);
-    } else if (cursors.down.isDown || this.input.keyboard.keys[83].isDown) { // Arrow key down or 'S'
-        player.body.setVelocityY(speed);
-    }
-}
-*/
