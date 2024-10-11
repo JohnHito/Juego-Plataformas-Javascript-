@@ -1,18 +1,26 @@
 //Import de clases
 import Player from '/js/Player.js';
 import Enemy from '/js/Enemy.js';
+import Background from '/js/Background.js';
 
 class Main extends Phaser.Scene {
 
     //Metodo constructor
     constructor() {
         super({ key: "Main" })
+
         //Crea una variable de player vaciamomentaneamente
         this.player = null;
+        this.bg = null;
 
         //Crea dos array vacios, uno para las colisiones y otro para los enemigos
-        this.platforms = [];
         this.enemies = [];
+
+        this.collisions2D = []
+        for (let i = 0; i < collisions.length; i += 50) {
+            this.collisions2D.push(collisions.slice(i, i + 50))
+        }
+
     }
     preload() {
 
@@ -21,8 +29,9 @@ class Main extends Phaser.Scene {
         this.load.plugin('rexvirtualjoystickplugin', url, true);
 
         //Se precarga la imagen de las plataformas
-        this.load.image('ground', '/assets/sprites/ground.png');
         this.load.image('button', '/assets/sprites/button.png');
+
+        this.load.image('level1Bg', '/assets/levels/level1.png');
 
         //Se precarga spritesheet del jugador
         this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", {
@@ -41,66 +50,21 @@ class Main extends Phaser.Scene {
 
 
     create() {
+        //Crea nueva clase de Background, solo agrega la imagen de fondo
+        this.bg = new Background(this, 0, 0, 'level1Bg')
 
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
-        this.player = new Player(this, 40, 40, 'playerSheet')
+        this.player = new Player(this, 440, 440, 'playerSheet')
         this.player.setSpeed(400);
-
-        //escala el tamaño del jugador
         this.player.scale = 0.7;
 
-
         //Agrega 2 enemigos al array de enemigos
-        this.enemies.push(new Enemy(this, 80, 60, 'enemySheet', this.player, 50));
-        /*
-        this.enemies.push(new Enemy(this, 90, 60, 'enemySheet', this.player, 150));
-        this.enemies.push(new Enemy(this, 100, 60, 'enemySheet', this.player, 10));
-        this.enemies.push(new Enemy(this, 120, 60, 'enemySheet', this.player, 80));
-        this.enemies.push(new Enemy(this, 130, 60, 'enemySheet', this.player, 100));
-        */
-        //escala a los 2 enemigos
+        this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 100));
         this.enemies[0].scale = 0.7;
-        /*
-        this.enemies[1].scale = 0.6;
-        this.enemies[2].scale = 0.55;
-        this.enemies[3].scale = 0.5;
-        this.enemies[4].scale = 0.45;
-        */
+          
 
-
-        //Crea un array de cprdenadas para las plataformas
-        const platformPositions = [
-            { x: 100, y: 300 },
-            { x: 260, y: 300 },
-            { x: 420, y: 300 },
-            { x: 580, y: 300 },
-            { x: 320, y: 150 }
-        ];
-
-        // Crea las plataformas a partir de las coordenadas del array anterior y también las añade al mundo físico
-        platformPositions.forEach(pos => {
-            //Crea una plataforma vacia estatica
-            const platform = this.physics.add.staticGroup();
-            //Crea la plataforma en la escena con sus cordenadas y textura
-            platform.create(pos.x, pos.y, 'ground').refreshBody();
-            //añade esta plataforma al array de plataformas
-            this.platforms.push(platform);
-        });
-
-        //Recorre el array de plataformas y le añade colision con el jugador a cada una
-        this.platforms.forEach(platform => {
-            this.physics.add.collider(this.player, platform);
-        });
-
-        //Recorre el array de enemigos, y por cada enemigo recorre el array de plataformas y le agrega colision
-        this.enemies.forEach(enemy => {
-            this.platforms.forEach(platform => {
-                this.physics.add.collider(enemy, platform);
-            });
-        });
-
-        this.btnA = this.add.sprite(550, 280, 'button').setInteractive(); 
-        this.btnA.setScale(0.5); 
+        this.btnA = this.add.sprite(550, 280, 'button').setInteractive();
+        this.btnA.setScale(0.5);
 
         //Controles de teclado
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -116,6 +80,31 @@ class Main extends Phaser.Scene {
         this.joystickCursors = this.joyStick.createCursorKeys();
 
         this.player.setControls(this.cursors, this.joystickCursors, this.btnA);
+        // Iterate over the collisions2D array to draw red rectangles for elements with a value of 10
+      
+      
+        this.colliders = this.physics.add.staticGroup();
+
+        this.collisions2D.forEach((row, rowIndex) => {
+            row.forEach((symbol, colIndex) => {
+                if (symbol === 10) {
+                    // Añadir el rectángulo rojo a la física
+                    const box = this.colliders.create(colIndex * 32, rowIndex * 32, null)
+                        .setOrigin(0, 0)  // Establecer el origen para que sea desde la esquina superior izquierda
+                        .setDisplaySize(32, 32)
+                        .refreshBody(); // Refrescar el cuerpo de la física
+                        box.setVisible(false);
+
+                    this.physics.add.collider(this.player, this.colliders);
+                    this.physics.add.collider(this.enemies, this.colliders);
+                }
+            });
+        });
+
+        
+        this.physics.world.setBounds(0, 0, this.bg.width, this.bg.height);
+        this.cameras.main.setBounds(0, 0, this.bg.width, this.bg.height);
+        this.cameras.main.startFollow(this.player)
     }
 
     update() {
@@ -128,8 +117,6 @@ class Main extends Phaser.Scene {
             //Por cada enemigo checa si hay colision con el jugador y le manda la informacion al enemigo
             if (this.checkCollision(this.player, enemy)) {
                 enemy.attack(true);
-            } else {
-                enemy.attack(false);
             }
         });
 
@@ -155,7 +142,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: false
+            debug: true
         }
     }
 }

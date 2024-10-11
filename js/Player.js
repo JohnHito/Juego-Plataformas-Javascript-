@@ -8,6 +8,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Se añade a si mismo a las fisicas de la escena existente
         scene.physics.add.existing(this);
 
+        //Modifica el tamaño de la hitbox del jugador
+        this.body.setSize(50, 125);
+        this.body.setOffset(110, 40);
+
         //Crea variables locales que guarden las variables recibidas por parametro
         this.cursors = null;
         this.joystickCursors = null;
@@ -27,8 +31,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.inGround = false;
         this.summoning = false;
 
-        this.jumpHight = 1000;
+        this.jumpHight = 2000;
         this.speed = 70;
+
+        this.camerabox = {
+            position: {
+              x: this.body.position.x,
+              y: this.body.position.y,
+            },
+            width: 200,
+            height: 80,
+          }
+        
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
     }

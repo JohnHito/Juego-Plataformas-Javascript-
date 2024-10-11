@@ -8,6 +8,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         //Se añade a si mismo a las fisicas de la escena existente
         scene.physics.add.existing(this);
 
+        //Modifica el tamaño de la hitbox del enemigo
+        this.body.setSize(50, 110);
+        this.body.setOffset(110, 53);
+
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
 
@@ -60,22 +64,33 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     update() {
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
-
         //IA
         //Si el enemigo esta 
+        this.on('animationcomplete-attack', () => {
+            this.attacking = false;
+        });
+
         if (this.attacking) {
             this.play("attack", true);
-        } else if (this.player.x > this.x+10) {
+        }
+        if (this.player.x > this.x + 10 && !this.attacking) {
             this.setVelocityX(this.speed);
-            this.play("walk", true);
+            if (this.body.velocity.x != 0) {
+                this.play("walk", true);
+            } else {
+                this.play("idle", true);
+            }
             this.flipX = false;
-        } else if (this.player.x < this.x-10) {
-            this.setVelocityX(this.speed*-1);
-            this.play("walk", true);
+        } else if (this.player.x < this.x - 10 && !this.attacking) {
+            this.setVelocityX(this.speed * -1);
+            if (this.body.velocity.x != 0) {
+                this.play("walk", true);
+            } else {
+                this.play("idle", true);
+            }
             this.flipX = true;
-        } else {
+        } else if (!this.attacking) {
             this.play("idle", true);
-
         }
 
     }
