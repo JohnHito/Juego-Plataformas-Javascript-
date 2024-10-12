@@ -340,6 +340,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.btn1.setTexture("btn_summon")
         }
+
+        if (this.canJump) {
+            this.btn2.setAlpha(0.7);
+        } else {
+            this.btn2.setAlpha(0.3);
+        }
     }
     isReadyToAttack() {
         return (this.cursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete) ||
