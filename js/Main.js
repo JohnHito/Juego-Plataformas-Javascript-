@@ -31,7 +31,6 @@ class Main extends Phaser.Scene {
         this.load.plugin('rexvirtualjoystickplugin', url, true);
 
         //Se precarga la imagen de las plataformas
-        this.load.image('button', '/assets/sprites/button.png');
         this.load.image('level1Bg', '/assets/levels/level1.png');
 
         //Se precarga spritesheet del jugador
@@ -40,8 +39,13 @@ class Main extends Phaser.Scene {
         this.load.spritesheet("effect_hammer_smash", "/assets/sprites/hammer_smash.png", { frameWidth: 270, frameHeight: 164, });
         //Se precarga spritesheet del enemigo
         this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", { frameWidth: 270, frameHeight: 164, });
-        //Se precarga spritesheet del enemigo
-        this.load.spritesheet("proyectile", "/assets/sprites/fire_ball.png", { frameWidth: 96, frameHeight: 32, });
+
+        this.load.image("proyectile", "/assets/sprites/fire_ball.png");
+        this.load.image("btn_jump", "/assets/sprites/btn_jump.png");
+        this.load.image("btn_attack", "/assets/sprites/btn_attack.png");
+        this.load.image("btn_summon", "/assets/sprites/btn_summon.png");
+        this.load.image("btn_fall", "/assets/sprites/btn_fall.png");
+        this.load.image("gui", "/assets/sprites/gui.png");
     }
 
 
@@ -63,26 +67,20 @@ class Main extends Phaser.Scene {
 
 
         this.player.enemies = this.enemies
-
-        this.btnA = this.add.sprite(550, 280, 'button').setInteractive();
-        this.btnA.setScale(0.5);
-
         //Controles de teclado
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        //Boton tactil
-        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         //Crea un joystick para moverse desde celular a partir de un pluguin
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
             x: 80,
             y: 280,
             radius: 80,
-            base: this.add.circle(0, 0, 50, 0x888888),
-            thumb: this.add.circle(0, 0, 15, 0xcccccc),
+            base: this.add.circle(0, 0, 70, 0x5C65C0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
+            thumb: this.add.circle(0, 0, 25, 0x6F95FF).setAlpha(0.5),
         });
         this.joystickCursors = this.joyStick.createCursorKeys();
 
-        this.player.setControls(this.cursors, this.joystickCursors, this.btnA);
+        this.player.setControls(this.cursors, this.joystickCursors);
 
 
         this.colliders = this.physics.add.staticGroup();
@@ -109,6 +107,13 @@ class Main extends Phaser.Scene {
         //Pone a la camara a seguir al jugador
         this.cameras.main.startFollow(this.player)
 
+        const btn1 = this.add.image(500, 300, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        const btn2 = this.add.image(560, 200, 'btn_jump').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        const gui = this.add.image(140, 60, 'gui').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        gui.scale = 0.7
+
+        this.player.btn1=btn1;
+        this.player.btn2=btn2;
     }
 
     update() {
@@ -142,6 +147,9 @@ const config = {
             gravity: { y: 3000 },
             debug: false
         }
+    },
+    input: {
+        activePointers: 5 // Permitir hasta 5 dedos simultáneamente (puedes cambiar este número)
     }
 }
 

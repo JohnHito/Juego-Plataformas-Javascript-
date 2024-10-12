@@ -4,6 +4,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, y, x, key);
         //Se añade a si mismo a la escena existente
         scene.add.existing(this);
+        this.scene = scene;
 
         //Se añade a si mismo a las fisicas de la escena existente
         scene.physics.add.existing(this);
@@ -16,6 +17,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Crea variables locales que guarden las variables recibidas por parametro
         this.cursors = null;
         this.joystickCursors = null;
+        this.btn1Down = false;
+        this.btn2Down = false;
+        this.btn1 = null;
+        this.btn2 = null;
         //Agrega la deteccion de la tecla A
         this.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 
@@ -29,7 +34,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.stop = false;
         this.attacking = false;
         this.canJump = true;
-        this.hasWeapon = true;
+        this.hasWeapon = false;
         this.inGround = false;
         this.summoning = false;
 
@@ -54,7 +59,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.attackHitbox = attackHitbox;
         scene.physics.add.existing(this.attackHitbox);
         this.attackHitbox.body.setAllowGravity(false);
-            }
+    }
     createAnimations() {
         //Crea variables constantes con una key, y con los frames necesairos desde el player sheet
         //Animaciones Base
@@ -165,10 +170,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create(weaponHitGround)
     }
 
-    setControls(cursors, joystickCursors, btnA) {
+    setControls(cursors, joystickCursors) {
         this.cursors = cursors;
         this.joystickCursors = joystickCursors;
-        this.btnA = btnA;
         //Agrega la deteccion de la tecla A
     }
 
@@ -184,7 +188,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         //Mueve la hitbox de ataque a su area correspondiente
         this.attackHitbox.x = this.x + (this.flipX ? -80 : 80); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
-        this.attackHitbox.y = this.y-20;
+        this.attackHitbox.y = this.y - 20;
         //Detecta si una animacion se termino. para ejecutar algo
         this.on('animationcomplete-hitGround', () => {
             this.isHitGroundComplete = true;
@@ -240,11 +244,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.isHitGroundComplete = false;
         }
 
+        this.btn1.on('pointerdown', () => {
+            this.btn1Down = true;
+        });
+        this.btn1.on('pointerup', () => {
+            this.btn1Down = false;
+        });
+        this.btn2.on('pointerdown', () => {
+            this.btn2Down = true;
+        });
+        this.btn2.on('pointerup', () => {
+            this.btn2Down = false;
+        });
+
         //Controlar animacion idle
         if (!this.stop && this.body.velocity.x == 0 && this.body.velocity.y == 0
             && this.isHitGroundComplete && !this.cursors.up.isDown && !this.cursors.down.isDown
-            && !this.cursors.left.isDown && !this.cursors.right.isDown && !this.joystickCursors.up.isDown
-            && !this.joystickCursors.down.isDown && !this.joystickCursors.left.isDown && !this.joystickCursors.right.isDown) {
+            && !this.cursors.left.isDown && !this.cursors.right.isDown && !this.btn2Down
+            && !this.btn1Down && !this.joystickCursors.left.isDown && !this.joystickCursors.right.isDown) {
 
             if (this.hasWeapon) {
                 this.play("weaponIdle", true);
@@ -260,11 +277,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.anims.currentAnim.key === 'attack' && this.anims.currentFrame.index === 7) {
                 this.checkMeleeCollision();
                 this.attackHitbox.play("effect", true);
+                this.scene.cameras.main.shake(180, 0.03);
+
             }
         }
 
         //Control para saltar
-        if (!this.stop && this.cursors.up.isDown == true || !this.stop && this.joystickCursors.up.isDown) {
+        if (!this.stop && this.cursors.up.isDown == true || !this.stop && this.btn2Down) {
             if (this.canJump) {
                 this.setVelocityY(this.jumpHight * -1);
                 this.canJump = false;
@@ -308,22 +327,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         //Habilidad especial
-        if (!this.stop && this.keyA.isDown && this.inGround && !this.hasWeapon) {
+        if (!this.stop && this.btn1Down && this.inGround && !this.hasWeapon) {
             this.stop = true;
             this.play("weaponSummon", true);
         }
-
-        this.btnA.on('pointerdown', () => {
-            if (!this.stop && this.inGround && !this.hasWeapon) {
-                this.stop = true;
-                this.play("weaponSummon", true);
+        if (this.hasWeapon) {
+            if (this.body.velocity.y > 1000) {
+                this.btn1.setTexture("btn_fall")
+            } else {
+                this.btn1.setTexture("btn_attack")
             }
-
-        });
+        } else {
+            this.btn1.setTexture("btn_summon")
+        }
     }
     isReadyToAttack() {
         return (this.cursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete) ||
-            (this.joystickCursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete);
+            (this.btn1Down && this.inGround && this.hasWeapon && this.isHitGroundComplete);
     }
 
     checkMeleeCollision() {

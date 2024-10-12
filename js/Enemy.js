@@ -4,7 +4,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         super(scene, y, x, key);
         //Se añade a si mismo a la escena existente
         scene.add.existing(this);
-
+        this.scene = scene;
         //Se añade a si mismo a las fisicas de la escena existente
         scene.physics.add.existing(this);
 
@@ -100,6 +100,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                         this.player.setVelocityY(-300)
                         this.player.setTint(0xff0000);
                         this.player.reset()
+                        this.scene.cameras.main.shake(50, 0.009);
+
                         setTimeout(() => {
                             this.player.clearTint()
                         }, 500)
