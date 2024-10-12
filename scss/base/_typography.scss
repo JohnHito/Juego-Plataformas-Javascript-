@@ -1,0 +1,50 @@
+@use "../abstracts/vars" as vars;
+
+.nav-list-link{
+    color: vars.$clr-white;
+    text-decoration: none;
+    font-size: vars.$fs-md;
+}
+
+.title-font{
+    font-family: vars.$ff-secondary;
+}
+
+.main-title{
+    font-size: vars.$fs-gt;
+}
+
+.secondary-title{
+    font-size: vars.$fs-xxlg;
+}
+
+.small-title{
+    font-size: vars.$fs-xxmd;
+}
+
+.review-title{
+    font-size: vars.$fs-xlg;
+}
+
+.description{
+    font-size: vars.$fs-xmd;
+}
+
+.text-center{
+    text-align: center;
+}
+
+.txt{
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+}
+
+.txt::placeholder{
+    color: vars.$clr-secondary;
+}
+
+.footer-title{
+    padding-bottom: 1rem;
+    font-size: vars.$fs-xmd;
+    font-family: vars.$ff-secondary;
+}

@@ -1,0 +1,21 @@
+@use "../abstracts/vars" as vars;
+
+.btn{
+    background: vars.$clr-white;
+    color: vars.$clr-secondary;
+    text-decoration: none;
+    border-radius: 2.5rem;
+    padding: 1rem 3rem;
+    font-weight: vars.$fw-bold;
+    font-size: vars.$fs-md;
+}
+
+.submit{
+    border: none;
+    padding: .5rem;
+    border-radius: 1rem;
+    color: vars.$clr-white;
+    background: vars.$clr-secondary;
+    position: relative;
+    right: 2rem;
+}
