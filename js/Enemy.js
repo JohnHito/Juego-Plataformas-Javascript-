@@ -12,13 +12,27 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(50, 110);
         this.body.setOffset(110, 53);
 
+        //Crea una hitbox para la deetccion de ataque melee del enemigo
+        this.attackHitbox = scene.add.rectangle(this.x, this.y, 80, 100);
+        scene.physics.add.existing(this.attackHitbox);
+        this.attackHitbox.body.setAllowGravity(false);
+
+        //Crea una hitbox para la deetccion de ataque a distancia del enemigo
+        this.rangeAttackHitbox = scene.add.rectangle(this.x, this.y, 450, 100);
+        scene.physics.add.existing(this.rangeAttackHitbox);
+        this.rangeAttackHitbox.body.setAllowGravity(false);
+
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
 
         this.speed = speed;
         this.player = player;
         this.attacking = false;
-
+        this.attackingRange = false;
+        this.health = 5;
+        this.stop = false;
+        this.inmmune = false;
+        this.scale=0.7
     }
     createAnimations() {
 
@@ -38,7 +52,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         const attack = {
             key: "attack",
             frames: this.anims.generateFrameNumbers("enemySheet", { frames: [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51] }),
-            frameRate: 16,
+            frameRate: 20,
             repeat: 0
         }
         const dead = {
@@ -61,37 +75,113 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     attack(collision) {
         this.attacking = collision;
     }
+
     update() {
+        this.attackHitbox.x = this.x + (this.flipX ? -40 : 40); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
+        this.attackHitbox.y = this.y;
+        this.rangeAttackHitbox.x = this.x + (this.flipX ? -380 : 380); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
+        this.rangeAttackHitbox.y = this.y;
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
         //IA
-        //Si el enemigo esta 
-        this.on('animationcomplete-attack', () => {
-            this.attacking = false;
-        });
+        if (!this.stop) {
+            if (this.checkMeleeCollision()) {
+                this.attacking = true;
+            }
+            //Si el enemigo esta atacando
+            this.on('animationcomplete-attack', () => {
+                this.attacking = false;
+            });
 
-        if (this.attacking) {
-            this.play("attack", true);
-        }
-        if (this.player.x > this.x + 10 && !this.attacking) {
-            this.setVelocityX(this.speed);
-            if (this.body.velocity.x != 0) {
-                this.play("walk", true);
-            } else {
+            this.on('animationupdate', (animation, frame) => {
+                if (animation.key === 'attack' && !this.attackingRange && frame.index === 7) {
+                    if (this.checkMeleeCollision()) {
+                        this.player.setVelocityX(this.flipX ? -800 : 800)
+                        this.player.setVelocityY(-300)
+                        this.player.setTint(0xff0000);
+                        this.player.reset()
+                        setTimeout(() => {
+                            this.player.clearTint()
+                        }, 500)
+                    }
+                }
+            });
+
+            if (this.attacking) {
+                this.play("attack", true);
+            }
+
+            if (this.player.x > this.x + 10 && !this.attacking) {
+                this.setVelocityX(this.speed);
+                if (this.body.velocity.x != 0) {
+                    this.play("walk", true);
+                } else {
+                    this.play("idle", true);
+                }
+                this.flipX = false;
+            } else if (this.player.x < this.x - 10 && !this.attacking) {
+                this.setVelocityX(this.speed * -1);
+                if (this.body.velocity.x != 0) {
+                    this.play("walk", true);
+                } else {
+                    this.play("idle", true);
+                }
+                this.flipX = true;
+            } else if (!this.attacking) {
                 this.play("idle", true);
             }
-            this.flipX = false;
-        } else if (this.player.x < this.x - 10 && !this.attacking) {
-            this.setVelocityX(this.speed * -1);
-            if (this.body.velocity.x != 0) {
-                this.play("walk", true);
-            } else {
-                this.play("idle", true);
-            }
-            this.flipX = true;
-        } else if (!this.attacking) {
-            this.play("idle", true);
         }
 
+        if (this.health <= 0 && !this.stop) {
+            this.dead()
+        }
+    }
+
+    dead() {
+        this.stop = true;
+        this.play("dead", true)
+        this.attackHitbox.destroy()
+        this.rangeAttackHitbox.destroy()
+        this.body.destroy()
+    }
+    takeDamage(damage) {
+        if (!this.inmmune) {
+            this.health -= damage;
+            this.inmmune = true;
+            this.setVelocityX(this.flipX ? -800 : 800)
+            this.setVelocityY(-300)
+            this.setTint(0xff0000);
+            this.reset()
+            setTimeout(() => {
+                this.clearTint()
+                this.inmmune = false
+            }, 1000)
+        }
+    }
+
+    reset() {
+        this.attacking = false;
+        this.attackingRange = false;
+    }
+    //Metodo de checkeo de colisiones
+    checkMeleeCollision() {
+        const playerBounds = this.player.body;  // Access the player's body hitbox
+        const meleBounds = this.attackHitbox.body;    // Access the enemy's body hitbox
+
+        // Check if the hitboxes (bodies) intersect
+        return Phaser.Geom.Intersects.RectangleToRectangle(
+            new Phaser.Geom.Rectangle(playerBounds.x, playerBounds.y, playerBounds.width, playerBounds.height),
+            new Phaser.Geom.Rectangle(meleBounds.x, meleBounds.y, meleBounds.width, meleBounds.height)
+        );
+    }
+    checkRangeCollision() {
+        const playerBounds = this.player.body;  // Access the player's body hitbox
+        const rangeBounds = this.rangeAttackHitbox.body;    // Access the enemy's body hitbox
+
+        // Check if the hitboxes (bodies) intersect
+        return Phaser.Geom.Intersects.RectangleToRectangle(
+            new Phaser.Geom.Rectangle(playerBounds.x, playerBounds.y, playerBounds.width, playerBounds.height),
+            new Phaser.Geom.Rectangle(rangeBounds.x, rangeBounds.y, rangeBounds.width, rangeBounds.height)
+        );
     }
 }

@@ -1,6 +1,7 @@
 //Import de clases
 import Player from '/js/Player.js';
 import Enemy from '/js/Enemy.js';
+import Effect from '/js/Effect.js';
 import Background from '/js/Background.js';
 
 class Main extends Phaser.Scene {
@@ -22,6 +23,7 @@ class Main extends Phaser.Scene {
         }
 
     }
+
     preload() {
 
         //Se añade el pluguin del joystick
@@ -30,22 +32,16 @@ class Main extends Phaser.Scene {
 
         //Se precarga la imagen de las plataformas
         this.load.image('button', '/assets/sprites/button.png');
-
         this.load.image('level1Bg', '/assets/levels/level1.png');
 
         //Se precarga spritesheet del jugador
-        this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", {
-            //Se mandan las dimensiones de la mascara para cada frame de las animaciones
-            frameWidth: 270,
-            frameHeight: 164,
-        });
-
+        this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", { frameWidth: 270, frameHeight: 164, });
+        //Se precarga spritesheet del jugador
+        this.load.spritesheet("effect_hammer_smash", "/assets/sprites/hammer_smash.png", { frameWidth: 270, frameHeight: 164, });
         //Se precarga spritesheet del enemigo
-        this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", {
-            //Se mandan las dimensiones de la mascara para cada frame de las animaciones
-            frameWidth: 270,
-            frameHeight: 164,
-        });
+        this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", { frameWidth: 270, frameHeight: 164, });
+        //Se precarga spritesheet del enemigo
+        this.load.spritesheet("proyectile", "/assets/sprites/fire_ball.png", { frameWidth: 96, frameHeight: 32, });
     }
 
 
@@ -55,19 +51,26 @@ class Main extends Phaser.Scene {
 
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
         this.player = new Player(this, 440, 440, 'playerSheet')
-        this.player.setSpeed(400);
+        this.player.attackHitbox = new Effect(this, 0, 0, 'effect_hammer_smash')
+        this.player.speed = 300;
         this.player.scale = 0.7;
-
         //Agrega 2 enemigos al array de enemigos
         this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 100));
-        this.enemies[0].scale = 0.7;
-          
+        this.enemies.push(new Enemy(this, 580, 460, 'enemySheet', this.player, 150));
+        this.enemies.push(new Enemy(this, 680, 460, 'enemySheet', this.player, 120));
+        this.enemies.push(new Enemy(this, 780, 460, 'enemySheet', this.player, 170));
+        this.enemies.push(new Enemy(this, 880, 460, 'enemySheet', this.player, 200));
+
+
+        this.player.enemies = this.enemies
 
         this.btnA = this.add.sprite(550, 280, 'button').setInteractive();
         this.btnA.setScale(0.5);
 
         //Controles de teclado
         this.cursors = this.input.keyboard.createCursorKeys();
+
+        //Boton tactil
         this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         //Crea un joystick para moverse desde celular a partir de un pluguin
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
@@ -80,20 +83,18 @@ class Main extends Phaser.Scene {
         this.joystickCursors = this.joyStick.createCursorKeys();
 
         this.player.setControls(this.cursors, this.joystickCursors, this.btnA);
-        // Iterate over the collisions2D array to draw red rectangles for elements with a value of 10
-      
-      
-        this.colliders = this.physics.add.staticGroup();
 
+
+        this.colliders = this.physics.add.staticGroup();
         this.collisions2D.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 if (symbol === 10) {
                     // Añadir el rectángulo rojo a la física
                     const box = this.colliders.create(colIndex * 32, rowIndex * 32, null)
                         .setOrigin(0, 0)  // Establecer el origen para que sea desde la esquina superior izquierda
-                        .setDisplaySize(32, 32)
+                        .setDisplaySize(32, 32) //El tama;o de cada cuadro de colision
                         .refreshBody(); // Refrescar el cuerpo de la física
-                        box.setVisible(false);
+                    box.setVisible(false);
 
                     this.physics.add.collider(this.player, this.colliders);
                     this.physics.add.collider(this.enemies, this.colliders);
@@ -101,35 +102,32 @@ class Main extends Phaser.Scene {
             });
         });
 
-        
+        //Crea los limites del mundo
         this.physics.world.setBounds(0, 0, this.bg.width, this.bg.height);
+        //Agrega limite a la camara, para cuando llegue al borde no se salga
         this.cameras.main.setBounds(0, 0, this.bg.width, this.bg.height);
+        //Pone a la camara a seguir al jugador
         this.cameras.main.startFollow(this.player)
+
     }
 
     update() {
+        //Actualzia al jugador
         this.player.update();
 
         //Recorre el array de enemigos
         this.enemies.forEach(enemy => {
             //por cada enemigo llama al metodo update de este
-            enemy.update();
-            //Por cada enemigo checa si hay colision con el jugador y le manda la informacion al enemigo
-            if (this.checkCollision(this.player, enemy)) {
-                enemy.attack(true);
+            if (!enemy.stop) {
+                enemy.update();
             }
         });
 
     }
-
-    //Metodo de checkeo de colisiones
-    checkCollision(player, enemy) {
-        const playerBounds = player.getBounds();
-        const enemyBounds = enemy.getBounds();
-        return Phaser.Geom.Intersects.RectangleToRectangle(playerBounds, enemyBounds);
-    }
 }
 
+
+//Array de colisiones
 //Configuracion del proyecto
 const config = {
     type: Phaser.AUTO,
@@ -142,7 +140,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: true
+            debug: false
         }
     }
 }
