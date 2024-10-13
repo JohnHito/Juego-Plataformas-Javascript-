@@ -1,24 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="no-js" lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Plataformas</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Slimy Game</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+    <meta name="description" content="">
+
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <meta property="og:image:alt" content="">
+
+    <link rel="icon" href="/icon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#fafafa">
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&display=swap"
+        rel="stylesheet">
 </head>
 
-<body>
-    <button onclick="location.href='game.html'">Start Game</button>
-    <button onclick="location.href='../index.html'">Principal</button>
-    <button onclick="location.href='login.html'">Login</button>
-    <button onclick="location.href='ranking.html'">ranking</button>
-
-    <script src="../js/vendor/phaser.min.js"></script>
-    <script src="../js/data/level1.js"></script>
-    <script type="module" src="../js/Main.js"></script>
-
+<body class="clr-bg">
+  
     
+    <section class="game-section">
+        <header class="on-top">
+            <nav class="top-nav">
+
+                <!-- LOGO -->
+                <img class="main-logo" src="../img/logo.png" alt="logo">
+
+                <!-- NAV -->
+                <ul class="nav-list">
+                    <li><a class="nav-list-link" href="../index.html">Principal</a></li>
+                    <li><a class="nav-list-link" href="html/game.html">Game</a></li>
+                    <li><a class="nav-list-link" href="login.html">Story</a></li>
+                    <li><a class="nav-list-link" href="ranking.html">Rankings</a></li>
+                </ul>
+                <!-- LOGIN BTN -->
+                <a class="btn login-btn" href="#">LOGIN</a>
+            </nav>
+        </header>
+        <!-- FIRST BG IMAGE -->
+        <img class="full-width3" src="../img/bg1.png" alt="background">
+    </section>
+
+    <section class="game-screen">
+        <script src="../js/vendor/phaser.min.js"></script>
+        <script src="../js/data/level1.js"></script>
+        <script type="module" src="../js/Main.js"></script>
+    </section>
+
 </body>
 
 </html>

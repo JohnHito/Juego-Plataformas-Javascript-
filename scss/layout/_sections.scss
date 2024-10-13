@@ -10,3 +10,54 @@
 
     }
 }
+
+.section2 {
+    padding-top: 4rem;
+
+    @include mq.respond-to(mq.$phone) {
+        padding-top: 0rem;
+    }
+}
+
+.section3 {
+    padding-top: 16rem;
+    padding-bottom: 10rem;
+    @include mq.respond-to(mq.$phone) {
+        padding-top: 5rem;
+        padding-bottom: 14rem;
+
+    }
+}
+
+.footer{
+    background-color: vars.$clr-primary;
+    margin-top: 10rem;
+    padding-bottom: 10rem;
+}
+
+
+.game-section {
+    position: relative;  // Allows for child elements to be positioned correctly
+    
+}
+
+.game-screen {
+    display: flex;  // Flex layout to center child elements
+    justify-content: center;  // Center horizontally
+    width: 900px;  // Set a specific width for the game screen
+    margin: 0 auto;  // Center the game screen by using auto margins
+
+}
+
+
+canvas {
+    display: block;  // Ensure it's a block element
+    position: absolute;  // Keep the absolute positioning
+    border: 2px solid thistle;  // Keep your border styling
+    width: 90%;  // Set width to a percentage for responsiveness
+    max-width: 1080px;  // Set a maximum width to maintain size limit
+    height: auto;  // Automatically adjust height based on width
+    left: 50%;  // Start at the middle of the viewport
+    transform: translateX(-50%);  // Adjust the canvas to center it based on its width
+    margin-top: 4rem;  // Margin for spacing
+}

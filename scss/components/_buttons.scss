@@ -14,7 +14,7 @@
     transition: background-color 0.3s ease, color 0.3s ease;
     background-color: transparent;
     /* Default background */
-    margin-left: 2rem;
+    // margin-left: 2rem;
     /* Add margin for spacing */
 
     /* Hover effects */
@@ -24,7 +24,9 @@
         color: white;
         /* Change text color on hover */
     }
+}
 
+.login-btn {
     @include mq.respond-to(mq.$phone) {
         position: absolute;
         right: 10px;
@@ -33,6 +35,20 @@
         display: block;
         scale: 70%;
     }
+}
+
+.play-btn {
+    background-color: vars.$clr-white;
+    color: vars.$clr-bg;
+    font-family: vars.$ff-secondary;
+    font-size: vars.$fs-md;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.card-btn {
+    padding-left: 3rem;
+    padding-right: 3rem;
 }
 
 .submit {

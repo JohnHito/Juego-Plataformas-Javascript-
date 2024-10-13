@@ -1,7 +1,8 @@
 @use "../abstracts/vars" as vars;
 @use "../abstracts/media-queries" as mq;
 
-h1 {
+h1,
+p {
     color: vars.$clr-white;
 }
 
@@ -31,6 +32,25 @@ h1 {
 
 .small-title {
     font-size: vars.$fs-xxmd;
+
+    @include mq.respond-to(mq.$phone) {
+        font-size: vars.$fs-xmd;
+        margin-top: -1rem;
+        margin-bottom: -3rem;
+
+    }
+}
+.small-title2 {
+    font-size: vars.$fs-xxmd;
+    padding-top: 5rem;
+
+    @include mq.respond-to(mq.$phone) {
+        padding-top: 0rem;
+        font-size: vars.$fs-xmd;
+        margin-top: -1rem;
+        margin-bottom: -3rem;
+
+    }
 }
 
 .description {
