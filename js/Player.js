@@ -38,7 +38,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.inGround = false;
         this.summoning = false;
 
-        this.jumpHight = 2000;
+        this.jumpHight = 1000;
         this.speed = 70;
 
         this.camerabox = {
@@ -209,7 +209,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Control si el jugador esta colisionando con algo
         if (this.body.blocked.down) {
             this.inGround = true;
-            this.canJump = true;
+            setTimeout(() => {
+                this.canJump = true;
+            },200)
+
         } else {
             this.inGround = false;
         }

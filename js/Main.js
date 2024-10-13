@@ -56,7 +56,7 @@ class Main extends Phaser.Scene {
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
         this.player = new Player(this, 440, 440, 'playerSheet')
         this.player.attackHitbox = new Effect(this, 0, 0, 'effect_hammer_smash')
-        this.player.speed = 300;
+        this.player.speed = 320;
         this.player.scale = 0.7;
         //Agrega 2 enemigos al array de enemigos
         this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 100));
@@ -145,7 +145,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: false
+            debug: true
         }
     },
     input: {
