@@ -1,14 +1,16 @@
-$clr-main: 	hsl(309, 62%, 28%);
-$clr-secondary: hsl(334, 87%, 39%);
-$clr-white: hsl(0, 0%, 100%);
+$clr-bg: #3C2A4D;
+$clr-secondary: #6F95FF;
+$clr-primary: #5C65C0;
+$clr-white: #E0F0EA;
 
 $fw-regular: 400;
 $fw-semibold: 600;
 $fw-bold: 700;
 
 $ff-main: "Montserrat", sans-serif;
-$ff-secondary: "Amatic SC", sans-serif;
+$ff-secondary: "Londrina Solid", sans-serif;
 
+$fs-xs: 0.8rem; //20px
 $fs-sm: 1.25rem; //20px
 $fs-md: 1.563rem; //25px
 $fs-xmd: 1.875rem; //30px

@@ -1,49 +1,56 @@
 @use "../abstracts/vars" as vars;
+@use "../abstracts/media-queries" as mq;
 
-.nav-list-link{
+h1 {
     color: vars.$clr-white;
+}
+
+.nav-list-link {
     text-decoration: none;
     font-size: vars.$fs-md;
 }
 
-.title-font{
+.title-font {
     font-family: vars.$ff-secondary;
 }
 
-.main-title{
-    font-size: vars.$fs-gt;
+.main-title {
+    font-size: vars.$fs-xxlg;
+
+    @include mq.respond-to(mq.$phone) {
+        font-size: vars.$fs-lg;
+        margin-left: -4rem;
+        margin-right: -4rem;
+        margin-top: -4rem;
+    }
 }
 
-.secondary-title{
+.secondary-title {
     font-size: vars.$fs-xxlg;
 }
 
-.small-title{
+.small-title {
     font-size: vars.$fs-xxmd;
 }
 
-.review-title{
-    font-size: vars.$fs-xlg;
-}
-
-.description{
+.description {
     font-size: vars.$fs-xmd;
 }
 
-.text-center{
+.text-center {
     text-align: center;
 }
 
-.txt{
+.txt {
     padding: .5rem 1rem;
     border-radius: 1rem;
 }
 
-.txt::placeholder{
+.txt::placeholder {
     color: vars.$clr-secondary;
 }
 
-.footer-title{
+.footer-title {
     padding-bottom: 1rem;
     font-size: vars.$fs-xmd;
     font-family: vars.$ff-secondary;

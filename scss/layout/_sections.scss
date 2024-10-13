@@ -1,0 +1,12 @@
+@use "../abstracts/vars" as vars;
+@use "../abstracts/media-queries" as mq;
+
+
+.section1 {
+    height: 625px;
+
+    @include mq.respond-to(mq.$phone) {
+        height: 425px;
+
+    }
+}

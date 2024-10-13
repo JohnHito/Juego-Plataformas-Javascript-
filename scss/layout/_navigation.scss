@@ -1,0 +1,48 @@
+@use "../abstracts/vars" as vars;
+@use "../abstracts/media-queries" as mq;
+
+.top-nav {
+    display: flex;
+    justify-content: space-between; /* Keep space between items on larger screens */
+    align-items: center;
+    position: relative; /* Required for absolute positioning of the logo */
+    padding: 1rem 2rem;
+}
+
+.main-logo {
+    max-width: 150px;
+
+    /* Default position for larger screens */
+    position: static;
+    @include mq.respond-to(mq.$phone) {
+        max-width: 100px; /* Resize logo on mobile */
+        display: block; /* Ensure it is treated as a block element */
+    }
+}
+
+.nav-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 2rem; /* Space between items */
+    flex-grow: 1; /* Take remaining space */
+    justify-content: center; /* Center nav items */
+
+    @include mq.respond-to(mq.$phone) {
+        position: absolute;
+        gap: 1rem; /* Space between items */
+        top: 90px; /* Adjust this value as needed */
+        left: 20px;
+    }
+}
+
+.nav-list-link {
+    text-decoration: none;
+    color: vars.$clr-white;
+    /* Define your color variable */
+    font-size: vars.$fs-md;
+    /* Define your font size variable */
+    @include mq.respond-to(mq.$phone) {
+        font-size: vars.$fs-sm;
+    }
+}

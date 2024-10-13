@@ -1,20 +1,45 @@
 @use "../abstracts/vars" as vars;
+@use "../abstracts/media-queries" as mq;
 
-.btn{
-    background: vars.$clr-white;
-    color: vars.$clr-secondary;
+.btn {
+    display: inline-block;
+    /* Ensures the button respects padding and margins */
+    color: vars.$clr-white;
     text-decoration: none;
-    border-radius: 2.5rem;
-    padding: 1rem 3rem;
-    font-weight: vars.$fw-bold;
-    font-size: vars.$fs-md;
+    border-radius: 1rem;
+    border: 0.1rem solid vars.$clr-white;
+    padding: 0.5rem 1.5rem;
+    font-size: vars.$fs-sm;
+    text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: transparent;
+    /* Default background */
+    margin-left: 2rem;
+    /* Add margin for spacing */
+
+    /* Hover effects */
+    &:hover {
+        background-color: vars.$clr-secondary;
+        /* Change to your preferred hover color */
+        color: white;
+        /* Change text color on hover */
+    }
+
+    @include mq.respond-to(mq.$phone) {
+        position: absolute;
+        right: 10px;
+        top: 20px;
+        max-width: 100px;
+        display: block;
+        scale: 70%;
+    }
 }
 
-.submit{
+.submit {
     border: none;
     padding: .5rem;
     border-radius: 1rem;
-    color: vars.$clr-white;
+    color: vars.$clr-bg;
     background: vars.$clr-secondary;
     position: relative;
     right: 2rem;
