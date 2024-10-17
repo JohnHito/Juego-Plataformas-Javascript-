@@ -68,10 +68,10 @@ class Main extends Phaser.Scene {
 
         //Agrega 5 enemigos al array de enemigos (Temporal)
         this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 100));
-        this.enemies.push(new Enemy(this, 580, 460, 'enemySheet', this.player, 150));
-        this.enemies.push(new Enemy(this, 680, 460, 'enemySheet', this.player, 120));
-        this.enemies.push(new Enemy(this, 780, 460, 'enemySheet', this.player, 170));
-        this.enemies.push(new Enemy(this, 880, 460, 'enemySheet', this.player, 200));
+        //  this.enemies.push(new Enemy(this, 580, 460, 'enemySheet', this.player, 150));
+        //   this.enemies.push(new Enemy(this, 680, 460, 'enemySheet', this.player, 120));
+        // this.enemies.push(new Enemy(this, 780, 460, 'enemySheet', this.player, 170));
+        // this.enemies.push(new Enemy(this, 880, 460, 'enemySheet', this.player, 200));
 
         //Le manda el array de enemies al jugador
         this.player.enemies = this.enemies
@@ -97,6 +97,7 @@ class Main extends Phaser.Scene {
 
         //Llama al metodo generateWorld que se encarga de recorrer un array de cordenadas
         //y les agrega colision en cada posicion
+
         this.generateWorld(this.solidCollisions, true);
         this.generateWorld(this.plataformCollisions, false);
 
@@ -105,7 +106,7 @@ class Main extends Phaser.Scene {
         //Agrega limite a la camara, para cuando llegue al borde no se salga
         this.cameras.main.setBounds(0, 0, this.bg.width, this.bg.height);
         //Pone a la camara a seguir al jugador
-        this.cameras.main.startFollow(this.player, true, 0.08,0.08)
+        this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
 
         //Gui de celular
         const btn1 = this.add.image(500, 300, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
@@ -131,34 +132,190 @@ class Main extends Phaser.Scene {
         });
     }
 
+
+
     //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
     //collision en la posicion correspondiente
     generateWorld(collisions, isSolid) {
+
+        let sizeX = 32;
+        let sizeY = 32;
+        let colStart = null;
+        let rowStart = null;
+        let meshing = false;
+
         collisions.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 if (symbol != 0) {
-                    // Añade un hitbox de 32x32 que corresponde al tamaño de cada tile visual
-                    const box = this.colliders.create(colIndex * 32, rowIndex * 32, null)
-                        .setOrigin(0, 0)
-                        .setDisplaySize(32, 32)
-                        .refreshBody() // Refrescar el cuerpo de la física
-                        .setVisible(true);// Hace las colisiones invisibles
+                    if (colStart === null) {
+                        colStart = colIndex;
+                    } else {
+                        sizeX += 32;
+                    }
+                    meshing = true;
 
-                    //Si es no es solid, desactiba las colisiones del box menos las de arriba, permitiendo
-                    //al jugador pasar a travez de la plataforma desde abajo o los lados pero pararse en esta si esta arriba
-                    if (!isSolid) {
-                        box.body.checkCollision.down = false;
-                        box.body.checkCollision.left = false;
-                        box.body.checkCollision.right = false;
+                } else if (meshing) {
+                    if (sizeX > 32) {
+                        this.generateMeshCollision(colStart+0.2, rowIndex, sizeY, sizeX-18, isSolid);
+                        console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
                     }
 
-                    //Añade colision entre las plataformas. el jugador y los enemigos
-                    this.physics.add.collider(this.player, this.colliders);
-                    this.physics.add.collider(this.enemies, this.colliders);
+                    colStart = null;
+                    sizeX = 32;
+                    meshing = false;
                 }
             });
         });
+        // Reset variables for vertical meshing
+        sizeX = 32;
+        colStart = null;
+
+        // Vertical meshing logic
+        collisions[0].forEach((_, colIndex) => {
+            rowStart = null;
+            sizeY = 32;
+
+            for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
+                let symbol = collisions[rowIndex][colIndex];
+
+                if (symbol != 0 && rowIndex < collisions.length && collisions[rowIndex + 1][colIndex] != 0) {
+                    if (rowStart === null) {
+                        rowStart = rowIndex; // Start a new mesh vertically
+                        console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
+                    } else {
+                        sizeY += 32; // Increment height if we continue vertically
+                    }
+                } else if (rowStart !== null) {
+                    // Generate vertical mesh when there's a gap
+                    console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
+                    this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+                    rowStart = null;
+                    sizeY = 32; // Reset sizeY for the next vertical block
+                }
+            }
+
+            // If the last symbol in the column was part of a mesh, generate it
+            if (rowStart !== null) {
+                console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
+                this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+            }
+        });
+
     }
+    /*
+    generateWorld(collisions, isSolid) {
+        let sizeX = 32;
+        let sizeY = 32;
+        let colStart = null;
+        let rowStart = null;
+        let meshing = false;
+    
+        // Horizontal meshing logic (already working)
+        collisions.forEach((row, rowIndex) => {
+            row.forEach((symbol, colIndex) => {
+                if (symbol != 0) {
+                    if (colStart === null) {
+                        colStart = colIndex;
+                    } else {
+                        sizeX += 32;
+                    }
+                    meshing = true;
+                } else if (meshing) {
+                    if (sizeX > 32) {
+                        this.generateMeshCollision(colStart, rowIndex, sizeY, sizeX, isSolid);
+                        console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
+                    }
+                    colStart = null;
+                    sizeX = 32;
+                    meshing = false;
+                }
+            });
+        });
+    
+        // Reset variables for vertical meshing
+        sizeX = 32;
+        colStart = null;
+    
+        // Vertical meshing logic
+        collisions[0].forEach((_, colIndex) => {
+            rowStart = null;
+            sizeY = 32;
+    
+            for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
+                let symbol = collisions[rowIndex][colIndex];
+    
+                if (symbol != 0) {
+                    if (rowStart === null) {
+                        rowStart = rowIndex; // Start a new mesh vertically
+                        console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
+                    } else {
+                        sizeY += 32; // Increment height if we continue vertically
+                    }
+                } else if (rowStart !== null) {
+                    // Generate vertical mesh when there's a gap
+                    console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
+                    this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+                    rowStart = null;
+                    sizeY = 32; // Reset sizeY for the next vertical block
+                }
+            }
+    
+            // If the last symbol in the column was part of a mesh, generate it
+            if (rowStart !== null) {
+                console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
+                this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+            }
+        });
+    }
+    */
+    generateMeshCollision(posY, posX, sizeY, sizeX, isSolid) {
+        const box = this.colliders.create(posY * 32, posX * 32, null)
+            .setOrigin(0, 0)
+            .setDisplaySize(sizeX, sizeY)
+            .refreshBody() // Refrescar el cuerpo de la física
+            .setVisible(true);// Hace las colisiones invisibles
+
+        //Si es no es solid, desactiba las colisiones del box menos las de arriba, permitiendo
+        //al jugador pasar a travez de la plataforma desde abajo o los lados pero pararse en esta si esta arriba
+        if (!isSolid) {
+            box.body.checkCollision.down = false;
+            box.body.checkCollision.left = false;
+            box.body.checkCollision.right = false;
+        }
+
+        //Añade colision entre las plataformas. el jugador y los enemigos
+        this.physics.add.collider(this.player, this.colliders);
+        this.physics.add.collider(this.enemies, this.colliders);
+
+    }
+    //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
+    //collision en la posicion correspondiente
+    /*  generateWorld(collisions, isSolid) {
+          collisions.forEach((row, rowIndex) => {
+              row.forEach((symbol, colIndex) => {
+                  if (symbol != 0) {
+                      // Añade un hitbox de 32x32 que corresponde al tamaño de cada tile visual
+                      const box = this.colliders.create(colIndex * 32, rowIndex * 32, null)
+                          .setOrigin(0, 0)
+                          .setDisplaySize(32, 32)
+                          .refreshBody() // Refrescar el cuerpo de la física
+                          .setVisible(true);// Hace las colisiones invisibles
+  
+                      //Si es no es solid, desactiba las colisiones del box menos las de arriba, permitiendo
+                      //al jugador pasar a travez de la plataforma desde abajo o los lados pero pararse en esta si esta arriba
+                      if (!isSolid) {
+                          box.body.checkCollision.down = false;
+                          box.body.checkCollision.left = false;
+                          box.body.checkCollision.right = false;
+                      }
+  
+                      //Añade colision entre las plataformas. el jugador y los enemigos
+                      this.physics.add.collider(this.player, this.colliders);
+                      this.physics.add.collider(this.enemies, this.colliders);
+                  }
+              });
+          });
+      }*/
 }
 
 //Configuracion del proyecto
@@ -173,13 +330,14 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: false
+            debug: true
         }
     },
     input: {
-        activePointers: 5 // Permitir hasta 5 dedos simultáneamente
+        // Define la cantidad de dedos que pueden interactuar con la pantalla en celular a la vez
+        activePointers: 5
     }
 }
 
-// Create a new Phaser game instance
+//Crea una nueva instancia de juego de phaser
 const game = new Phaser.Game(config);
