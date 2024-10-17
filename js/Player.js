@@ -13,173 +13,35 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(50, 125);
         this.body.setOffset(110, 40);
 
-
-        //Crea variables locales que guarden las variables recibidas por parametro
+        //Variables
+        //Controles / GUI
         this.cursors = null;
         this.joystickCursors = null;
         this.btn1Down = false;
         this.btn2Down = false;
         this.btn1 = null;
         this.btn2 = null;
-        //Agrega la deteccion de la tecla A
-        this.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 
-        //Variables para controlar animaciones
+        //Control para animaciones y mecanicas
         this.falling = false;
         this.isHitGroundComplete = false;
         this.isJumpComplete = true;
-
-        this.enemies = [];
-        //Otras variables
-        this.stop = false;
         this.attacking = false;
         this.canJump = true;
         this.hasWeapon = false;
         this.inGround = false;
         this.summoning = false;
+        this.stop = false;
 
-        this.jumpHight = 1000;
-        this.speed = 70;
+        //Atributos del personaje
+        this.jumpHight = 1100;
+        this.speed = 80;
 
-        this.camerabox = {
-            position: {
-                x: this.body.position.x,
-                y: this.body.position.y,
-            },
-            width: 200,
-            height: 80,
-        }
+        //Array de enemigos
+        this.enemies = [];
 
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
-    }
-
-    createHitBox(attackHitbox) {
-        //Crea una hitbox para la deetccion de ataque melee del jugador
-        this.attackHitbox = attackHitbox;
-        scene.physics.add.existing(this.attackHitbox);
-        this.attackHitbox.body.setAllowGravity(false);
-    }
-    createAnimations() {
-        //Crea variables constantes con una key, y con los frames necesairos desde el player sheet
-        //Animaciones Base
-        const run = {
-            key: "run",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        const idle = {
-            key: "idle",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [48, 49, 50, 51, 52, 53] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        //Animaciones base de salto
-        /*const startJump = {
-            key: "startJump",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [25, 26, 27, 28, 29] }),
-            frameRate: 16,
-            repeat: 0
-        }*/
-        const goingUp = {
-            key: "goingUp",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [30] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        const falling = {
-            key: "falling",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [35] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        const hitGround = {
-            key: "hitGround",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [40, 41, 42, 43, 44] }),
-            frameRate: 18,
-            repeat: 0
-        }
-
-
-        //Animaciones con arma
-        const weaponSummon = {
-            key: "weaponSummon",
-            frames: this.anims.generateFrameNumbers("playerSheet", {
-                frames: [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88]
-            }),
-            frameRate: 12,
-            repeat: 0
-        }
-        const weaponRun = {
-            key: "weaponRun",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107] }),
-            frameRate: 18,
-            repeat: 0
-        }
-        const weaponIdle = {
-            key: "weaponIdle",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [90, 91, 92, 93] }),
-            frameRate: 10,
-            repeat: 0
-        }
-        const attack = {
-            key: "attack",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }),
-            frameRate: 18,
-            repeat: 0
-        }
-        //Animaciones de salto con arma
-        /* const weaponStartJump = {
-             key: "startJump",
-             frames: this.anims.generateFrameNumbers("playerSheet", { frames: [25, 26, 27, 28, 29] }),
-             frameRate: 16,
-             repeat: 0
-         }*/
-        const weaponGoingUp = {
-            key: "weaponGoingUp",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [113] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        const weaponFalling = {
-            key: "weaponFalling",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [120] }),
-            frameRate: 16,
-            repeat: -1
-        }
-        const weaponHitGround = {
-            key: "weaponHitGround",
-            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [122, 123, 124, 125, 126, 127] }),
-            frameRate: 18,
-            repeat: 0
-        }
-
-        //Utiliza funcciones del Phaser para crear las animaciones anteriormente definidas
-        this.anims.create(run)
-        this.anims.create(idle)
-        this.anims.create(goingUp)
-        this.anims.create(falling)
-        this.anims.create(hitGround)
-        this.anims.create(attack)
-        this.anims.create(weaponSummon)
-        this.anims.create(weaponRun)
-        this.anims.create(weaponIdle)
-        this.anims.create(weaponGoingUp)
-        this.anims.create(weaponFalling)
-        this.anims.create(weaponHitGround)
-    }
-
-    setControls(cursors, joystickCursors) {
-        this.cursors = cursors;
-        this.joystickCursors = joystickCursors;
-        //Agrega la deteccion de la tecla A
-    }
-
-    reset() {
-        this.summoning = false;
-        this.attacking = false;
-        this.stop = false;
     }
 
     update() {
@@ -210,8 +72,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.body.blocked.down) {
             this.inGround = true;
             setTimeout(() => {
-                this.canJump = true;
-            },200)
+                if (this.body.blocked.down) {
+                    this.canJump = true;
+                }
+            }, 200)
 
         } else {
             this.inGround = false;
@@ -354,6 +218,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return (this.cursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete) ||
             (this.btn1Down && this.inGround && this.hasWeapon && this.isHitGroundComplete);
     }
+    //Crea una hitbox para la deetccion de ataque melee del jugador
+    createHitBox(attackHitbox) {
+        this.attackHitbox = attackHitbox;
+        scene.physics.add.existing(this.attackHitbox);
+        this.attackHitbox.body.setAllowGravity(false);
+    }
+
+    setControls(cursors, joystickCursors) {
+        this.cursors = cursors;
+        this.joystickCursors = joystickCursors;
+        //Agrega la deteccion de la tecla A
+    }
+
+    reset() {
+        this.summoning = false;
+        this.attacking = false;
+        this.stop = false;
+    }
 
     checkMeleeCollision() {
         const meleeBounds = this.attackHitbox.body;
@@ -375,6 +257,105 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (enemiesHit.length > 0) {
             console.log('Hit enemies:', enemiesHit);
         }
+    }
+
+    createAnimations() {
+        //Crea variables constantes con una key, y con los frames necesairos desde el player sheet
+        //Animaciones Base
+        const run = {
+            key: "run",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23] }),
+            frameRate: 16,
+            repeat: -1
+        }
+        const idle = {
+            key: "idle",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [48, 49, 50, 51, 52, 53] }),
+            frameRate: 16,
+            repeat: -1
+        }
+
+        //Animaciones de salto
+        const goingUp = {
+            key: "goingUp",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [30] }),
+            frameRate: 16,
+            repeat: -1
+        }
+        const falling = {
+            key: "falling",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [35] }),
+            frameRate: 16,
+            repeat: -1
+        }
+        const hitGround = {
+            key: "hitGround",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [40, 41, 42, 43, 44] }),
+            frameRate: 18,
+            repeat: 0
+        }
+
+        //Animaciones con arma
+        const weaponSummon = {
+            key: "weaponSummon",
+            frames: this.anims.generateFrameNumbers("playerSheet", {
+                frames: [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88]
+            }),
+            frameRate: 12,
+            repeat: 0
+        }
+        const weaponRun = {
+            key: "weaponRun",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107] }),
+            frameRate: 18,
+            repeat: 0
+        }
+        const weaponIdle = {
+            key: "weaponIdle",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [90, 91, 92, 93] }),
+            frameRate: 10,
+            repeat: 0
+        }
+        const attack = {
+            key: "attack",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }),
+            frameRate: 18,
+            repeat: 0
+        }
+
+        //Animaciones de salto con arma
+        const weaponGoingUp = {
+            key: "weaponGoingUp",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [113] }),
+            frameRate: 16,
+            repeat: -1
+        }
+        const weaponFalling = {
+            key: "weaponFalling",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [120] }),
+            frameRate: 16,
+            repeat: -1
+        }
+        const weaponHitGround = {
+            key: "weaponHitGround",
+            frames: this.anims.generateFrameNumbers("playerSheet", { frames: [122, 123, 124, 125, 126, 127] }),
+            frameRate: 18,
+            repeat: 0
+        }
+
+        //Utiliza funcciones del Phaser para crear las animaciones anteriormente definidas
+        this.anims.create(run)
+        this.anims.create(idle)
+        this.anims.create(goingUp)
+        this.anims.create(falling)
+        this.anims.create(hitGround)
+        this.anims.create(attack)
+        this.anims.create(weaponSummon)
+        this.anims.create(weaponRun)
+        this.anims.create(weaponIdle)
+        this.anims.create(weaponGoingUp)
+        this.anims.create(weaponFalling)
+        this.anims.create(weaponHitGround)
     }
 
 }

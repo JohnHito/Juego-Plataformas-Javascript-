@@ -32,7 +32,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.health = 5;
         this.stop = false;
         this.inmmune = false;
-        this.scale=0.7
+        this.scale = 0.7
     }
     createAnimations() {
 
@@ -150,7 +150,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.inmmune) {
             this.health -= damage;
             this.inmmune = true;
-            this.setVelocityX(this.flipX ? -800 : 800)
+            if (this.flipX) {
+                this.setVelocityX(-6000)
+            } else {
+                this.setVelocityX(6000)
+            }
+
             this.setVelocityY(-300)
             this.setTint(0xff0000);
             this.reset()
