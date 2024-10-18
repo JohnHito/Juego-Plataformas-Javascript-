@@ -5,6 +5,7 @@ import Effect from '/js/entities/Effect.js';
 import Background from '/js/Background.js';
 import bottom from './data/bottom.js';
 import left_bottom from './data/left_bottom.js';
+import RoomController from './utils/RoomController.js';
 
 class Main extends Phaser.Scene {
 
@@ -18,37 +19,21 @@ class Main extends Phaser.Scene {
 
         //Crea dos array vacios, uno para las colisiones y otro para los enemigos
         this.enemies = [];
-
-        this.solidCollisions = []
-        for (let i = 0; i < left_bottom[1].fullCollisions.length; i += 30) {
-            this.solidCollisions.push(left_bottom[1].fullCollisions.slice(i, i + 30))
-        }
-        this.plataformCollisions = []
-        for (let i = 0; i < left_bottom[1].plataformCollisions.length; i += 30) {
-            this.plataformCollisions.push(left_bottom[1].plataformCollisions.slice(i, i + 30))
-        }
-
-        this.solidCollisions2 = []
-        for (let i = 0; i < bottom[1].fullCollisions.length; i += 30) {
-            this.solidCollisions2.push(bottom[1].fullCollisions.slice(i, i + 30))
-        }
-        this.plataformCollisions2 = []
-        for (let i = 0; i < bottom[1].plataformCollisions.length; i += 30) {
-            this.plataformCollisions2.push(bottom[1].plataformCollisions.slice(i, i + 30))
-        }
-
     }
 
     preload() {
-
         //Se añade el pluguin del joystick
         let url = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js';
         this.load.plugin('rexvirtualjoystickplugin', url, true);
 
 
         //Imagenes
+
         //Fondo
         this.load.image('level1Bg', '/assets/levels/level1.png');
+        this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
+        this.load.image('bottom1', '/assets/levels/bottom1.png');
+
         this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
         this.load.image('bottom1', '/assets/levels/bottom1.png');
 
@@ -69,24 +54,19 @@ class Main extends Phaser.Scene {
 
 
     create() {
-        //Crea nueva clase de Background, solo agrega la imagen de fondo
-        this.bg = new Background(this, 1, 1, 'left_bottom1')
-        this.bg2 = new Background(this, 2, 1, 'bottom1')
+        this.roomController = new RoomController(this, 0, 0);
+        this.roomController.create();
 
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
         this.player = new Player(this, 440, 440, 'playerSheet')
-
         //Le crea una hitbox extra al jugador para las detecciones de ataque
         this.player.attackHitbox = new Effect(this, 0, 0, 'effect_hammer_smash')
-        this.player.speed = 320;
+        this.player.speed = 620;
         this.player.scale = 0.7;
 
-        //Agrega 5 enemigos al array de enemigos (Temporal)
-        this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 100));
-        //  this.enemies.push(new Enemy(this, 580, 460, 'enemySheet', this.player, 150));
-        //   this.enemies.push(new Enemy(this, 680, 460, 'enemySheet', this.player, 120));
-        // this.enemies.push(new Enemy(this, 780, 460, 'enemySheet', this.player, 170));
-        // this.enemies.push(new Enemy(this, 880, 460, 'enemySheet', this.player, 200));
+        //Agrega enemigos al array de enemigos (Temporal)
+        this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 200));
+
 
         //Le manda el array de enemies al jugador
         this.player.enemies = this.enemies
@@ -110,21 +90,14 @@ class Main extends Phaser.Scene {
         //Crea colisiones
         this.colliders = this.physics.add.staticGroup();
 
-        //Llama al metodo generateWorld que se encarga de recorrer un array de cordenadas
-        //y les agrega colision en cada posicion
-
-        this.generateWorld(this.solidCollisions, true, 0, 0);
-        this.generateWorld(this.plataformCollisions, false, 0, 0);
-
-        this.generateWorld(this.solidCollisions2, true, 1, 0);
-        this.generateWorld(this.plataformCollisions2, false, 1, 0);
-
-        //Crea los limites del mundo
-        this.physics.world.setBounds(0, 0, this.bg.width * 2, this.bg.height);
         //Agrega limite a la camara, para cuando llegue al borde no se salga
-        this.cameras.main.setBounds(0, 0, this.bg.width * 2, this.bg.height);
+        //this.cameras.main.setBounds(0, 0, this.bg.width * 2, this.bg.height);
         //Pone a la camara a seguir al jugador
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+
+        this.roomController.colliders = this.colliders;
+        this.roomController.player = this.player;
+        this.roomController.generateRoom();
 
         //Gui de celular
         const btn1 = this.add.image(500, 300, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
@@ -149,147 +122,13 @@ class Main extends Phaser.Scene {
             }
         });
     }
-
-
-
-    //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
-    //collision en la posicion correspondiente
-    generateWorld(collisions, isSolid, chunkX, chunkY) {
-
-        let sizeX = 32;
-        let sizeY = 32;
-        let colStart = null;
-        let rowStart = null;
-        let meshing = false;
-
-        collisions.forEach((row, rowIndex) => {
-            row.forEach((symbol, colIndex) => {
-                if (symbol != 0) {
-                    if (colStart === null) {
-                        colStart = colIndex;
-                    } else {
-                        sizeX += 32;
-                    }
-                    meshing = true;
-
-                } else if (meshing) {
-                    if (sizeX > 32) {
-                        this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, chunkX, chunkY);
-                        console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
-                    }
-
-                    colStart = null;
-                    sizeX = 32;
-                    meshing = false;
-                }
-
-                if (colIndex === row.length - 1 && meshing) {
-                    // Finalize the mesh for the last column in the row
-                    if (sizeX > 32) {
-                        this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, chunkX, chunkY);
-                        console.log(`Last col mesh: Row: ${rowIndex}, colStart: ${colStart}, sizeX: ${sizeX}`);
-                    }
-
-                    colStart = null;
-                    sizeX = 32;
-                    meshing = false;
-                }
-            });
-        });
-
-        // Reset variables for vertical meshing
-        sizeX = 32;
-        colStart = null;
-
-        // Vertical meshing logic
-        collisions[0].forEach((_, colIndex) => {
-            rowStart = null;
-            sizeY = 32;
-
-            for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
-                let symbol = collisions[rowIndex][colIndex];
-
-                if (symbol != 0 && rowIndex < collisions.length - 1 && collisions[rowIndex + 1][colIndex] != 0) {
-
-                    if (rowStart === null) {
-                        rowStart = rowIndex; // Start a new mesh vertically
-                        console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
-                    } else {
-                        sizeY += 32; // Increment height if we continue vertically
-                    }
-                } else if (rowStart !== null) {
-                    // Generate vertical mesh when there's a gap
-                    console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
-                    this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, chunkX, chunkY);
-                    rowStart = null;
-                    sizeY = 32; // Reset sizeY for the next vertical block
-                }
-            }
-
-            // If the last symbol in the column was part of a mesh, generate it
-            if (rowStart !== null) {
-                console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
-                this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, chunkX, chunkY);
-            }
-        });
-
-    }
-    
-    generateMeshCollision(posY, posX, sizeY, sizeX, isSolid, chunkX, chunkY) {
-        const box = this.colliders.create(posY * 32 + (32*30 *chunkX), posX * 32 + (32*30 *chunkY), null)
-            .setOrigin(0, 0)
-            .setDisplaySize(sizeX, sizeY)
-            .refreshBody() // Refrescar el cuerpo de la física
-            .setVisible(true);// Hace las colisiones invisibles
-
-        //Si es no es solid, desactiba las colisiones del box menos las de arriba, permitiendo
-        //al jugador pasar a travez de la plataforma desde abajo o los lados pero pararse en esta si esta arriba
-        if (!isSolid) {
-            box.body.checkCollision.down = false;
-            box.body.checkCollision.left = false;
-            box.body.checkCollision.right = false;
-        }
-
-        //Añade colision entre las plataformas. el jugador y los enemigos
-        this.physics.add.collider(this.player, this.colliders);
-        this.physics.add.collider(this.enemies, this.colliders);
-
-    }
-    //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
-    //collision en la posicion correspondiente
-    /*  generateWorld(collisions, isSolid) {
-          collisions.forEach((row, rowIndex) => {
-              row.forEach((symbol, colIndex) => {
-                  if (symbol != 0) {
-                      // Añade un hitbox de 32x32 que corresponde al tamaño de cada tile visual
-                      const box = this.colliders.create(colIndex * 32, rowIndex * 32, null)
-                          .setOrigin(0, 0)
-                          .setDisplaySize(32, 32)
-                          .refreshBody() // Refrescar el cuerpo de la física
-                          .setVisible(true);// Hace las colisiones invisibles
-  
-                      //Si es no es solid, desactiba las colisiones del box menos las de arriba, permitiendo
-                      //al jugador pasar a travez de la plataforma desde abajo o los lados pero pararse en esta si esta arriba
-                      if (!isSolid) {
-                          box.body.checkCollision.down = false;
-                          box.body.checkCollision.left = false;
-                          box.body.checkCollision.right = false;
-                      }
-  
-                      //Añade colision entre las plataformas. el jugador y los enemigos
-                      this.physics.add.collider(this.player, this.colliders);
-                      this.physics.add.collider(this.enemies, this.colliders);
-                  }
-              });
-          });
-      }*/
 }
 
 //Configuracion del proyecto
 const config = {
     type: Phaser.AUTO,
-    width: 640,
-    height: 360,
+    width: 1640,
+    height: 1360,
     backgroundColor: '#2a6c6d',
     scene: Main,
     //Añade fisicas 
@@ -297,7 +136,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: true
+            debug: false
         }
     },
     input: {

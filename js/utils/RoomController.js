@@ -1,19 +1,83 @@
-export default class LevelController {
-    constructor(scene, y, x, key) {
+import bottom from '../data/bottom.js';
+import left_bottom from '../data/left_bottom.js';
+import Background from '/js/Background.js';
 
-        
+export default class LevelController extends Phaser.GameObjects.Container {
+    constructor(scene, y, x) {
+        super(scene, x, y);
+        this.scene = scene;
+
+        this.colliders = null;
+        this.player = null;
+        this.enemies = null;
+
+        this.roomSizeX = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+        this.roomSizeY = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+
+        this.rooms = Array.from({ length: this.roomSizeY }, () => Array(this.roomSizeX).fill(0));
     }
 
 
+    loadCollisions(data, num) {
+        this.solidCollisions = [];
 
+        // Load solid collisions
+        for (let i = 0; i < data[num].fullCollisions.length; i += 30) {
+            this.solidCollisions.push(data[1].fullCollisions.slice(i, i + 30));
+        }
+
+        // Load platform collisions
+        this.plataformCollisions = [];
+        for (let i = 0; i < data[num].plataformCollisions.length; i += 30) {
+            this.plataformCollisions.push(data[1].plataformCollisions.slice(i, i + 30));
+        }
+
+        // Return an object containing both collision types
+        return {
+            solidCollisions: this.solidCollisions,
+            plataformCollisions: this.plataformCollisions
+        };
+    }
+    create() {
+        this.generateRoomBg();
+    }
+
+
+    generateRoomBg() {
+
+        this.rooms.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                let bg;
+                if (rowIndex === this.roomSizeY - 1 && colIndex === 0) {
+                    bg = new Background(this.scene, colIndex + 1, rowIndex + 1, 'left_bottom1')
+                } else {
+                    bg = new Background(this.scene, colIndex + 1, rowIndex + 1, 'bottom1')
+                }
+                bg.setDepth(-1);
+            });
+        });
+
+    }
     generateRoom() {
-        const roomSizeX = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
-        const roomSizeY = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+        this.enemies = this.player.enemies;
 
-        const room = Array.from({ length: roomSizeY }, () => Array(roomSizeX).fill(0));
+        this.rooms.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                let collisions;
+                let bg;
+                if (rowIndex === this.roomSizeY - 1 && colIndex === 0) {
+                    collisions = this.loadCollisions(left_bottom, 1);
+                    this.generateRoomSegment(collisions.solidCollisions, true, colIndex, rowIndex);
+                    this.generateRoomSegment(collisions.plataformCollisions, false, colIndex, rowIndex);
+                } else {
+                    collisions = this.loadCollisions(bottom, 1);
+                    this.generateRoomSegment(collisions.solidCollisions, true, colIndex, rowIndex);
+                    this.generateRoomSegment(collisions.plataformCollisions, false, colIndex, rowIndex);
+                }
+            });
+        });
 
     }
-
 
     generateRoomSegment(collisions, isSolid, segmentX, segmentY) {
         let sizeX = 32;
@@ -111,10 +175,12 @@ export default class LevelController {
         }
 
         //Añade colision entre las plataformas. el jugador y los enemigos
-        this.physics.add.collider(this.player, this.colliders);
-        this.physics.add.collider(this.enemies, this.colliders);
+        this.scene.physics.add.collider(this.player, this.colliders);
+        this.scene.physics.add.collider(this.enemies, this.colliders);
 
     }
+
+
     //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
     //collision en la posicion correspondiente
     /*  generateWorld(collisions, isSolid) {
