@@ -2,7 +2,9 @@ export default class Background extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y, key) {
 
+        let image = scene.textures.get(key).getSourceImage();
+
         super(scene, x, y, key);
-        scene.add.sprite(x+800, y+800, key);
+        scene.add.sprite(image.width*x-(image.width/2), image.height*y-(image.height/2), key);
     }
 }

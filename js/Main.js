@@ -1,8 +1,10 @@
 //Import de clases
-import Player from '/js/Player.js';
-import Enemy from '/js/Enemy.js';
-import Effect from '/js/Effect.js';
+import Player from '/js/entities/Player.js';
+import Enemy from '/js/entities/Enemy.js';
+import Effect from '/js/entities/Effect.js';
 import Background from '/js/Background.js';
+import bottom from './data/bottom.js';
+import left_bottom from './data/left_bottom.js';
 
 class Main extends Phaser.Scene {
 
@@ -18,12 +20,21 @@ class Main extends Phaser.Scene {
         this.enemies = [];
 
         this.solidCollisions = []
-        for (let i = 0; i < collisionsArray.length; i += 50) {
-            this.solidCollisions.push(collisionsArray.slice(i, i + 50))
+        for (let i = 0; i < left_bottom[1].fullCollisions.length; i += 30) {
+            this.solidCollisions.push(left_bottom[1].fullCollisions.slice(i, i + 30))
         }
         this.plataformCollisions = []
-        for (let i = 0; i < collisionsArray2.length; i += 50) {
-            this.plataformCollisions.push(collisionsArray2.slice(i, i + 50))
+        for (let i = 0; i < left_bottom[1].plataformCollisions.length; i += 30) {
+            this.plataformCollisions.push(left_bottom[1].plataformCollisions.slice(i, i + 30))
+        }
+
+        this.solidCollisions2 = []
+        for (let i = 0; i < bottom[1].fullCollisions.length; i += 30) {
+            this.solidCollisions2.push(bottom[1].fullCollisions.slice(i, i + 30))
+        }
+        this.plataformCollisions2 = []
+        for (let i = 0; i < bottom[1].plataformCollisions.length; i += 30) {
+            this.plataformCollisions2.push(bottom[1].plataformCollisions.slice(i, i + 30))
         }
 
     }
@@ -38,6 +49,9 @@ class Main extends Phaser.Scene {
         //Imagenes
         //Fondo
         this.load.image('level1Bg', '/assets/levels/level1.png');
+        this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
+        this.load.image('bottom1', '/assets/levels/bottom1.png');
+
         //Gui
         this.load.image("btn_jump", "/assets/sprites/btn_jump.png");
         this.load.image("btn_attack", "/assets/sprites/btn_attack.png");
@@ -56,7 +70,8 @@ class Main extends Phaser.Scene {
 
     create() {
         //Crea nueva clase de Background, solo agrega la imagen de fondo
-        this.bg = new Background(this, 0, 0, 'level1Bg')
+        this.bg = new Background(this, 1, 1, 'left_bottom1')
+        this.bg2 = new Background(this, 2, 1, 'bottom1')
 
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
         this.player = new Player(this, 440, 440, 'playerSheet')
@@ -98,13 +113,16 @@ class Main extends Phaser.Scene {
         //Llama al metodo generateWorld que se encarga de recorrer un array de cordenadas
         //y les agrega colision en cada posicion
 
-        this.generateWorld(this.solidCollisions, true);
-        this.generateWorld(this.plataformCollisions, false);
+        this.generateWorld(this.solidCollisions, true, 0, 0);
+        this.generateWorld(this.plataformCollisions, false, 0, 0);
+
+        this.generateWorld(this.solidCollisions2, true, 1, 0);
+        this.generateWorld(this.plataformCollisions2, false, 1, 0);
 
         //Crea los limites del mundo
-        this.physics.world.setBounds(0, 0, this.bg.width, this.bg.height);
+        this.physics.world.setBounds(0, 0, this.bg.width * 2, this.bg.height);
         //Agrega limite a la camara, para cuando llegue al borde no se salga
-        this.cameras.main.setBounds(0, 0, this.bg.width, this.bg.height);
+        this.cameras.main.setBounds(0, 0, this.bg.width * 2, this.bg.height);
         //Pone a la camara a seguir al jugador
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
 
@@ -136,7 +154,7 @@ class Main extends Phaser.Scene {
 
     //Este metodo se encarga de recorrer un array de cordenadas, el cual por cada coordenada crea una
     //collision en la posicion correspondiente
-    generateWorld(collisions, isSolid) {
+    generateWorld(collisions, isSolid, chunkX, chunkY) {
 
         let sizeX = 32;
         let sizeY = 32;
@@ -156,7 +174,7 @@ class Main extends Phaser.Scene {
 
                 } else if (meshing) {
                     if (sizeX > 32) {
-                        this.generateMeshCollision(colStart+0.2, rowIndex, sizeY, sizeX-18, isSolid);
+                        this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, chunkX, chunkY);
                         console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
                     }
 
@@ -164,87 +182,35 @@ class Main extends Phaser.Scene {
                     sizeX = 32;
                     meshing = false;
                 }
-            });
-        });
-        // Reset variables for vertical meshing
-        sizeX = 32;
-        colStart = null;
 
-        // Vertical meshing logic
-        collisions[0].forEach((_, colIndex) => {
-            rowStart = null;
-            sizeY = 32;
-
-            for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
-                let symbol = collisions[rowIndex][colIndex];
-
-                if (symbol != 0 && rowIndex < collisions.length && collisions[rowIndex + 1][colIndex] != 0) {
-                    if (rowStart === null) {
-                        rowStart = rowIndex; // Start a new mesh vertically
-                        console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
-                    } else {
-                        sizeY += 32; // Increment height if we continue vertically
-                    }
-                } else if (rowStart !== null) {
-                    // Generate vertical mesh when there's a gap
-                    console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
-                    this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
-                    rowStart = null;
-                    sizeY = 32; // Reset sizeY for the next vertical block
-                }
-            }
-
-            // If the last symbol in the column was part of a mesh, generate it
-            if (rowStart !== null) {
-                console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
-                this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
-            }
-        });
-
-    }
-    /*
-    generateWorld(collisions, isSolid) {
-        let sizeX = 32;
-        let sizeY = 32;
-        let colStart = null;
-        let rowStart = null;
-        let meshing = false;
-    
-        // Horizontal meshing logic (already working)
-        collisions.forEach((row, rowIndex) => {
-            row.forEach((symbol, colIndex) => {
-                if (symbol != 0) {
-                    if (colStart === null) {
-                        colStart = colIndex;
-                    } else {
-                        sizeX += 32;
-                    }
-                    meshing = true;
-                } else if (meshing) {
+                if (colIndex === row.length - 1 && meshing) {
+                    // Finalize the mesh for the last column in the row
                     if (sizeX > 32) {
-                        this.generateMeshCollision(colStart, rowIndex, sizeY, sizeX, isSolid);
-                        console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
+                        this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, chunkX, chunkY);
+                        console.log(`Last col mesh: Row: ${rowIndex}, colStart: ${colStart}, sizeX: ${sizeX}`);
                     }
+
                     colStart = null;
                     sizeX = 32;
                     meshing = false;
                 }
             });
         });
-    
+
         // Reset variables for vertical meshing
         sizeX = 32;
         colStart = null;
-    
+
         // Vertical meshing logic
         collisions[0].forEach((_, colIndex) => {
             rowStart = null;
             sizeY = 32;
-    
+
             for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
                 let symbol = collisions[rowIndex][colIndex];
-    
-                if (symbol != 0) {
+
+                if (symbol != 0 && rowIndex < collisions.length - 1 && collisions[rowIndex + 1][colIndex] != 0) {
+
                     if (rowStart === null) {
                         rowStart = rowIndex; // Start a new mesh vertically
                         console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
@@ -254,22 +220,23 @@ class Main extends Phaser.Scene {
                 } else if (rowStart !== null) {
                     // Generate vertical mesh when there's a gap
                     console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
-                    this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+                    this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, chunkX, chunkY);
                     rowStart = null;
                     sizeY = 32; // Reset sizeY for the next vertical block
                 }
             }
-    
+
             // If the last symbol in the column was part of a mesh, generate it
             if (rowStart !== null) {
                 console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
-                this.generateMeshCollision(colIndex, rowStart, sizeY, sizeX, isSolid);
+                this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, chunkX, chunkY);
             }
         });
+
     }
-    */
-    generateMeshCollision(posY, posX, sizeY, sizeX, isSolid) {
-        const box = this.colliders.create(posY * 32, posX * 32, null)
+    
+    generateMeshCollision(posY, posX, sizeY, sizeX, isSolid, chunkX, chunkY) {
+        const box = this.colliders.create(posY * 32 + (32*30 *chunkX), posX * 32 + (32*30 *chunkY), null)
             .setOrigin(0, 0)
             .setDisplaySize(sizeX, sizeY)
             .refreshBody() // Refrescar el cuerpo de la física
