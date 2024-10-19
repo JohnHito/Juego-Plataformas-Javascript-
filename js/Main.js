@@ -17,8 +17,8 @@ class Main extends Phaser.Scene {
         this.player = null;
         this.bg = null;
 
-        //Crea dos array vacios, uno para las colisiones y otro para los enemigos
-        this.enemies = [];
+        this.clock = 0;
+        this.clockRate = 3;
     }
 
     preload() {
@@ -36,6 +36,13 @@ class Main extends Phaser.Scene {
 
         this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
         this.load.image('bottom1', '/assets/levels/bottom1.png');
+        this.load.image('right_bottom1', '/assets/levels/right_bottom1.png');
+        this.load.image('left', '/assets/levels/left.png');
+        this.load.image('middle', '/assets/levels/middle1.png');
+        this.load.image('right', '/assets/levels/right1.png');
+        this.load.image('left_top', '/assets/levels/left_top1.png');
+        this.load.image('top', '/assets/levels/top1.png');
+        this.load.image('right_top', '/assets/levels/right_top1.png');
 
         //Gui
         this.load.image("btn_jump", "/assets/sprites/btn_jump.png");
@@ -48,6 +55,8 @@ class Main extends Phaser.Scene {
         //Entidades
         this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", { frameWidth: 270, frameHeight: 164, });
         this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", { frameWidth: 270, frameHeight: 164, });
+        this.load.spritesheet("torch", "/assets/sprites/torch.png", { frameWidth: 32, frameHeight: 32, });
+        this.load.spritesheet("water", "/assets/sprites/water.png", { frameWidth: 32, frameHeight: 32, });
         //Effectos
         this.load.spritesheet("effect_hammer_smash", "/assets/sprites/hammer_smash.png", { frameWidth: 270, frameHeight: 164, });
     }
@@ -61,23 +70,22 @@ class Main extends Phaser.Scene {
         this.player = new Player(this, 440, 440, 'playerSheet')
         //Le crea una hitbox extra al jugador para las detecciones de ataque
         this.player.attackHitbox = new Effect(this, 0, 0, 'effect_hammer_smash')
-        this.player.speed = 620;
+        this.player.speed = 350;
         this.player.scale = 0.7;
 
-        //Agrega enemigos al array de enemigos (Temporal)
-        this.enemies.push(new Enemy(this, 480, 460, 'enemySheet', this.player, 200));
+
 
 
         //Le manda el array de enemies al jugador
-        this.player.enemies = this.enemies
+        // this.player.enemies = this.enemies
 
         //Controles de teclado
         this.cursors = this.input.keyboard.createCursorKeys();
 
         //Crea un joystick para moverse desde celular a partir de un pluguin
         this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-            x: 80,
-            y: 280,
+            x: 100,
+            y: 450,
             radius: 80,
             base: this.add.circle(0, 0, 70, 0x5C65C0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
             thumb: this.add.circle(0, 0, 25, 0x6F95FF).setAlpha(0.5),
@@ -90,18 +98,19 @@ class Main extends Phaser.Scene {
         //Crea colisiones
         this.colliders = this.physics.add.staticGroup();
 
-        //Agrega limite a la camara, para cuando llegue al borde no se salga
-        //this.cameras.main.setBounds(0, 0, this.bg.width * 2, this.bg.height);
-        //Pone a la camara a seguir al jugador
-        this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+
 
         this.roomController.colliders = this.colliders;
         this.roomController.player = this.player;
         this.roomController.generateRoom();
 
+        //Agrega limite a la camara, para cuando llegue al borde no se salga
+        this.cameras.main.setBounds(0, 0, 960 * this.roomController.roomSizeX, 960 * this.roomController.roomSizeY + 32 * 3);
+        //Pone a la camara a seguir al jugador
+        this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
         //Gui de celular
-        const btn1 = this.add.image(500, 300, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
-        const btn2 = this.add.image(560, 200, 'btn_jump').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        const btn1 = this.add.image(635, 450, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        const btn2 = this.add.image(700, 350, 'btn_jump').setInteractive().setScrollFactor(0).setAlpha(0.7);
         this.player.btn1 = btn1;
         this.player.btn2 = btn2;
 
@@ -111,24 +120,25 @@ class Main extends Phaser.Scene {
     }
 
     update() {
+
+        if (this.clock === this.clockRate) {
+
+            this.roomController.update();
+            this.clock = 0;
+        } else { this.clock++ }
+
         //Actualzia al jugador
         this.player.update();
 
-        //Recorre el array de enemigos
-        this.enemies.forEach(enemy => {
-            //por cada enemigo llama al metodo update de este
-            if (!enemy.stop) {
-                enemy.update();
-            }
-        });
+       
     }
 }
 
 //Configuracion del proyecto
 const config = {
     type: Phaser.AUTO,
-    width: 1640,
-    height: 1360,
+    width: 840,
+    height: 560,
     backgroundColor: '#2a6c6d',
     scene: Main,
     //Añade fisicas 
@@ -136,8 +146,12 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 3000 },
-            debug: false
+            debug: true
         }
+    },
+    fps: {
+        target: 60, // Valor por defecto es 60
+        forceSetTimeOut: true // Para forzar una actualización en vez de usar requestAnimationFrame
     },
     input: {
         // Define la cantidad de dedos que pueden interactuar con la pantalla en celular a la vez

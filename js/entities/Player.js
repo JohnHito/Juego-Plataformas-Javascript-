@@ -34,7 +34,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.stop = false;
 
         //Atributos del personaje
-        this.jumpHight = 1200;
+        this.jumpHight = 900;
         this.speed = 80;
 
         //Array de enemigos
@@ -65,7 +65,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.on('animationcomplete-weaponSummon', () => {
             this.stop = false;
             this.hasWeapon = true;
-            this.speed = 250;
+            this.speed = 300;
         });
 
         //Control si el jugador esta colisionando con algo
@@ -143,7 +143,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.play("attack", true);
             if (this.anims.currentAnim.key === 'attack' && this.anims.currentFrame.index === 7) {
                 this.checkMeleeCollision();
-                this.attackHitbox.play("effect", true);
+                this.attackHitbox.play("hammerSmash", true);
                 this.scene.cameras.main.shake(180, 0.03);
 
             }

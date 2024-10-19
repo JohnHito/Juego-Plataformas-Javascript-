@@ -12,15 +12,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(50, 110);
         this.body.setOffset(110, 53);
 
-        //Crea una hitbox para la deetccion de ataque melee del enemigo
-        this.attackHitbox = scene.add.rectangle(this.x, this.y, 80, 100);
-        scene.physics.add.existing(this.attackHitbox);
-        this.attackHitbox.body.setAllowGravity(false);
-
-        //Crea una hitbox para la deetccion de ataque a distancia del enemigo
-        this.rangeAttackHitbox = scene.add.rectangle(this.x, this.y, 450, 100);
-        scene.physics.add.existing(this.rangeAttackHitbox);
-        this.rangeAttackHitbox.body.setAllowGravity(false);
 
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
@@ -70,7 +61,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.anims.create(attack)
         this.anims.create(dead)
         this.anims.create(idle)
-        this.play("dead", true);
+        //this.play("dead", true);
 
     }
 
@@ -79,10 +70,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        this.attackHitbox.x = this.x + (this.flipX ? -40 : 40); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
-        this.attackHitbox.y = this.y;
-        this.rangeAttackHitbox.x = this.x + (this.flipX ? -380 : 380); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
-        this.rangeAttackHitbox.y = this.y;
+      //  this.attackHitbox.x = this.x + (this.flipX ? -40 : 40); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
+      //  this.attackHitbox.y = this.y;
+     //   this.rangeAttackHitbox.x = this.x + (this.flipX ? -380 : 380); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
+     //   this.rangeAttackHitbox.y = this.y;
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
         //IA
@@ -144,8 +135,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     dead() {
         this.stop = true;
         this.play("dead", true)
-        this.attackHitbox.destroy()
-        this.rangeAttackHitbox.destroy()
         this.body.destroy()
     }
     takeDamage(damage) {
@@ -175,22 +164,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     //Metodo de checkeo de colisiones
     checkMeleeCollision() {
         const playerBounds = this.player.body;  // Access the player's body hitbox
-        const meleBounds = this.attackHitbox.body;    // Access the enemy's body hitbox
-
-        // Check if the hitboxes (bodies) intersect
-        return Phaser.Geom.Intersects.RectangleToRectangle(
-            new Phaser.Geom.Rectangle(playerBounds.x, playerBounds.y, playerBounds.width, playerBounds.height),
-            new Phaser.Geom.Rectangle(meleBounds.x, meleBounds.y, meleBounds.width, meleBounds.height)
-        );
+     
     }
     checkRangeCollision() {
         const playerBounds = this.player.body;  // Access the player's body hitbox
-        const rangeBounds = this.rangeAttackHitbox.body;    // Access the enemy's body hitbox
-
-        // Check if the hitboxes (bodies) intersect
-        return Phaser.Geom.Intersects.RectangleToRectangle(
-            new Phaser.Geom.Rectangle(playerBounds.x, playerBounds.y, playerBounds.width, playerBounds.height),
-            new Phaser.Geom.Rectangle(rangeBounds.x, rangeBounds.y, rangeBounds.width, rangeBounds.height)
-        );
+       
     }
 }

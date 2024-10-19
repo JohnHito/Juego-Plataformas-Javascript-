@@ -10,4 +10,5 @@ export default class Background extends Phaser.GameObjects.Sprite {
 
         scene.add.sprite(image.width*x-(image.width/2), image.height*y-(image.height/2), key);
     }
+    
 }
