@@ -16,6 +16,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
 
+        //Variables para controlar el enemigo
         this.speed = speed;
         this.player = player;
         this.attacking = false;
@@ -26,16 +27,20 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scale = 0.7
         this.maxVelocityY = 3000;
 
-        this.setDepth(0);
-
-        //Si el enemigo esta atacando
+        //Si el enemigo esta atacando, detecta si la animacion termino
         this.on('animationcomplete-attack', () => {
+            //Cuando la animacion termina, pone a atacando como false
             this.attacking = false;
         });
+
+        //Detecta si se esta reproduciendo la animacion de morir
         this.on('animationcomplete-dead', () => {
+            //Si termina, destruye las fisicas del enemigo para no gastar recursos innecesarios
             this.body.destroy()
         });
 
+        //Este metodo controla el ataque del enemigo pero esta desabilitado por ahora, se esta cambiando
+        //el como se controla el ataque del enemigo para mejor rendimiento
         this.on('animationupdate', (animation, frame) => {
             if (animation.key === 'attack' && !this.attackingRange && frame.index === 7) {
                 if (this.checkMeleeCollision()) {
@@ -52,6 +57,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
         });
     }
+
+    //Metodo de checkeo de colisiones, Desabilitados por ahora
+    checkMeleeCollision() {
+        const playerBounds = this.player.body;
+    }
+    checkRangeCollision() {
+        const playerBounds = this.player.body;  
+    }
+
+    //Crea las animaciones del enemigo 
     createAnimations() {
 
         //Crea variables constantes con una key, y con los frames necesairos desde el player sheet
@@ -90,26 +105,23 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+    //Desabilitado por ahora
     attack(collision) {
         this.attacking = collision;
     }
 
     update() {
+        //Limita la velocidad maxima a la que el enemigo puede caer
         if (this.body.velocity.y > this.maxVelocityY) {
             this.body.velocity.y = this.maxVelocityY;
         }
+        //Resetea la velocidad en X si el enemigo no deberia de estar moviendose
         this.setVelocityX(0); this
+
         //IA
         if (!this.stop) {
-            if (this.checkMeleeCollision()) {
-                this.attacking = true;
-            }
-            
 
-            if (this.attacking) {
-                this.play("attack", true);
-            }
-
+            //Logica para seguir al jugador
             if (this.player.x > this.x + 10 && !this.attacking) {
                 this.setVelocityX(this.speed);
                 if (this.body.velocity.x != 0) {
@@ -131,27 +143,38 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
+        //Logica para morir cuando el enemigo pierde toda su vida
         if (this.health <= 0 && !this.stop) {
             this.dead()
         }
     }
 
+    //MNetodo para matar al enemigo
     dead() {
         this.stop = true;
         this.play("dead", true)
     }
+
+    //Metodo para que el enemigo reciba daño
     takeDamage(damage) {
         if (!this.inmmune) {
+            //Reduce la vida del enemigo
             this.health -= damage;
+            //Lo vuelve inmmune momentanemente
             this.inmmune = true;
+
+            //Aplica un ligero empuje en la direccion en la que el jugador
+            //Esta atacando para mas dinamismo
             if (this.player.flipX) {
                 this.setVelocityX(-1600)
             } else {
                 this.setVelocityX(1600)
             }
-
             this.setVelocityY(-500)
+
+            //Tiñe temporalmente al enemigo en rojo
             this.setTint(0xff0000);
+            //Resetea el tinte y la inmmunidad del enemigo despues de cierto tiempo
             this.reset()
             setTimeout(() => {
                 this.clearTint()
@@ -160,17 +183,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    //Si el enemigo esta en medio ataque y es atacado, se resetea
     reset() {
         this.attacking = false;
         this.attackingRange = false;
     }
-    //Metodo de checkeo de colisiones
-    checkMeleeCollision() {
-        const playerBounds = this.player.body;  // Access the player's body hitbox
-     
-    }
-    checkRangeCollision() {
-        const playerBounds = this.player.body;  // Access the player's body hitbox
-       
-    }
+
 }

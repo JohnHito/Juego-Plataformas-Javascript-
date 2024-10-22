@@ -1,72 +1,50 @@
 @use "../abstracts/vars" as vars;
 @use "../abstracts/media-queries" as mq;
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* Default 3 columns */
-    padding-left: 3rem;
-    padding-right: 3rem;
-    gap: 2rem;
-    padding-top: 5rem;
-
-    @include mq.respond-to(mq.$phone) {
-        //position: absolute;
-        grid-template-columns: 1fr;
-        /* 1 column for phones */
-        scale: 80%;
-        padding-left: 0rem;
-        padding-right: 0rem;
-        padding-top: 0rem;
-
-    }
-}
-
-.grid2 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* Default 3 columns */
-    padding-left: 3rem;
-    padding-right: 3rem;
-    gap: 2rem;
-    padding-top: 5rem;
-
-    @include mq.respond-to(mq.$phone) {
-        //position: absolute;
-        grid-template-columns: 1fr;
-        /* 1 column for phones */
-        scale: 80%;
-        padding-left: 0rem;
-        padding-right: 0rem;
-        padding-top: 0rem;
-        margin-left: -0.5rem;
-    }
+.big-logo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
 }
 
 .card {
-    border-radius: 5%;
-    text-align: center;
-    padding-bottom: 3rem;
-    padding-top: 0rem;
-    overflow: hidden;
-    position: relative;
     background-color: vars.$clr-secondary;
+    border-radius: 5%;
+    max-width: 480px;
+    overflow: hidden;
+    padding-bottom: 3rem;
+    position: relative;
+    text-align: center;
 
     @include mq.respond-to(mq.$phone) {
-        padding-top: 0rem;
+        padding-top: 0;
+    }
+
+    .img-container {
+        display: inline-block;
+        position: relative;
+    }
+
+    .gif {
+        height: 200px;
+        object-fit: cover;
+        width: 300px;
+    }
+
+    .card-bg {
+        background-color: vars.$clr-primary;
+        margin: 0 -3rem -3rem;
+        padding: 3rem;
+
+        .card-text, .card-title {
+            border-radius: 5px;
+            padding: 1rem;
+        }
     }
 }
 
-.img-container {
-    position: relative;
-    display: inline-block;
-}
-
-.gif {
-    width: 300px;
-    height: 200px;
-    object-fit: cover;
-}
 .gif2 {
     margin-top: 30rem;
     padding-bottom: 5rem;
@@ -76,44 +54,34 @@
 
     @include mq.respond-to(mq.$phone) {
         margin-top: 40rem;
-
     }
 }
 
+.grid, .grid2 {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 5rem 3rem 0;
 
-.card-bg {
-    background-color: vars.$clr-primary;
-    /* Matches the card's background */
-    margin-left: -3rem;
-    margin-right: -3rem;
-    margin-bottom: -3rem;
-    padding-bottom: 3rem;
+    @include mq.respond-to(mq.$phone) {
+        grid-template-columns: 1fr;
+        padding: 0;
+        scale: 80%;
+    }
+}
+
+.grid2 {
+    @include mq.respond-to(mq.$phone) {
+        margin-left: -0.5rem;
+    }
 }
 
 .level-img {
-    width: 550px;
-    /* Set a fixed width */
     height: 250px;
-    /* Set a fixed height, adjust as needed */
     object-fit: cover;
+    width: 550px;
 
     @include mq.respond-to(mq.$phone) {
         width: 420px;
     }
 }
-
-.card-title,
-.card-text {
-    //   background-color: vars.$clr-accent; /* Different color for title and text background */
-    padding: 1rem;
-    border-radius: 5px;
-}
-
-
-.big-logo {
-    display: flex;
-    flex-direction: column;   // Stacks the items vertically
-    justify-content: center;  // Centers them horizontally
-    align-items: center;      // Centers them vertically
-    height: 100%;             // Full height of the parent container
-  }

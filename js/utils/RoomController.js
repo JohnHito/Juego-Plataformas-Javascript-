@@ -19,51 +19,56 @@ export default class LevelController extends Phaser.GameObjects.Container {
         this.colliders = null;
         this.player = null;
 
+        //Crea el tamaño aleatorio del nivel
         this.roomSizeX = Math.floor(Math.random() * (6 - 2 + 1)) + 2;
         this.roomSizeY = Math.floor(Math.random() * (6 - 2 + 1)) + 2;
 
+        //Crea un array con el tamaño aleatorio creado
         this.rooms = Array.from({ length: this.roomSizeY }, () => Array(this.roomSizeX).fill(0));
 
-        //Agrega enemigos al array de enemigos (Temporal)
+        //Crea un grupo usando metodos de phaser para gaurdar enemigos
         this.enemies = this.scene.physics.add.group();
-        this.enemiesAmout = 20;
-        //PC 25 enemigos / room 10x10
-        //CEL -8 enemigos / room 4x4
+        //La cantidad de enemigos que se pueden generar en el nivel
+        this.enemiesAmout = 10;
+        //Genera un tinte random para aplicarle al nivel
         this.randomTint = this.getRandomTint();
 
     }
 
-
+    //Este metodo se encarga de cargar las colisiones y decoraciones de los niveles en la carpeta data
     loadCollisions(data, num) {
         this.solidCollisions = [];
 
-        // Load solid collisions
+        //Guarda las colisiones solidas
         for (let i = 0; i < data[num].fullCollisions.length; i += 30) {
             this.solidCollisions.push(data[1].fullCollisions.slice(i, i + 30));
         }
 
-        // Load platform collisions
+        //Guarda las colisiones de las plataformas
         this.plataformCollisions = [];
         for (let i = 0; i < data[num].plataformCollisions.length; i += 30) {
             this.plataformCollisions.push(data[1].plataformCollisions.slice(i, i + 30));
         }
 
-        // Load platform collisions
+        //Guarda las posiiones de las antorchas 
         this.torchs = [];
         for (let i = 0; i < data[num].torchs.length; i += 30) {
             this.torchs.push(data[1].torchs.slice(i, i + 30));
         }
 
+        //Guarda las posiiones del agua
         this.water = [];
         for (let i = 0; i < data[num].water.length; i += 30) {
             this.water.push(data[1].water.slice(i, i + 30));
         }
+
+        //Guarda las posiiones de los spawns de los enemigos
         this.spawns = [];
         for (let i = 0; i < data[num].spawns.length; i += 30) {
             this.spawns.push(data[1].spawns.slice(i, i + 30));
         }
 
-        // Return an object containing both collision types
+        // retorna los arrays guardados
         return {
             solidCollisions: this.solidCollisions,
             plataformCollisions: this.plataformCollisions,
@@ -73,8 +78,8 @@ export default class LevelController extends Phaser.GameObjects.Container {
         };
     }
     create() {
+        //Llama al metodo encargado de dibujar lo meramente visual
         this.generateRoomBg();
-
     }
 
     update() {
@@ -82,8 +87,11 @@ export default class LevelController extends Phaser.GameObjects.Container {
         if (this.enemies && this.enemies.children) {
             this.enemies.children.iterate(enemy => {
                 if (enemy) {
+                    //Detecta si el enemigo esta en pantalla, si lo esta, llama a su update,
+                    //de lo contrario lo ignora, esto ayuda al performance ya que no se gasta 
+                    //procesado innecesario
                     if (!this.scene.cameras.main.worldView.contains(enemy.x, enemy.y)) {
-                        enemy.body.enable = false; // Deactivate physics outside the screen
+                        enemy.body.enable = false;
                     } else {
                         enemy.body.enable = true;
                         enemy.update();
@@ -94,9 +102,12 @@ export default class LevelController extends Phaser.GameObjects.Container {
     }
 
 
+    //Este metodo se llama de primero, se encarga de dibujar solo lo visual del nivel,
+    //como los fondos, decoraciones como las antorhas, el agua y eso
     generateRoomBg() {
         this.rooms.forEach((row, rowIndex) => {
             row.forEach((_, colIndex) => {
+                //Detecta cual segmento se necesita en que posiciones del nivel aleatorio y dibuja lo necesario
                 let collisions;
                 let bg;
                 if (rowIndex === this.roomSizeY - 1 && colIndex === 0) {
@@ -136,20 +147,33 @@ export default class LevelController extends Phaser.GameObjects.Container {
                     collisions = this.loadCollisions(right_top, 1);
 
                 }
-
-
+                //Despues de haber dibujado el fondo, aplica un tinte al nivel
                 bg.setTint(this.randomTint);
-
+                //Llama al metodo de dibujar las decoraciones
                 this.generateDeco(collisions.torchs, "torch", colIndex, rowIndex)
                 this.generateDeco(collisions.water, "water", colIndex, rowIndex)
-
-
-
             });
         });
 
     }
+
+    //Genera un tinte aleatorio, con unos valores rgb minimos para que
+    //el tinte resultante no sea tan oscuro, tambien dtermina cual es el
+    //valor rgb mayor y aplica ese tinte, esto para que los colores sean
+    //mas saturados
     getRandomTint() {
+        /*Este metodo fue generado con IA
+        Prompts
+        1.Give a rndom tint
+
+        2.ok change this to a more simple way, isntead of random number from 0 to 256, do one
+        from 0 to a 100, and add that random number to a base number that will be 156
+        
+        3.add beforethat, 3 random numbers betwin 0-1, or random bol idk if theres that, so 
+        that first will roll 50/50 or 33/63 to determine if it adds a tint, then will randomly 
+        will determine witch rgb values will use
+        */
+
         // Roll to determine if we should apply a tint (50/50 chance)
         if (Math.random() < 0.7) { // 50% chance to apply a tint
             // Generate a random number from 0 to 100
@@ -180,8 +204,10 @@ export default class LevelController extends Phaser.GameObjects.Container {
             return 0xffffff; // No tint (white)
         }
     }
-    generateEnemies(array, segmentX, segmentY) {
 
+    //Recorre el array de spawns del segmento enviado por parametro, para
+    //generar enemigos en esta posicion
+    generateEnemies(array, segmentX, segmentY) {
         array.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 if (symbol != 0 && this.enemiesAmout > 0) {
@@ -200,12 +226,14 @@ export default class LevelController extends Phaser.GameObjects.Container {
         });
     }
 
+    //Este array se encarga de generar las colisiones necesarias de cada segmento
     generateRoom() {
-        // this.enemies = this.player.enemies;
-
         this.rooms.forEach((row, rowIndex) => {
             row.forEach((_, colIndex) => {
                 let collisions;
+                /*Determina que piesa necesita cada segmento, por ejemplo si necesita una esquina superior izquierda
+                esquina inferior derecha, una piezasolo del borde izquierdo, derwevcho, una pieza que va en el medio etc...
+                por ahora solo hay una pieza de cada, pero ya esta la logica para tener piezas aleatorias*/
                 if (rowIndex === this.roomSizeY - 1 && colIndex === 0) {
                     collisions = this.loadCollisions(left_bottom, 1);
                     this.generateRoomSegment(collisions.solidCollisions, true, colIndex, rowIndex);
@@ -258,13 +286,12 @@ export default class LevelController extends Phaser.GameObjects.Container {
 
     }
 
+    //Recorre el array de decoraciones anviado por paramtro para dibujarlas
     generateDeco(array, key, segmentX, segmentY) {
-
         array.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 let deco;
                 if (symbol != 0) {
-
                     deco = new Effect(this.scene, (colIndex + 1) * 32 + (960 * segmentX) - 16, (rowIndex + 1) * 32 + (960 * segmentY), key)
                     deco.play(key);
                     deco.setTint(this.randomTint);
@@ -272,41 +299,52 @@ export default class LevelController extends Phaser.GameObjects.Container {
             });
         });
     }
+
+    //Genera los colisiones del mapa y las plataformas para cada segmento, y aplica la tecnica de
+    //optimizacion de meshing, unificando colisiones en unas solas, para reducir procesado
+    //innecesario
     generateRoomSegment(collisions, isSolid, segmentX, segmentY) {
+        //va guardando el tamaño de cada colisiones
         let sizeX = 32;
         let sizeY = 32;
+        //guarda desde donde inicia a crear un meshing
         let colStart = null;
         let rowStart = null;
+        //guarda si esta haciendo meshing
         let meshing = false;
 
+        //Creacion de collisiones con meshing horizontales
         collisions.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
+                //Detecta si la posicion actual es diferente a 0
                 if (symbol != 0) {
+                    //si es diferente a 0 y aun no a empezado a hacer meshing, guarda la cordenada de inicio
                     if (colStart === null) {
                         colStart = colIndex;
                     } else {
+                        //de lo contrario, si ya empezo a hacer mehsing la añade al tamaño del que va a ser la colision
                         sizeX += 32;
                     }
                     meshing = true;
 
+                    //De lo contrario, si ya la posicion actual es 0, Y estaba haciendo meshing, va a dibujar la
+                    //colision con las dimenciones necesarias en la posicion necesaria
                 } else if (meshing) {
                     if (sizeX > 32) {
                         this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, segmentX, segmentY);
-                        console.log(`Row: ${rowIndex}, Col: ${colIndex}, Symbol: ${symbol}, colStart: ${colStart}, sizeX: ${sizeX}`);
                     }
-
+                    //Reinicia las variables
                     colStart = null;
                     sizeX = 32;
                     meshing = false;
                 }
 
+                //Esto controla si ya llego al final de la row, y estaba haciendo meshing
                 if (colIndex === row.length - 1 && meshing) {
-                    // Finalize the mesh for the last column in the row
                     if (sizeX > 32) {
                         this.generateMeshCollision(colStart + 0.2, rowIndex, sizeY, sizeX - 18, isSolid, segmentX, segmentY);
-                        console.log(`Last col mesh: Row: ${rowIndex}, colStart: ${colStart}, sizeX: ${sizeX}`);
                     }
-
+                    //Reinicia las variables
                     colStart = null;
                     sizeX = 32;
                     meshing = false;
@@ -314,11 +352,11 @@ export default class LevelController extends Phaser.GameObjects.Container {
             });
         });
 
-        // Reset variables for vertical meshing
+        //Reinicia para empezar el meshing vertical
         sizeX = 32;
         colStart = null;
 
-        // Vertical meshing logic
+        //Creacion de collisiones con meshing verticales
         collisions[0].forEach((_, colIndex) => {
             rowStart = null;
             sizeY = 32;
@@ -326,32 +364,35 @@ export default class LevelController extends Phaser.GameObjects.Container {
             for (let rowIndex = 0; rowIndex < collisions.length; rowIndex++) {
                 let symbol = collisions[rowIndex][colIndex];
 
+                //Detecta si la posicion actual es diferente a 0 y es menor al lenght en row, y en el siguiente row hay una colision
                 if (symbol != 0 && rowIndex < collisions.length - 1 && collisions[rowIndex + 1][colIndex] != 0) {
 
+                    //Si no a empezado a hacer meshing, guarda la posicion inicial
                     if (rowStart === null) {
-                        rowStart = rowIndex; // Start a new mesh vertically
-                        console.log(`START NEW VERTICAL MESH at col: ${colIndex}, row: ${rowStart}`);
+                        rowStart = rowIndex;
+
+                        //De lo contrario, añade al tamaño del que va a ser la colision
                     } else {
-                        sizeY += 32; // Increment height if we continue vertically
+                        sizeY += 32;
                     }
+
+                    //Se lo contrario, si la posicion actual es 0, y se empezo a hacer meshing va a dibujar la colisio con el tamaño indicado
                 } else if (rowStart !== null) {
-                    // Generate vertical mesh when there's a gap
-                    console.log(`END VERTICAL MESH at col: ${colIndex}, row: ${rowIndex}`);
                     this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, segmentX, segmentY);
                     rowStart = null;
-                    sizeY = 32; // Reset sizeY for the next vertical block
+                    sizeY = 32;
                 }
             }
 
-            // If the last symbol in the column was part of a mesh, generate it
+            //controla si ya llego al final y queda una colision por dibujar pendiente
             if (rowStart !== null) {
-                console.log(`END OF COLUMN, finalizing vertical mesh at col: ${colIndex}`);
                 this.generateMeshCollision(colIndex + 0.2, rowStart, sizeY, sizeX, isSolid, segmentX, segmentY);
             }
         });
 
     }
 
+    //Genera la colision individual
     generateMeshCollision(posY, posX, sizeY, sizeX, isSolid, chunkX, chunkY) {
         const box = this.colliders.create(posY * 32 + (32 * 30 * chunkX), posX * 32 + (32 * 30 * chunkY), null)
             .setOrigin(0, 0)

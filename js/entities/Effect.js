@@ -6,14 +6,18 @@ export default class Effect extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         //Se añade a si mismo a las fisicas de la escena existente
         scene.physics.add.existing(this);
+        //Se le quita la gravedad
         this.body.setAllowGravity(false);
-        
+        //Se re acomoda la hitbox
         this.body.setSize(170, 105);
         this.body.setOffset(40, 55);
 
+        //Si el efecto que se pide NO es affect_hammer_smash, elimina las fisicas del efecto 
         if(key!="effect_hammer_smash"){
             this.body.destroy();
         }
+
+        //Crea las animacioes necesarias
         const hammerSmash = {
             key: "hammerSmash",
             frames: this.anims.generateFrameNumbers("effect_hammer_smash", { frames: [1, 2, 3, 0] }),

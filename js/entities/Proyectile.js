@@ -1,5 +1,5 @@
 export default class Proyectile extends Phaser.Physics.Arcade.Sprite {
-
+/*
     constructor(scene, y, x, key,) {
         super(scene, y, x, key);
         //Se añade a si mismo a la escena existente
@@ -29,5 +29,5 @@ export default class Proyectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(){
-    }
+    }*/
 }

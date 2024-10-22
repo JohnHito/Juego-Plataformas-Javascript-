@@ -2,38 +2,36 @@
 @use "../abstracts/media-queries" as mq;
 
 .btn {
-    display: inline-block;
-    /* Ensures the button respects padding and margins */
-    color: vars.$clr-white;
-    text-decoration: none;
-    border-radius: 1rem;
-    border: 0.1rem solid vars.$clr-white;
-    padding: 0.5rem 1.5rem;
-    font-size: vars.$fs-sm;
-    text-align: center;
-    transition: background-color 0.3s ease, color 0.3s ease;
     background-color: transparent;
-    /* Default background */
-    // margin-left: 2rem;
-    /* Add margin for spacing */
+    border: 0.1rem solid vars.$clr-white;
+    border-radius: 1rem;
+    color: vars.$clr-white;
+    display: inline-block;  
+    font-size: vars.$fs-sm;
+    padding: 0.5rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
 
-    /* Hover effects */
     &:hover {
         background-color: vars.$clr-secondary;
-        /* Change to your preferred hover color */
-        color: white;
-        /* Change text color on hover */
+        color: white;  
     }
+}
+
+.card-btn {
+    padding-left: 3rem;
+    padding-right: 3rem;
 }
 
 .login-btn {
     @include mq.respond-to(mq.$phone) {
+        display: block;
+        max-width: 100px;
         position: absolute;
         right: 10px;
-        top: 20px;
-        max-width: 100px;
-        display: block;
         scale: 70%;
+        top: 20px;
     }
 }
 
@@ -46,17 +44,12 @@
     padding-right: 3rem;
 }
 
-.card-btn {
-    padding-left: 3rem;
-    padding-right: 3rem;
-}
-
 .submit {
+    background: vars.$clr-secondary;
     border: none;
-    padding: .5rem;
     border-radius: 1rem;
     color: vars.$clr-bg;
-    background: vars.$clr-secondary;
+    padding: 0.5rem;
     position: relative;
     right: 2rem;
 }

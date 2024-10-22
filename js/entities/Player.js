@@ -47,38 +47,43 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        // Set your desired max vertical velocity here
-        // Clamp the player's velocity
+        //Limita la velocidad maxima a la que el jugador puede caer
         if (this.body.velocity.y > this.maxVelocityY) {
             this.body.velocity.y = this.maxVelocityY;
         }
-        //Reseta la velocidad en X, de lo conbtrario no se detiene
+        //Reseta la velocidad en X, de lo contrario no se detiene
         this.setVelocityX(0); this
 
         //Mueve la hitbox de ataque a su area correspondiente
         this.attackHitbox.x = this.x + (this.flipX ? -80 : 80); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
         this.attackHitbox.y = this.y - 20;
-        //Detecta si una animacion se termino. para ejecutar algo
+
+        //Detectan si una animacion se termino. para ejecutar algo
+        //Detecta la animacion del jugador para caer al suelo
         this.on('animationcomplete-hitGround', () => {
             this.isHitGroundComplete = true;
         });
         this.on('animationcomplete-weaponHitGround', () => {
             this.isHitGroundComplete = true;
         });
+        //Si termino de atacar
         this.on('animationcomplete-attack', () => {
             this.stop = false;
             this.attacking = false;
 
         });
+        //Si termino de invocar el arma
         this.on('animationcomplete-weaponSummon', () => {
             this.stop = false;
             this.hasWeapon = true;
             this.speed = 300;
         });
 
-        //Control si el jugador esta colisionando con algo
+        //Control si el jugador esta colisionando con el suelo
         if (this.body.blocked.down) {
             this.inGround = true;
+
+            //Espera un momento para resetearle el salto al jugador
             setTimeout(() => {
                 if (this.body.blocked.down) {
                     this.canJump = true;
@@ -119,6 +124,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.isHitGroundComplete = false;
         }
 
+        //Control de los controles en pantalla para celular
         this.btn1.on('pointerdown', () => {
             this.btn1Down = true;
         });
@@ -149,14 +155,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // Control animation of attack
         if (this.attacking) {
             this.play("attack", true);
+            //Detecta si la animacion de ataque esta en un frame especifico
             if (this.anims.currentAnim.key === 'attack' && this.anims.currentFrame.index === 7) {
+                //Reactiva la colision de ataque
                 this.attackHitbox.body.enable = true;
+                //Utiliza los grupos de phaser para detectar si esta colisionando con un enemigo, y llama al metodo onEnemyHit
                 this.scene.physics.add.overlap(this.attackHitbox, this.enemies, this.onEnemyHit, null, this);
+                //Reproduce el efecto de "explosion" en la colision de ataque
                 this.attackHitbox.play("hammerSmash", true);
+                //Hace un ligero movimiento de la camara para dar un efecto visual
                 this.scene.cameras.main.shake(180, 0.03);
             }
+
         } else {
-            // Deactivate hitbox when not attacking
+            //Desactiva la hitbox del ataque para reducir gasto de recursos
             this.attackHitbox.body.enable = false;
         }
 
@@ -170,7 +182,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         }
 
-        //Controles de movimiento y animacion de izquierda y derecha
+        //Controles de movimiento y animacion de derecha
         if (!this.stop && this.cursors.right.isDown == true || !this.stop && this.joystickCursors.right.isDown) {
             this.setVelocityX(this.speed);
             this.flipX = false;
@@ -182,8 +194,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.play("run", true);
                 }
             }
-
         }
+        //Controles de movimiento y animacion de izquierda
         if (!this.stop && this.cursors.left.isDown == true || !this.stop && this.joystickCursors.left.isDown) {
             this.setVelocityX(this.speed * -1);
             this.flipX = true;
@@ -195,7 +207,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.play("run", true);
                 }
             }
-
         }
 
         //Animacion de ataque
@@ -204,11 +215,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.attacking = true;
         }
 
-        //Habilidad especial
+        //Habilidad especial de invocar el arma
         if (!this.stop && this.btn1Down && this.inGround && !this.hasWeapon) {
             this.stop = true;
             this.play("weaponSummon", true);
         }
+        //Control de los botones de gui en celular
         if (this.hasWeapon) {
             if (this.body.velocity.y > 1000) {
                 this.btn1.setTexture("btn_fall")
@@ -218,7 +230,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.btn1.setTexture("btn_summon")
         }
-
         if (this.canJump) {
             this.btn2.setAlpha(0.7);
         } else {
@@ -227,12 +238,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     onEnemyHit(attackHitbox, enemy) {
-        // Damage the enemy
+        //Provoca daño al enemigo
         enemy.takeDamage(1);
         console.log("Enemy hit!");
+        //Apaga la hitbox de ataque para reducir consumo de recursos
         this.attackHitbox.body.enable = false;
-
     }
+
+    //Controla si el jugador puede atacar
     isReadyToAttack() {
         return (this.cursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete) ||
             (this.btn1Down && this.inGround && this.hasWeapon && this.isHitGroundComplete);
@@ -244,12 +257,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.attackHitbox.body.setAllowGravity(false);
     }
 
+    //Metodo para guardar los controles y controlarlos deste esta misma clase
     setControls(cursors, joystickCursors) {
         this.cursors = cursors;
         this.joystickCursors = joystickCursors;
         //Agrega la deteccion de la tecla A
     }
 
+    //Metodo para que el jugador tome daño
     takeDamage(damage) {
         if (!this.inmmune) {
             this.health -= damage;
@@ -270,6 +285,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    //Resetea al jugador concelando lo que este haciendo si es atacado
     reset() {
         this.summoning = false;
         this.attacking = false;

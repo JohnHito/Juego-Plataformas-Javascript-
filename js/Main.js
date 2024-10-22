@@ -1,10 +1,6 @@
 //Import de clases
 import Player from '/js/entities/Player.js';
-import Enemy from '/js/entities/Enemy.js';
 import Effect from '/js/entities/Effect.js';
-import Background from '/js/Background.js';
-import bottom from './data/bottom.js';
-import left_bottom from './data/left_bottom.js';
 import RoomController from './utils/RoomController.js';
 
 class Main extends Phaser.Scene {
@@ -13,7 +9,6 @@ class Main extends Phaser.Scene {
     constructor() {
         super({ key: "Main" })
 
-        //Crea una variable de player vaciamomentaneamente
         this.player = null;
         this.bg = null;
 
@@ -28,12 +23,9 @@ class Main extends Phaser.Scene {
 
 
         //Imagenes
-
         //Fondo
-        this.load.image('level1Bg', '/assets/levels/level1.png');
         this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
         this.load.image('bottom1', '/assets/levels/bottom1.png');
-
         this.load.image('left_bottom1', '/assets/levels/left_bottom1.png');
         this.load.image('bottom1', '/assets/levels/bottom1.png');
         this.load.image('right_bottom1', '/assets/levels/right_bottom1.png');
@@ -55,15 +47,18 @@ class Main extends Phaser.Scene {
         //Entidades
         this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", { frameWidth: 270, frameHeight: 164, });
         this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", { frameWidth: 270, frameHeight: 164, });
-        this.load.spritesheet("torch", "/assets/sprites/torch.png", { frameWidth: 32, frameHeight: 32, });
-        this.load.spritesheet("water", "/assets/sprites/water.png", { frameWidth: 32, frameHeight: 32, });
+        
         //Effectos
         this.load.spritesheet("effect_hammer_smash", "/assets/sprites/hammer_smash.png", { frameWidth: 270, frameHeight: 164, });
+        this.load.spritesheet("torch", "/assets/sprites/torch.png", { frameWidth: 32, frameHeight: 32, });
+        this.load.spritesheet("water", "/assets/sprites/water.png", { frameWidth: 32, frameHeight: 32, });
     }
 
 
     create() {
+        //Instancia a la clase que controla los niveles
         this.roomController = new RoomController(this, 0, 0);
+        //Llama el metodo create, el cual llama al metodo para dibujar la parte visual del nivel
         this.roomController.create();
 
         //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
@@ -72,12 +67,6 @@ class Main extends Phaser.Scene {
         this.player.attackHitbox = new Effect(this, 0, 0, 'effect_hammer_smash')
         this.player.speed = 350;
         this.player.scale = 0.7;
-
-
-
-
-        //Le manda el array de enemies al jugador
-        // this.player.enemies = this.enemies
 
         //Controles de teclado
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -98,11 +87,12 @@ class Main extends Phaser.Scene {
         //Crea colisiones
         this.colliders = this.physics.add.staticGroup();
 
-
-
+        //le manda por referencia al controlador de niveles el jugador y las colisiones
         this.roomController.colliders = this.colliders;
         this.roomController.player = this.player;
+        //Crea las colisiones del nivel
         this.roomController.generateRoom();
+        //Le manda al jugador los enemigos generados
         this.player.enemies = this.roomController.enemies;
 
         //Agrega limite a la camara, para cuando llegue al borde no se salga
@@ -114,7 +104,6 @@ class Main extends Phaser.Scene {
         //Gui de celular
         const btn1 = this.add.image(635, 450, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
         const btn2 = this.add.image(700, 350, 'btn_jump').setInteractive().setScrollFactor(0).setAlpha(0.7);
-        
         this.player.btn1 = btn1;
         this.player.btn2 = btn2;
 
@@ -124,9 +113,10 @@ class Main extends Phaser.Scene {
     }
 
     update() {
-
+        //Esto se encarga de reducir el llamado al update del nivel para reducir
+        //consumo de recursos
         if (this.clock === this.clockRate) {
-
+            //Actualiza el nivel el cual actializa al jugador
             this.roomController.update();
             this.clock = 0;
         } else { this.clock++ }
@@ -153,8 +143,8 @@ const config = {
         }
     },
     fps: {
-        target: 60, // Valor por defecto es 60
-        forceSetTimeOut: true // Para forzar una actualización en vez de usar requestAnimationFrame
+        target: 60, 
+        forceSetTimeOut: true
     },
     input: {
         // Define la cantidad de dedos que pueden interactuar con la pantalla en celular a la vez

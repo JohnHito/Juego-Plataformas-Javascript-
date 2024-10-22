@@ -33,9 +33,7 @@
     position: absolute;
     width: 100%;
     height: 42rem;
-    /* Keeps the height fixed */
     object-fit: cover;
-    /* Maintains aspect ratio and zooms in/out to fill the space */
     display: block;
     margin-top: -7.5rem;
     z-index: -1;
@@ -64,12 +62,12 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;  // Full viewport height for the background
-    object-fit: cover;  // Ensures the image covers the entire section
-    z-index: -1;  // Puts the image behind the rest of the content
+    height: 100vh; 
+    object-fit: cover;
+    z-index: -1;  
 
     @include mq.respond-to(mq.$phone) {
-        height: 95rem;  // Adjust for mobile screens if necessary
+        height: 95rem;
     }
 }
 

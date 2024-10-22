@@ -3,20 +3,20 @@
 
 .top-nav {
     display: flex;
-    justify-content: space-between; /* Keep space between items on larger screens */
+    justify-content: space-between;
     align-items: center;
-    position: relative; /* Required for absolute positioning of the logo */
+    position: relative; 
     padding: 1rem 2rem;
 }
 
 .main-logo {
     max-width: 150px;
 
-    /* Default position for larger screens */
+    
     position: static;
     @include mq.respond-to(mq.$phone) {
-        max-width: 100px; /* Resize logo on mobile */
-        display: block; /* Ensure it is treated as a block element */
+        max-width: 100px;
+        display: block; 
     }
 }
 
@@ -24,14 +24,14 @@
     display: flex;
     align-items: center;
     list-style: none;
-    gap: 2rem; /* Space between items */
-    flex-grow: 1; /* Take remaining space */
-    justify-content: center; /* Center nav items */
+    gap: 2rem; 
+    flex-grow: 1;
+    justify-content: center;
 
     @include mq.respond-to(mq.$phone) {
         position: absolute;
-        gap: 1rem; /* Space between items */
-        top: 90px; /* Adjust this value as needed */
+        gap: 1rem; 
+        top: 90px; 
         left: 20px;
     }
 }
@@ -39,9 +39,7 @@
 .nav-list-link {
     text-decoration: none;
     color: vars.$clr-white;
-    /* Define your color variable */
     font-size: vars.$fs-md;
-    /* Define your font size variable */
     @include mq.respond-to(mq.$phone) {
         font-size: vars.$fs-sm;
     }
