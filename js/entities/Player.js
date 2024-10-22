@@ -36,15 +36,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Atributos del personaje
         this.jumpHight = 900;
         this.speed = 80;
+        this.maxVelocityY = 3000;
+        this.inmmune = false;
 
         //Array de enemigos
-        this.enemies = [];
+        this.enemies = null;
 
         //Llama a la funcion para crear las animaciones
         this.createAnimations();
     }
 
     update() {
+        // Set your desired max vertical velocity here
+        // Clamp the player's velocity
+        if (this.body.velocity.y > this.maxVelocityY) {
+            this.body.velocity.y = this.maxVelocityY;
+        }
         //Reseta la velocidad en X, de lo conbtrario no se detiene
         this.setVelocityX(0); this
 
@@ -61,6 +68,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.on('animationcomplete-attack', () => {
             this.stop = false;
             this.attacking = false;
+
         });
         this.on('animationcomplete-weaponSummon', () => {
             this.stop = false;
@@ -138,15 +146,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         }
 
-        //Control animacion de ataque
+        // Control animation of attack
         if (this.attacking) {
             this.play("attack", true);
             if (this.anims.currentAnim.key === 'attack' && this.anims.currentFrame.index === 7) {
-                this.checkMeleeCollision();
+                this.attackHitbox.body.enable = true;
+                this.scene.physics.add.overlap(this.attackHitbox, this.enemies, this.onEnemyHit, null, this);
                 this.attackHitbox.play("hammerSmash", true);
                 this.scene.cameras.main.shake(180, 0.03);
-
             }
+        } else {
+            // Deactivate hitbox when not attacking
+            this.attackHitbox.body.enable = false;
         }
 
         //Control para saltar
@@ -214,6 +225,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.btn2.setAlpha(0.3);
         }
     }
+
+    onEnemyHit(attackHitbox, enemy) {
+        // Damage the enemy
+        enemy.takeDamage(1);
+        console.log("Enemy hit!");
+        this.attackHitbox.body.enable = false;
+
+    }
     isReadyToAttack() {
         return (this.cursors.down.isDown && this.inGround && this.hasWeapon && this.isHitGroundComplete) ||
             (this.btn1Down && this.inGround && this.hasWeapon && this.isHitGroundComplete);
@@ -231,32 +250,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Agrega la deteccion de la tecla A
     }
 
+    takeDamage(damage) {
+        if (!this.inmmune) {
+            this.health -= damage;
+            this.inmmune = true;
+            if (this.player.flipX) {
+                this.setVelocityX(-1600)
+            } else {
+                this.setVelocityX(1600)
+            }
+
+            this.setVelocityY(-500)
+            this.setTint(0xff0000);
+            this.reset()
+            setTimeout(() => {
+                this.clearTint()
+                this.inmmune = false
+            }, 400)
+        }
+    }
+
     reset() {
         this.summoning = false;
         this.attacking = false;
         this.stop = false;
-    }
-
-    checkMeleeCollision() {
-        const meleeBounds = this.attackHitbox.body;
-        const enemiesHit = [];
-        // Check collisions with enemies only once per attack
-        for (let enemy of this.enemies) {
-            const enemyBounds = enemy.body;
-            if (Phaser.Geom.Intersects.RectangleToRectangle(
-                new Phaser.Geom.Rectangle(meleeBounds.x, meleeBounds.y, meleeBounds.width, meleeBounds.height),
-                new Phaser.Geom.Rectangle(enemyBounds.x, enemyBounds.y, enemyBounds.width, enemyBounds.height)
-            )) {
-                if (!enemiesHit.includes(enemy)) { // Avoid hitting the same enemy multiple times
-                    enemiesHit.push(enemy);
-                    enemy.takeDamage(1); // Deal damage to enemy
-                }
-            }
-        }
-
-        if (enemiesHit.length > 0) {
-            console.log('Hit enemies:', enemiesHit);
-        }
     }
 
     createAnimations() {

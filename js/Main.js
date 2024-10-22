@@ -103,14 +103,18 @@ class Main extends Phaser.Scene {
         this.roomController.colliders = this.colliders;
         this.roomController.player = this.player;
         this.roomController.generateRoom();
+        this.player.enemies = this.roomController.enemies;
 
         //Agrega limite a la camara, para cuando llegue al borde no se salga
         this.cameras.main.setBounds(0, 0, 960 * this.roomController.roomSizeX, 960 * this.roomController.roomSizeY + 32 * 3);
+
         //Pone a la camara a seguir al jugador
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+
         //Gui de celular
         const btn1 = this.add.image(635, 450, 'btn_attack').setInteractive().setScrollFactor(0).setAlpha(0.7);
         const btn2 = this.add.image(700, 350, 'btn_jump').setInteractive().setScrollFactor(0).setAlpha(0.7);
+        
         this.player.btn1 = btn1;
         this.player.btn2 = btn2;
 
@@ -129,7 +133,6 @@ class Main extends Phaser.Scene {
 
         //Actualzia al jugador
         this.player.update();
-
        
     }
 }
@@ -145,8 +148,8 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 3000 },
-            debug: true
+            gravity: { y: 2500 },
+            debug: false
         }
     },
     fps: {

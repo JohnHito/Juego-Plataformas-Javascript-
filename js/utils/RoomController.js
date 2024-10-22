@@ -19,18 +19,17 @@ export default class LevelController extends Phaser.GameObjects.Container {
         this.colliders = null;
         this.player = null;
 
-        this.roomSizeX =5//Math.floor(Math.random() * (9 - 2 + 1)) + 2;
-        this.roomSizeY =5//Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+        this.roomSizeX = Math.floor(Math.random() * (6 - 2 + 1)) + 2;
+        this.roomSizeY = Math.floor(Math.random() * (6 - 2 + 1)) + 2;
 
         this.rooms = Array.from({ length: this.roomSizeY }, () => Array(this.roomSizeX).fill(0));
 
-        //Crea dos array vacios, uno para las colisiones y otro para los enemigos
-        this.enemies = [];
         //Agrega enemigos al array de enemigos (Temporal)
-        this.enemiesAmout = 25;
-
+        this.enemies = this.scene.physics.add.group();
+        this.enemiesAmout = 20;
         //PC 25 enemigos / room 10x10
         //CEL -8 enemigos / room 4x4
+        this.randomTint = this.getRandomTint();
 
     }
 
@@ -80,25 +79,22 @@ export default class LevelController extends Phaser.GameObjects.Container {
 
     update() {
         //Recorre el array de enemigos
-
-        this.enemies.forEach(enemy => {
-            enemy.update();
-
-            if (!this.scene.cameras.main.worldView.contains(enemy.x, enemy.y)) {
-                enemy.body.enable = false; // Desactiva físicas fuera de pantalla
-
-            }else{
-                enemy.body.enable = true;
-                enemy.update();
-            }
-       
-        });
-
+        if (this.enemies && this.enemies.children) {
+            this.enemies.children.iterate(enemy => {
+                if (enemy) {
+                    if (!this.scene.cameras.main.worldView.contains(enemy.x, enemy.y)) {
+                        enemy.body.enable = false; // Deactivate physics outside the screen
+                    } else {
+                        enemy.body.enable = true;
+                        enemy.update();
+                    }
+                }
+            });
+        }
     }
 
 
     generateRoomBg() {
-
         this.rooms.forEach((row, rowIndex) => {
             row.forEach((_, colIndex) => {
                 let collisions;
@@ -140,7 +136,9 @@ export default class LevelController extends Phaser.GameObjects.Container {
                     collisions = this.loadCollisions(right_top, 1);
 
                 }
-                bg.setTint(0xff0000);
+
+
+                bg.setTint(this.randomTint);
 
                 this.generateDeco(collisions.torchs, "torch", colIndex, rowIndex)
                 this.generateDeco(collisions.water, "water", colIndex, rowIndex)
@@ -151,20 +149,59 @@ export default class LevelController extends Phaser.GameObjects.Container {
         });
 
     }
+    getRandomTint() {
+        // Roll to determine if we should apply a tint (50/50 chance)
+        if (Math.random() < 0.7) { // 50% chance to apply a tint
+            // Generate a random number from 0 to 100
+            const randomValue = Math.floor(Math.random() * 101); // Random value between 0 and 100
+            const baseValue = 156; // Base value
+
+            // Initialize RGB values
+            let red = baseValue;
+            let green = baseValue;
+            let blue = baseValue;
+
+            // Randomly choose which RGB values to modify (33/67 chance)
+            for (let i = 0; i < 3; i++) {
+                const randomChannel = Math.random();
+                if (randomChannel < 0.33) {
+                    red = Math.min(baseValue + randomValue, 255); // Modify red
+                } else if (randomChannel < 0.67) {
+                    green = Math.min(baseValue + randomValue, 255); // Modify green
+                } else {
+                    blue = Math.min(baseValue + randomValue, 255); // Modify blue
+                }
+            }
+
+            // Convert RGB to hex for Phaser tinting
+            return (red << 16) + (green << 8) + blue;
+        } else {
+            // Return a default tint if no tint is applied (e.g., no tint)
+            return 0xffffff; // No tint (white)
+        }
+    }
     generateEnemies(array, segmentX, segmentY) {
+
         array.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 if (symbol != 0 && this.enemiesAmout > 0) {
-                    this.enemies.push(new Enemy(this.scene, (colIndex + 1) * 32 + (960 * segmentX), (rowIndex + 1) * 32 + (960 * segmentY) - 64, 'enemySheet', this.player, 90));
+                    let enemy = new Enemy(
+                        this.scene,
+                        (colIndex + 1) * 32 + (960 * segmentX),
+                        (rowIndex + 1) * 32 + (960 * segmentY) - 64,
+                        'enemySheet',
+                        this.player,
+                        90 + Math.floor(Math.random() * (109 - 0 + 1))
+                    );
+                    this.enemies.add(enemy); // Add enemy to the group
                     this.enemiesAmout--;
-                    console.log("New Enemy: " + this.enemies)
                 }
             });
         });
-
     }
+
     generateRoom() {
-        this.enemies = this.player.enemies;
+        // this.enemies = this.player.enemies;
 
         this.rooms.forEach((row, rowIndex) => {
             row.forEach((_, colIndex) => {
@@ -230,7 +267,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
 
                     deco = new Effect(this.scene, (colIndex + 1) * 32 + (960 * segmentX) - 16, (rowIndex + 1) * 32 + (960 * segmentY), key)
                     deco.play(key);
-
+                    deco.setTint(this.randomTint);
                 }
             });
         });

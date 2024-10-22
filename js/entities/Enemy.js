@@ -24,8 +24,33 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.stop = false;
         this.inmmune = false;
         this.scale = 0.7
+        this.maxVelocityY = 3000;
 
         this.setDepth(0);
+
+        //Si el enemigo esta atacando
+        this.on('animationcomplete-attack', () => {
+            this.attacking = false;
+        });
+        this.on('animationcomplete-dead', () => {
+            this.body.destroy()
+        });
+
+        this.on('animationupdate', (animation, frame) => {
+            if (animation.key === 'attack' && !this.attackingRange && frame.index === 7) {
+                if (this.checkMeleeCollision()) {
+                    this.player.setVelocityX(this.flipX ? -800 : 800)
+                    this.player.setVelocityY(-300)
+                    this.player.setTint(0xff0000);
+                    this.player.reset()
+                    this.scene.cameras.main.shake(50, 0.009);
+
+                    setTimeout(() => {
+                        this.player.clearTint()
+                    }, 500)
+                }
+            }
+        });
     }
     createAnimations() {
 
@@ -70,37 +95,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-      //  this.attackHitbox.x = this.x + (this.flipX ? -40 : 40); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
-      //  this.attackHitbox.y = this.y;
-     //   this.rangeAttackHitbox.x = this.x + (this.flipX ? -380 : 380); //Aqui se usa un Operador Ternario, es como un if, el ? idica si el this.flipX es true va a dar un valor o si es false va a dar el otro
-     //   this.rangeAttackHitbox.y = this.y;
-        //Reseta la velocidad en X, de lo conbtrario no se detiene
+        if (this.body.velocity.y > this.maxVelocityY) {
+            this.body.velocity.y = this.maxVelocityY;
+        }
         this.setVelocityX(0); this
         //IA
         if (!this.stop) {
             if (this.checkMeleeCollision()) {
                 this.attacking = true;
             }
-            //Si el enemigo esta atacando
-            this.on('animationcomplete-attack', () => {
-                this.attacking = false;
-            });
-
-            this.on('animationupdate', (animation, frame) => {
-                if (animation.key === 'attack' && !this.attackingRange && frame.index === 7) {
-                    if (this.checkMeleeCollision()) {
-                        this.player.setVelocityX(this.flipX ? -800 : 800)
-                        this.player.setVelocityY(-300)
-                        this.player.setTint(0xff0000);
-                        this.player.reset()
-                        this.scene.cameras.main.shake(50, 0.009);
-
-                        setTimeout(() => {
-                            this.player.clearTint()
-                        }, 500)
-                    }
-                }
-            });
+            
 
             if (this.attacking) {
                 this.play("attack", true);
@@ -135,25 +139,24 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     dead() {
         this.stop = true;
         this.play("dead", true)
-        this.body.destroy()
     }
     takeDamage(damage) {
         if (!this.inmmune) {
             this.health -= damage;
             this.inmmune = true;
-            if (this.flipX) {
-                this.setVelocityX(-6000)
+            if (this.player.flipX) {
+                this.setVelocityX(-1600)
             } else {
-                this.setVelocityX(6000)
+                this.setVelocityX(1600)
             }
 
-            this.setVelocityY(-300)
+            this.setVelocityY(-500)
             this.setTint(0xff0000);
             this.reset()
             setTimeout(() => {
                 this.clearTint()
                 this.inmmune = false
-            }, 1000)
+            }, 400)
         }
     }
 
