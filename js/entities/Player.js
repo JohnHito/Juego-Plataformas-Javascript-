@@ -313,7 +313,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
       if (this.canJump) {
         this.setVelocityY(this.jumpHight * -1);
-        this.canJump = true;
+        this.canJump = false;
         console.log(this.canJump);
       }
     }

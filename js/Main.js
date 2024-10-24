@@ -72,7 +72,6 @@ class Main extends Phaser.Scene {
   }
 
   create() {
-    this.gamePadController = new GamePadController(this);
     //Instancia a la clase que controla los niveles
     this.roomController = new RoomController(this, 0, 0);
     //Llama el metodo create, el cual llama al metodo para dibujar la parte visual del nivel
@@ -82,19 +81,22 @@ class Main extends Phaser.Scene {
 
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
-    this.player2 = new Player(this, 440, 440, "playerSheet");
-    this.player3 = new Player(this, 460, 440, "playerSheet");
+    // this.player2 = new Player(this, 440, 440, "playerSheet");
+    // this.player3 = new Player(this, 460, 440, "playerSheet");
 
-    this.player2.setTint(0x90ee90);
-    this.player3.setTint(0xADD8E6);
+    // this.player2.setTint(0x90ee90);
+    //  this.player3.setTint(0xadd8e6);
 
     // Añadir los jugadores al grupo
     this.playersGroup.add(this.player);
-    this.playersGroup.add(this.player2);
-    this.playersGroup.add(this.player3);
+    // this.playersGroup.add(this.player2);
+    // this.playersGroup.add(this.player3);
 
     //Controles de teclado
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    //Controles de gamePads
+    this.gamePadController = new GamePadController(this);
 
     //Crea un joystick para moverse desde celular a partir de un pluguin
     this.joyStick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
@@ -127,13 +129,10 @@ class Main extends Phaser.Scene {
       .setAlpha(0.7);
     gui.scale = 0.7;
 
-
     //Le manda los controles al jugador
-    //! this.player.setControls(this.cursors, this.joystickCursors);
-
     this.player.setControls(this.cursors, this.btn1, this.btn2);
-    this.player2.setControls(this.joystickCursors, this.btn1, this.btn2);
-    this.player3.setControls(this.gamePadController, this.btn1, this.btn2);
+    //this.player2.setControls(this.joystickCursors, this.btn1, this.btn2);
+    //this.player3.setControls(this.gamePadController, this.btn1, this.btn2);
 
     //Crea colisiones
     this.colliders = this.physics.add.staticGroup();
@@ -159,7 +158,6 @@ class Main extends Phaser.Scene {
   }
 
   update() {
-
     //Esto se encarga de reducir el llamado al update del nivel para reducir
     //consumo de recursos
     if (this.clock === this.clockRate) {
@@ -169,7 +167,7 @@ class Main extends Phaser.Scene {
     } else {
       this.clock++;
     }
-    
+
     //Actualzia al jugador
     this.playersGroup.children.iterate((player) => {
       if (player) {
@@ -180,23 +178,22 @@ class Main extends Phaser.Scene {
     this.updateCameraToPlayers();
 
     if (this.gamePadController.up.isDown) {
-        // Move player up
-        console.log("Moving Up");
-      }
-      if (this.gamePadController.down.isDown) {
-        // Move player down
-        console.log("Moving Down");
-      }
-      if (this.gamePadController.left.isDown) {
-        // Move player left
-        console.log("Moving Left");
-      }
-      if (this.gamePadController.right.isDown) {
-        // Move player right
-        console.log("Moving Right");
-      }
-      this.gamePadController.update();
-
+      // Move player up
+      console.log("Moving Up");
+    }
+    if (this.gamePadController.down.isDown) {
+      // Move player down
+      console.log("Moving Down");
+    }
+    if (this.gamePadController.left.isDown) {
+      // Move player left
+      console.log("Moving Left");
+    }
+    if (this.gamePadController.right.isDown) {
+      // Move player right
+      console.log("Moving Right");
+    }
+    this.gamePadController.update();
   }
 
   calculateBoundsForPlayers() {
@@ -219,24 +216,42 @@ class Main extends Phaser.Scene {
   updateCameraToPlayers() {
     let bounds = this.calculateBoundsForPlayers();
 
-    // Calcular el centro del área que contiene a los jugadores
+    // Calculate the center of the area that contains the players
     let centerX = (bounds.minX + bounds.maxX) / 2;
     let centerY = (bounds.minY + bounds.maxY) / 2;
 
-    // Calcular el tamaño del área
+    // Calculate the size of the area
     let width = bounds.maxX - bounds.minX;
     let height = bounds.maxY - bounds.minY;
 
-    // Ajustar la posición de la cámara al centro
+    // Adjust the camera's position to the center
     this.cameras.main.centerOn(centerX, centerY);
 
-    // Ajustar el zoom de la cámara para que quepan todos los jugadores (puedes ajustar el factor según tus necesidades)
-    let zoomX = this.cameras.main.width / (width + 200); // Añadir un pequeño margen
-    let zoomY = this.cameras.main.height / (height + 200); // Añadir un pequeño margen
-    let zoom = Math.min(zoomX, zoomY);
+    // Calculate the zoom factor
+    let zoomX = this.cameras.main.width / (width + 200); // Add a small margin
+    let zoomY = this.cameras.main.height / (height + 150); // Add a small margin
+    let targetZoom = Math.min(zoomX, zoomY);
 
-    // Limitar el zoom para no hacerlo demasiado pequeño
-    this.cameras.main.setZoom(Phaser.Math.Clamp(zoom, 0.5, 1.5)); // Ajusta estos valores según tu necesidad
+    // Smoothly interpolate the zoom level
+    this.smoothZoom(targetZoom);
+  }
+  smoothZoom(targetZoom) {
+    const currentZoom = this.cameras.main.zoom;
+    const zoomSpeed = 0.03; // Adjust this value to make zooming faster or slower
+    const maxZoom = 1; // Set your maximum zoom level here
+    const minZoom = 0.5; // Set your minimum zoom level here
+
+    // Clamp the target zoom to the maximum and minimum zoom levels
+    targetZoom = Math.min(Math.max(targetZoom, minZoom), maxZoom);
+
+    // Gradually approach the target zoom
+    if (Math.abs(currentZoom - targetZoom) > 0.005) {
+      this.cameras.main.setZoom(
+        currentZoom + (targetZoom - currentZoom) * zoomSpeed
+      );
+    } else {
+      this.cameras.main.setZoom(targetZoom); // Set to exact target zoom when close enough
+    }
   }
 }
 
@@ -262,7 +277,7 @@ const config = {
   input: {
     // Define la cantidad de dedos que pueden interactuar con la pantalla en celular a la vez
     activePointers: 5,
-    gamepad: true
+    gamepad: true,
   },
 };
 
