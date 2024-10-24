@@ -81,10 +81,10 @@ class Main extends Phaser.Scene {
 
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
-    // this.player2 = new Player(this, 440, 440, "playerSheet");
+    this.player2 = new Player(this, 440, 440, "playerSheet");
     // this.player3 = new Player(this, 460, 440, "playerSheet");
 
-    // this.player2.setTint(0x90ee90);
+     this.player2.setTint(0x90ee90);
     //  this.player3.setTint(0xadd8e6);
 
     // Añadir los jugadores al grupo
@@ -131,7 +131,7 @@ class Main extends Phaser.Scene {
 
     //Le manda los controles al jugador
     this.player.setControls(this.cursors, this.btn1, this.btn2);
-    //this.player2.setControls(this.joystickCursors, this.btn1, this.btn2);
+    this.player2.setControls(this.joystickCursors, this.btn1, this.btn2);
     //this.player3.setControls(this.gamePadController, this.btn1, this.btn2);
 
     //Crea colisiones
