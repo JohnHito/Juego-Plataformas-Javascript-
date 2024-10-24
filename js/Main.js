@@ -89,7 +89,7 @@ class Main extends Phaser.Scene {
 
     // Añadir los jugadores al grupo
     this.playersGroup.add(this.player);
-    // this.playersGroup.add(this.player2);
+    this.playersGroup.add(this.player2);
     // this.playersGroup.add(this.player3);
 
     //Controles de teclado
