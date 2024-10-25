@@ -421,7 +421,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     if (!this.inmmune) {
       this.health -= damage;
       this.inmmune = true;
-      if (this.player.flipX) {
+      if (this.flipX) {
         this.setVelocityX(-1600);
       } else {
         this.setVelocityX(1600);

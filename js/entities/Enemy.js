@@ -24,11 +24,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.inmmune = false;
     this.scale = 0.7;
     this.maxVelocityY = 3000;
+    this.closestPlayer = null;
+    this.closestDistance = Infinity;
 
     //Si el enemigo esta atacando, detecta si la animacion termino
     this.on("animationcomplete-attack", () => {
       //Cuando la animacion termina, pone a atacando como false
       this.attacking = false;
+      this.stop = false;
     });
 
     //Detecta si se esta reproduciendo la animacion de morir
@@ -40,23 +43,18 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     //Este metodo controla el ataque del enemigo pero esta desabilitado por ahora, se esta cambiando
     //el como se controla el ataque del enemigo para mejor rendimiento
     this.on("animationupdate", (animation, frame) => {
-      if (
-        animation.key === "attack" &&
-        !this.attackingRange &&
-        frame.index === 7
-      ) {
-        if (this.checkMeleeCollision()) {
-          this.player.setVelocityX(this.flipX ? -800 : 800);
-          this.player.setVelocityY(-300);
-          this.player.setTint(0xff0000);
-          this.player.reset();
-          this.scene.cameras.main.shake(50, 0.009);
+      console.log("Checking closest player:", this.closestPlayer);
 
-          setTimeout(() => {
-            this.player.clearTint();
-          }, 500);
-        }
+      console.log(animation.key +" : "+ this.anims.currentFrame.index)
+      if (animation.key === "attack" && frame.index === 7) {
+        console.log("try attack");
+        
+          this.closestPlayer.takeDamage(1);
+          console.log("ATTACK HIT", this.anims.currentFrame.index);
+        
       }
+      this.closestDistance = Infinity;
+      this.closestPlayer = null;
     });
   }
 
@@ -92,7 +90,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
       frames: this.anims.generateFrameNumbers("enemySheet", {
         frames: [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
       }),
-      frameRate: 20,
+      frameRate: 16,
       repeat: 0,
     };
     const dead = {
@@ -118,6 +116,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
+    
     //Limita la velocidad maxima a la que el enemigo puede caer
     if (this.body.velocity.y > this.maxVelocityY) {
       this.body.velocity.y = this.maxVelocityY;
@@ -128,10 +127,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     //IA
     if (!this.stop) {
-      // Lógica para seguir al jugador más cercano
-      let closestPlayer = null;
-      let closestDistance = Infinity;
-
       // Iterar sobre los hijos del grupo de jugadores
       this.playersGroup.children.iterate((player) => {
         // Calcular la distancia entre este enemigo y el jugador
@@ -143,15 +138,15 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         );
 
         // Comprobar si este jugador es el más cercano
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestPlayer = player;
+        if (distance < this.closestDistance) {
+          this.closestDistance = distance;
+          this.closestPlayer = player;
         }
       });
 
       // Si se encontró un jugador cercano, mover hacia él
-      if (closestPlayer) {
-        if (closestPlayer.x > this.x + 10 && !this.attacking) {
+      if (this.closestPlayer) {
+        if (this.closestPlayer.x > this.x + 10 && !this.stop) {
           this.setVelocityX(this.speed);
           if (this.body.velocity.x !== 0) {
             this.play("walk", true);
@@ -159,7 +154,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.play("idle", true);
           }
           this.flipX = false;
-        } else if (closestPlayer.x < this.x - 10 && !this.attacking) {
+        } else if (this.closestPlayer.x < this.x - 10 && !this.stop) {
           this.setVelocityX(-this.speed);
           if (this.body.velocity.x !== 0) {
             this.play("walk", true);
@@ -167,8 +162,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.play("idle", true);
           }
           this.flipX = true;
-        } else if (!this.attacking) {
+        } else if (!this.stop) {
           this.play("idle", true);
+        }
+
+        if (this.closestDistance < 50) {
+          this.stop = true;
+          this.play("attack");
+          console.log(this.closestDistance);
         }
       }
     }
