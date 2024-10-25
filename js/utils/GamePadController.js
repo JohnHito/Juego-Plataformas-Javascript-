@@ -23,7 +23,7 @@ export default class GamePadController {
   }
 
   update() {
-    const gamepad = this.scene.input.gamepad.gamepads[1];
+    const gamepad = this.scene.input.gamepad.gamepads[0];
 
     if (gamepad) {
       // Update axes for left/right and up/down
