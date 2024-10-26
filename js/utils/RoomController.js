@@ -9,7 +9,7 @@ import top from '../data/top.js';
 import right_top from '../data/right_top.js';
 import Background from '/js/Background.js';
 import Effect from '/js/entities/Effect.js';
-import Enemy from '/js/entities/Enemy.js';
+import Mage from '/js/entities/Mage.js';
 
 export default class LevelController extends Phaser.GameObjects.Container {
     constructor(scene, y, x) {
@@ -29,7 +29,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
         //Crea un grupo usando metodos de phaser para gaurdar enemigos
         this.enemies = this.scene.physics.add.group();
         //La cantidad de enemigos que se pueden generar en el nivel
-        this.enemiesAmout = 10;
+        this.enemiesAmout = 20;
         //Genera un tinte random para aplicarle al nivel
         this.randomTint = this.getRandomTint();
 
@@ -211,7 +211,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
         array.forEach((row, rowIndex) => {
             row.forEach((symbol, colIndex) => {
                 if (symbol != 0 && this.enemiesAmout > 0) {
-                    let enemy = new Enemy(
+                    let enemy = new Mage(
                         this.scene,
                         (colIndex + 1) * 32 + (960 * segmentX),
                         (rowIndex + 1) * 32 + (960 * segmentY) - 64,

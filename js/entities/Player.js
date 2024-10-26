@@ -47,6 +47,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     //Llama a la funcion para crear las animaciones
     this.createAnimations();
+
+    this.normalTint=null;
   }
 
   controlFisicas() {
@@ -431,9 +433,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.setTint(0xff0000);
       this.reset();
       setTimeout(() => {
-        this.clearTint();
+        if(this.normalTint){
+          this.setTint(this.normalTint);
+        }else{ this.clearTint();}
         this.inmmune = false;
-      }, 400);
+      }, 100);
     }
   }
 

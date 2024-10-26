@@ -32,10 +32,6 @@ export default class GamePadController {
       this.up.isDown = gamepad.axes[1].getValue() < -0.1; // Threshold for up
       this.down.isDown = gamepad.axes[1].getValue() > 0.1; // Threshold for down
 
-      // Log axis values for debugging
-      console.log("Axis X:", gamepad.axes[0].getValue());
-      console.log("Axis Y:", gamepad.axes[1].getValue());
-
       // Log button states
       for (let i = 0; i < gamepad.buttons.length; i++) {
         if (gamepad.buttons[i].pressed) {

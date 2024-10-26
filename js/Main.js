@@ -1,6 +1,7 @@
 //Import de clases
 import Player from "/js/entities/Player.js";
 import Effect from "/js/entities/Effect.js";
+import Proyectile from "/js/entities/Proyectile.js";
 import RoomController from "./utils/RoomController.js";
 import GamePadController from "./utils/GamePadController.js";
 
@@ -14,14 +15,12 @@ class Main extends Phaser.Scene {
 
     this.clock = 0;
     this.clockRate = 3;
-    this.gamePadController = null;
+    this.gamePadControlls = null;
   }
 
   preload() {
     //Se añade el pluguin del joystick
-    let url =
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
-    this.load.plugin("rexvirtualjoystickplugin", url, true);
+    this.load.plugin("rexvirtualjoystickplugin", "../js/vendor/joysticlPlugin.min.js", true);
 
     //Imagenes
     //Fondo
@@ -36,6 +35,7 @@ class Main extends Phaser.Scene {
     this.load.image("left_top", "/assets/levels/left_top1.png");
     this.load.image("top", "/assets/levels/top1.png");
     this.load.image("right_top", "/assets/levels/right_top1.png");
+    this.load.image("fire_spark", "/assets/sprites/fire_spark.png");
 
     //Gui
     this.load.image("btn_jump", "/assets/sprites/btn_jump.png");
@@ -78,25 +78,26 @@ class Main extends Phaser.Scene {
     this.roomController.create();
     // Crear un grupo para los jugadores
     this.playersGroup = this.physics.add.group();
+    this.projectilesGroup = this.physics.add.group();
 
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
-    //this.player = new Player(this, 420, 440, "playerSheet");
-    this.player2 = new Player(this, 440, 440, "playerSheet");
-     this.player3 = new Player(this, 460, 440, "playerSheet");
+    this.player = new Player(this, 420, 440, "playerSheet");
+    //this.player2 = new Player(this, 440, 440, "playerSheet");
+   // this.player3 = new Player(this, 460, 440, "playerSheet");
 
     // this.player2.setTint(0x90ee90);
-      this.player3.setTint(0xadd8e6);
+    //this.player3.normalTint = 0xadd8e6;
 
     // Añadir los jugadores al grupo
-    //this.playersGroup.add(this.player);
-    this.playersGroup.add(this.player2);
-     this.playersGroup.add(this.player3);
+    this.playersGroup.add(this.player);
+    //this.playersGroup.add(this.player2);
+   //this.playersGroup.add(this.player3);
 
     //Controles de teclado
-    this.cursors = this.input.keyboard.createCursorKeys();
+    this.keyboardControlls = this.input.keyboard.createCursorKeys();
 
     //Controles de gamePads
-    this.gamePadController = new GamePadController(this);
+    this.gamePadControlls = new GamePadController(this);
 
     //Crea un joystick para moverse desde celular a partir de un pluguin
     this.joyStick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
@@ -106,7 +107,7 @@ class Main extends Phaser.Scene {
       base: this.add.circle(0, 0, 70, 0x5c65c0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
       thumb: this.add.circle(0, 0, 25, 0x6f95ff).setAlpha(0.5),
     });
-    this.joystickCursors = this.joyStick.createCursorKeys();
+    this.tactileControlls = this.joyStick.createCursorKeys();
 
     //Gui de celular
     const btn1 = this.add
@@ -130,9 +131,9 @@ class Main extends Phaser.Scene {
     gui.scale = 0.7;
 
     //Le manda los controles al jugador
-    //this.player.setControls(this.cursors, this.btn1, this.btn2);
-    this.player2.setControls(this.joystickCursors, this.btn1, this.btn2);
-    this.player3.setControls(this.gamePadController, this.btn1, this.btn2);
+    this.player.setControls(this.keyboardControlls, this.btn1, this.btn2);
+    //this.player2.setControls(this.tactileControlls, this.btn1, this.btn2);
+   // this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
 
     //Crea colisiones
     this.colliders = this.physics.add.staticGroup();
@@ -153,8 +154,17 @@ class Main extends Phaser.Scene {
       960 * this.roomController.roomSizeY + 32 * 3
     );
 
-    //Pone a la camara a seguir al jugador
-    //this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    //?POSIBLE MAP
+    //this.UI_CAM_1 = this.cameras.add(-150,-150 ,300,300);
+    //this.UI_CAM_1.setZoom(0.05);
+
+    this.proyectile = new Proyectile(
+      this,
+      200,
+      200,
+      null,
+      this.playersGroup.getFirstAlive()
+    );
   }
 
   update() {
@@ -175,25 +185,15 @@ class Main extends Phaser.Scene {
       }
     });
 
+    this.projectilesGroup.children.iterate((proyectile) => {
+      if (proyectile) {
+        proyectile.update(); // Llamar al método update de cada jugador
+      }
+    });
+
     this.updateCameraToPlayers();
 
-    if (this.gamePadController.up.isDown) {
-      // Move player up
-      console.log("Moving Up");
-    }
-    if (this.gamePadController.down.isDown) {
-      // Move player down
-      console.log("Moving Down");
-    }
-    if (this.gamePadController.left.isDown) {
-      // Move player left
-      console.log("Moving Left");
-    }
-    if (this.gamePadController.right.isDown) {
-      // Move player right
-      console.log("Moving Right");
-    }
-    this.gamePadController.update();
+    this.gamePadControlls.update();
   }
 
   calculateBoundsForPlayers() {
