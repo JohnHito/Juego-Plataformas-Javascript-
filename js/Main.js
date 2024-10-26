@@ -128,12 +128,15 @@ class Main extends Phaser.Scene {
       .image(635, 390, "btn_attack")
       .setInteractive()
       .setScrollFactor(0)
-      .setAlpha(0.7).visible = false;
+      .setAlpha(0.7);
     this.btn2 = this.add
       .image(730, 280, "btn_jump")
       .setInteractive()
       .setScrollFactor(0)
-      .setAlpha(0.7).visible = false;
+      .setAlpha(0.7);
+
+    this.btn1.visible = false;
+    this.btn2.visible = false;
 
     //Gui
     const gui = this.add
@@ -170,14 +173,14 @@ class Main extends Phaser.Scene {
     //?POSIBLE MAP
     //this.UI_CAM_1 = this.cameras.add(-150,-150 ,300,300);
     //this.UI_CAM_1.setZoom(0.05);
-    
+
     if (this.hasTouchScreen()) {
       this.playersGroup.getFirst(true).cursors = this.tactileControlls;
 
       this.joyStick.thumb.setVisible(true);
       this.joyStick.base.setVisible(true);
-      //this.btn2.visible = true;
-     // this.btn1.visible = true;
+      this.btn2.visible = true;
+      this.btn1.visible = true;
     }
   }
   hasTouchScreen() {
@@ -188,7 +191,6 @@ class Main extends Phaser.Scene {
     );
   }
   update() {
-    
     //Esto se encarga de reducir el llamado al update del nivel para reducir
     //consumo de recursos
     if (this.clock === this.clockRate) {
