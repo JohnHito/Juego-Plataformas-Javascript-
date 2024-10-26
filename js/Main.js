@@ -20,7 +20,11 @@ class Main extends Phaser.Scene {
 
   preload() {
     //Se añade el pluguin del joystick
-    this.load.plugin("rexvirtualjoystickplugin", "../js/vendor/joysticlPlugin.min.js", true);
+    this.load.plugin(
+      "rexvirtualjoystickplugin",
+      "../js/vendor/joysticlPlugin.min.js",
+      true
+    );
 
     //Imagenes
     //Fondo
@@ -83,7 +87,7 @@ class Main extends Phaser.Scene {
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
     //this.player2 = new Player(this, 440, 440, "playerSheet");
-   // this.player3 = new Player(this, 460, 440, "playerSheet");
+    // this.player3 = new Player(this, 460, 440, "playerSheet");
 
     // this.player2.setTint(0x90ee90);
     //this.player3.normalTint = 0xadd8e6;
@@ -91,7 +95,7 @@ class Main extends Phaser.Scene {
     // Añadir los jugadores al grupo
     this.playersGroup.add(this.player);
     //this.playersGroup.add(this.player2);
-   //this.playersGroup.add(this.player3);
+    //this.playersGroup.add(this.player3);
 
     //Controles de teclado
     this.keyboardControlls = this.input.keyboard.createCursorKeys();
@@ -133,7 +137,7 @@ class Main extends Phaser.Scene {
     //Le manda los controles al jugador
     this.player.setControls(this.keyboardControlls, this.btn1, this.btn2);
     //this.player2.setControls(this.tactileControlls, this.btn1, this.btn2);
-   // this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
+    // this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
 
     //Crea colisiones
     this.colliders = this.physics.add.staticGroup();
@@ -166,8 +170,17 @@ class Main extends Phaser.Scene {
       this.playersGroup.getFirstAlive()
     );
   }
-
+  hasTouchScreen() {
+    return (
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      navigator.msMaxTouchPoints > 0
+    );
+  }
   update() {
+    if (this.hasTouchScreen()) {
+      this.playersGroup.getFirst(true).cursors = this.tactileControlls;
+    }
     //Esto se encarga de reducir el llamado al update del nivel para reducir
     //consumo de recursos
     if (this.clock === this.clockRate) {
