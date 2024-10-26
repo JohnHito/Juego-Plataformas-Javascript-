@@ -89,8 +89,8 @@ class Main extends Phaser.Scene {
     );
     this.playersGroup.add(this.player);
     this.player.setControls(cursors, this.btn1, this.btn2);
-    this.player.normalTint = "0x8be78b"
-    this.player.setTint("0x8be78b")
+    this.player.normalTint = "0x8be78b";
+    this.player.setTint("0x8be78b");
   }
 
   create() {
@@ -118,6 +118,12 @@ class Main extends Phaser.Scene {
 
     //Controles de teclado
     this.keyboardControlls2 = this.input.keyboard.createCursorKeys();
+    this.keyboardExtraControlls2 = this.input.keyboard.addKeys({
+      btn1: Phaser.Input.Keyboard.KeyCodes.E,
+      up: Phaser.Input.Keyboard.KeyCodes.w,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
+    });
+
 
     this.keyboardControlls = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -125,39 +131,15 @@ class Main extends Phaser.Scene {
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
-    //Controles de gamePads
-    this.gamePadControlls = new GamePadController(this);
-
-    //Crea un joystick para moverse desde celular a partir de un pluguin
-    this.joyStick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-      x: 100,
-      y: 350,
-      radius: 80,
-      base: this.add.circle(0, 0, 70, 0x5c65c0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
-      thumb: this.add.circle(0, 0, 25, 0x6f95ff).setAlpha(0.5),
+    
+    this.keyboardExtraControlls = this.input.keyboard.addKeys({
+      btn1: Phaser.Input.Keyboard.KeyCodes.E,
+      up: Phaser.Input.Keyboard.KeyCodes.w,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
     });
 
-    this.tactileControlls = this.joyStick.createCursorKeys();
-
-    this.joyStick.thumb.setVisible(false);
-    this.joyStick.base.setVisible(false);
-
-    // this.tactileControlls.setVisible(false);
-
-    //Gui de celular
-    this.btn1 = this.add
-      .image(635, 390, "btn_attack")
-      .setInteractive()
-      .setScrollFactor(0)
-      .setAlpha(0.7);
-    this.btn2 = this.add
-      .image(730, 280, "btn_jump")
-      .setInteractive()
-      .setScrollFactor(0)
-      .setAlpha(0.7);
-
-    this.btn1.visible = true;
-    this.btn2.visible = true;
+    //Controles de gamePads
+    this.gamePadControlls = new GamePadController(this);
 
     //Gui
     const gui = this.add
@@ -170,7 +152,7 @@ class Main extends Phaser.Scene {
     //Le manda los controles al jugador
     this.player.setControls(this.keyboardControlls, this.btn1, this.btn2);
     //this.player2.setControls(this.tactileControlls, this.btn1, this.btn2);
-    // this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
+    //this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
 
     //Crea colisiones
     this.colliders = this.physics.add.staticGroup();
@@ -196,13 +178,42 @@ class Main extends Phaser.Scene {
     //this.UI_CAM_1.setZoom(0.05);
 
     if (this.hasTouchScreen()) {
-      this.playersGroup.getFirst(true).cursors = this.tactileControlls;
-
-      this.joyStick.thumb.setVisible(true);
-      this.joyStick.base.setVisible(true);
-      this.btn2.visible = true;
-      this.btn1.visible = true;
+      this.createTouchControls();
     }
+  }
+
+  createTouchControls() {
+    this.playersGroup.getFirst(true).cursors = this.tactileControlls;
+    //Crea un joystick para moverse desde celular a partir de un pluguin
+    this.joyStick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
+      x: 100,
+      y: 350,
+      radius: 80,
+      base: this.add.circle(0, 0, 70, 0x5c65c0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
+      thumb: this.add.circle(0, 0, 25, 0x6f95ff).setAlpha(0.5),
+    });
+    this.tactileControlls = this.joyStick.createCursorKeys();
+
+    //this.joyStick.thumb.setVisible(false);
+    //this.joyStick.base.setVisible(false);
+    // this.tactileControlls.setVisible(false);
+    //Gui de celular
+
+    this.btn1 = this.add
+      .image(635, 390, "btn_attack")
+      .setInteractive()
+      .setScrollFactor(0)
+      .setAlpha(0.7);
+    this.btn2 = this.add
+      .image(730, 280, "btn_jump")
+      .setInteractive()
+      .setScrollFactor(0)
+      .setAlpha(0.7);
+
+    this.btn1.visible = true;
+    this.btn2.visible = true;
+    this.joyStick.thumb.setVisible(true);
+    this.joyStick.base.setVisible(true);
   }
   hasTouchScreen() {
     return (
@@ -249,22 +260,30 @@ class Main extends Phaser.Scene {
 
     this.gamePadControlls.update();
   }
-
   calculateBoundsForPlayers() {
     let minX = Infinity,
       minY = Infinity,
       maxX = -Infinity,
-      maxY = -Infinity;
+      maxY = -Infinity,
+      hasAlive = false,
+      lastAlive = null;
 
     this.playersGroup.children.iterate((player) => {
-      if (player) {
+      if (player && player.alive) {
         minX = Math.min(minX, player.x);
         minY = Math.min(minY, player.y);
         maxX = Math.max(maxX, player.x);
         maxY = Math.max(maxY, player.y);
+        hasAlive = true;
       }
+      lastAlive = player;
     });
-
+    if (!hasAlive && lastAlive) {
+      minX = Math.min(minX, lastAlive.x);
+      minY = Math.min(minY, lastAlive.y);
+      maxX = Math.max(maxX, lastAlive.x);
+      maxY = Math.max(maxY, lastAlive.y);
+    }
     return { minX, minY, maxX, maxY };
   }
   updateCameraToPlayers() {
@@ -283,7 +302,7 @@ class Main extends Phaser.Scene {
 
     // Calculate the zoom factor
     let zoomX = this.cameras.main.width / (width + 200); // Add a small margin
-    let zoomY = this.cameras.main.height / (height + 150); // Add a small margin
+    let zoomY = this.cameras.main.height / (height + 500); // Add a small margin
     let targetZoom = Math.min(zoomX, zoomY);
 
     // Smoothly interpolate the zoom level

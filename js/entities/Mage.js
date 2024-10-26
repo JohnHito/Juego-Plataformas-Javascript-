@@ -225,69 +225,95 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
   pathFind(target) {
     //IA
-    if (!this.stop) {
-      // Si se encontró un jugador cercano, mover hacia él
-      if (target.closestPlayer) {
-        if (target.closestPlayer.x > this.x + 10 && !this.stop) {
-          this.flipX = false;
+    if (target) {
+      if (!this.stop) {
+        // Si se encontró un jugador cercano, mover hacia él
+        if (target.closestPlayer) {
+          if (target.closestPlayer.x > this.x + 10 && !this.stop) {
+            this.flipX = false;
 
-          if (this.detectCollision()) {
-            this.setVelocityX(this.speed);
-          }
+            if (this.detectCollision()) {
+              this.setVelocityX(this.speed);
+            }
 
-          if (this.body.velocity.x !== 0 && this.detectCollision()) {
-            this.play("walk", true);
-          } else {
+            if (this.body.velocity.x !== 0 && this.detectCollision()) {
+              this.play("walk", true);
+            } else {
+              this.play("idle", true);
+            }
+          } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
+            this.flipX = true;
+
+            if (this.detectCollision()) {
+              this.setVelocityX(-this.speed);
+            }
+
+            if (this.body.velocity.x !== 0) {
+              this.play("walk", true);
+            } else {
+              this.play("idle", true);
+            }
+          } else if (!this.stop) {
             this.play("idle", true);
           }
-        } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
-          this.flipX = true;
 
-          if (this.detectCollision()) {
-            this.setVelocityX(-this.speed);
+          if (target.closestDistance < this.meleeRange) {
+            this.stop = true;
+            this.play("attack");
+            console.log(target.closestDistance);
           }
-
-          if (this.body.velocity.x !== 0) {
-            this.play("walk", true);
-          } else {
-            this.play("idle", true);
-          }
-        } else if (!this.stop) {
-          this.play("idle", true);
-        }
-
-        if (target.closestDistance < this.meleeRange) {
-          this.stop = true;
-          this.play("attack");
-          console.log(target.closestDistance);
         }
       }
     }
   }
-
   determineTarget() {
     this.closestDistance = Infinity;
     this.closestTarget = null;
-    // Iterar sobre los hijos del grupo de jugadores
-    this.playersGroup.children.iterate((player) => {
-      // Calcular la distancia entre este enemigo y el jugador
-      const distance = Phaser.Math.Distance.Between(
-        this.x,
-        this.y,
-        player.x,
-        player.y
-      );
+    let secondClosestDistance = Infinity;
+    let secondClosestTarget = null;
 
-      // Comprobar si este jugador es el más cercano
-      if (distance < this.closestDistance) {
-        this.closestDistance = distance;
-        this.closestTarget = player;
+    // Iterate over the players in the group
+    this.playersGroup.children.iterate((player) => {
+      // Check if this player has a body
+      if (player.alive) {
+        const distance = Phaser.Math.Distance.Between(
+          this.x,
+          this.y,
+          player.x,
+          player.y
+        );
+
+        // Check if this player is the closest so far
+        if (distance < this.closestDistance) {
+          // Update second closest before updating the closest
+          secondClosestDistance = this.closestDistance;
+          secondClosestTarget = this.closestTarget;
+
+          // Set new closest player
+          this.closestDistance = distance;
+          this.closestTarget = player;
+        }
+        // Check if this is the second closest
+        else if (distance < secondClosestDistance) {
+          secondClosestDistance = distance;
+          secondClosestTarget = player;
+        }
       }
     });
-    return {
-      closestDistance: this.closestDistance,
-      closestPlayer: this.closestTarget,
-    };
+
+    // If the closest target doesn't have a body, fall back to the second closest
+    if (!this.closestTarget || !this.closestTarget.alive) {
+      this.closestDistance = secondClosestDistance;
+      this.closestTarget = secondClosestTarget;
+    }
+
+    // Return the closest player with a body, or null if no valid target
+    return this.closestTarget
+      ? {
+          closestDistance: this.closestDistance,
+          closestPlayer: this.closestTarget,
+        }
+      : null;
   }
 
   detectCollision() {

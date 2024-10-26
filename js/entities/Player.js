@@ -36,19 +36,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     //Atributos del personaje
     this.jumpHight = 1100;
+    this.health = 10;
     this.speed = 350;
     this.maxVelocityY = 3000;
     this.inmmune = false;
     this.scale = 0.7;
     this.attackHitbox = new Effect(this.scene, 0, 0, "effect_hammer_smash");
-
+    this.alive = true;
     //Array de enemigos
     this.enemies = null;
 
     //Llama a la funcion para crear las animaciones
     this.createAnimations();
 
-    this.normalTint=null;
+    this.normalTint = null;
   }
 
   controlFisicas() {
@@ -68,71 +69,73 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   controlAnimaciones() {
     //Detectan si una animacion se termino. para ejecutar algo
     //Detecta la animacion del jugador para caer al suelo
-    this.on("animationcomplete-hitGround", () => {
-      this.isHitGroundComplete = true;
-    });
-    this.on("animationcomplete-weaponHitGround", () => {
-      this.isHitGroundComplete = true;
-    });
+    if (this.alive) {
+      this.on("animationcomplete-hitGround", () => {
+        this.isHitGroundComplete = true;
+      });
+      this.on("animationcomplete-weaponHitGround", () => {
+        this.isHitGroundComplete = true;
+      });
 
-    //Si termino de atacar
-    this.on("animationcomplete-attack", () => {
-      this.stop = false;
-      this.attacking = false;
-    });
-    //Si termino de invocar el arma
-    this.on("animationcomplete-weaponSummon", () => {
-      this.stop = false;
-      this.hasWeapon = true;
-      this.speed = 300;
-    });
-    //Control de animacion si el jugador esta saltando
-    if (!this.inGround) {
-      if (this.body.velocity.y < 0) {
-        if (this.hasWeapon) {
-          this.play("weaponGoingUp", true);
-        } else {
-          this.play("goingUp", true);
+      //Si termino de atacar
+      this.on("animationcomplete-attack", () => {
+        this.stop = false;
+        this.attacking = false;
+      });
+      //Si termino de invocar el arma
+      this.on("animationcomplete-weaponSummon", () => {
+        this.stop = false;
+        this.hasWeapon = true;
+        this.speed = 300;
+      });
+      //Control de animacion si el jugador esta saltando
+      if (!this.inGround) {
+        if (this.body.velocity.y < 0) {
+          if (this.hasWeapon) {
+            this.play("weaponGoingUp", true);
+          } else {
+            this.play("goingUp", true);
+          }
+
+          //Control de animacion Si el jugador esta callendo
+        } else if (this.body.velocity.y > 0) {
+          if (this.hasWeapon) {
+            this.play("weaponFalling", true);
+          } else {
+            this.play("falling", true);
+          }
+          this.falling = true;
         }
 
-        //Control de animacion Si el jugador esta callendo
-      } else if (this.body.velocity.y > 0) {
+        //Animacion al caer
+      } else if (this.falling) {
         if (this.hasWeapon) {
-          this.play("weaponFalling", true);
+          this.play("weaponHitGround", true);
         } else {
-          this.play("falling", true);
+          this.play("hitGround", true);
         }
-        this.falling = true;
+        this.falling = false;
+        this.isHitGroundComplete = false;
       }
 
-      //Animacion al caer
-    } else if (this.falling) {
-      if (this.hasWeapon) {
-        this.play("weaponHitGround", true);
-      } else {
-        this.play("hitGround", true);
-      }
-      this.falling = false;
-      this.isHitGroundComplete = false;
-    }
-
-    //Controlar animacion idle
-    if (
-      !this.stop &&
-      this.body.velocity.x == 0 &&
-      this.body.velocity.y == 0 &&
-      this.isHitGroundComplete &&
-      !this.cursors.up.isDown &&
-      !this.cursors.down.isDown &&
-      !this.cursors.left.isDown &&
-      !this.cursors.right.isDown &&
-      !this.btn2Down &&
-      !this.btn1Down
-    ) {
-      if (this.hasWeapon) {
-        this.play("weaponIdle", true);
-      } else {
-        this.play("idle", true);
+      //Controlar animacion idle
+      if (
+        !this.stop &&
+        this.body.velocity.x == 0 &&
+        this.body.velocity.y == 0 &&
+        this.isHitGroundComplete &&
+        !this.cursors.up.isDown &&
+        !this.cursors.down.isDown &&
+        !this.cursors.left.isDown &&
+        !this.cursors.right.isDown &&
+        !this.btn2Down &&
+        !this.btn1Down
+      ) {
+        if (this.hasWeapon) {
+          this.play("weaponIdle", true);
+        } else {
+          this.play("idle", true);
+        }
       }
     }
   }
@@ -362,21 +365,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.body.velocity.y > 1000) {
         this.btn1.setTexture("btn_fall");
       } else {
-       //! this.btn1.setTexture("btn_attack");
+        //! this.btn1.setTexture("btn_attack");
       }
     } else {
-     //! this.btn1.setTexture("btn_summon");
+      //! this.btn1.setTexture("btn_summon");
     }
     if (this.canJump) {
-     //! this.btn2.setAlpha(0.7);
+      //! this.btn2.setAlpha(0.7);
     } else {
       //!this.btn2.setAlpha(0.3);
     }
   }
   update() {
+    if (this.health <= 0 && this.alive) {
+      this.stop = true;
+      this.alive = false;
+      this.inmmune = true;
+      this.play("dead", true);
+      this.setVelocityX(0);
+      this.setVelocityY(0);
+    }else if (this.alive){
     this.controlFisicas();
     this.controlAnimaciones();
     this.controlMovimiento();
+    }
   }
 
   onEnemyHit(attackHitbox, enemy) {
@@ -427,9 +439,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.setTint(0xff0000);
       this.reset();
       setTimeout(() => {
-        if(this.normalTint){
+        if (this.normalTint) {
           this.setTint(this.normalTint);
-        }else{ this.clearTint();}
+        } else {
+          this.clearTint();
+        }
         this.inmmune = false;
       }, 100);
     }
@@ -507,7 +521,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     const weaponIdle = {
       key: "weaponIdle",
       frames: this.anims.generateFrameNumbers("playerSheet", {
-        frames: [90, 91, 92, 93],
+        frames: [89, 90, 91, 92, 93, 94, 95],
       }),
       frameRate: 10,
       repeat: 0,
@@ -542,9 +556,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       frameRate: 18,
       repeat: 0,
     };
+    const dead = {
+      key: "dead",
+      frames: this.anims.generateFrameNumbers("playerSheet", {
+        frames: [
+          132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145,
+          146, 147, 148, 149,
+        ],
+      }),
+      frameRate: 18,
+      repeat: 0,
+    };
 
     //Utiliza funcciones del Phaser para crear las animaciones anteriormente definidas
     this.anims.create(run);
+    this.anims.create(dead);
     this.anims.create(idle);
     this.anims.create(goingUp);
     this.anims.create(falling);

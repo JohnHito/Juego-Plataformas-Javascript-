@@ -33,32 +33,35 @@ export default class Proyectile extends Phaser.Physics.Arcade.Sprite {
 
   update() {
     if (!this.body) return;
-    const distance = Phaser.Math.Distance.Between(
-      this.x,
-      this.y,
-      this.target.x,
-      this.target.y
-    );
-    if (distance <= 40) {
-      this.target.takeDamage(1);
-      this.particles.explode(16);
-      this.destroy();
 
-      setTimeout(() => {
-        this.particles.destroy();
-      }, 1000);
-    } else {
-      // Calculate the angle between the projectile and the target
-      const angle = Phaser.Math.Angle.Between(
+    if (this.target) {
+      const distance = Phaser.Math.Distance.Between(
         this.x,
         this.y,
         this.target.x,
         this.target.y
       );
+      if (distance <= 40) {
+        this.target.takeDamage(1);
+        this.particles.explode(16);
+        this.destroy();
 
-      // Set velocity based on the angle to the target
-      const speed = 320; // Adjust the speed as needed
-      this.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+        setTimeout(() => {
+          this.particles.destroy();
+        }, 1000);
+      } else {
+        // Calculate the angle between the projectile and the target
+        const angle = Phaser.Math.Angle.Between(
+          this.x,
+          this.y,
+          this.target.x,
+          this.target.y
+        );
+
+        // Set velocity based on the angle to the target
+        const speed = 320; // Adjust the speed as needed
+        this.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+      }
     }
   }
 }
