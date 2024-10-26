@@ -407,12 +407,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.attackHitbox.body.setAllowGravity(false);
   }
 
-  //Metodo para guardar los controles y controlarlos deste esta misma clase
-  //!Original v
-  /*!setControls(cursors, joystickCursors) {
-        this.cursors = cursors;
-        this.joystickCursors = joystickCursors;
-    }*/
   setControls(cursors, btn1, btn2) {
     this.cursors = cursors;
     this.btn1 = btn1;

@@ -16,6 +16,7 @@ class Main extends Phaser.Scene {
     this.clock = 0;
     this.clockRate = 3;
     this.gamePadControlls = null;
+    this.keyboardControlls2Active = false;
   }
 
   preload() {
@@ -79,6 +80,19 @@ class Main extends Phaser.Scene {
     });
   }
 
+  newPlayer(cursors) {
+    this.player = new Player(
+      this,
+      this.playersGroup.getFirstAlive().x,
+      this.playersGroup.getFirstAlive().y,
+      "playerSheet"
+    );
+    this.playersGroup.add(this.player);
+    this.player.setControls(cursors, this.btn1, this.btn2);
+    this.player.normalTint = "0x8be78b"
+    this.player.setTint("0x8be78b")
+  }
+
   create() {
     //Instancia a la clase que controla los niveles
     this.roomController = new RoomController(this, 0, 0);
@@ -90,6 +104,8 @@ class Main extends Phaser.Scene {
 
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
+    this.playersGroup.add(this.player);
+
     //this.player2 = new Player(this, 440, 440, "playerSheet");
     // this.player3 = new Player(this, 460, 440, "playerSheet");
 
@@ -97,13 +113,18 @@ class Main extends Phaser.Scene {
     //this.player3.normalTint = 0xadd8e6;
 
     // Añadir los jugadores al grupo
-    this.playersGroup.add(this.player);
     //this.playersGroup.add(this.player2);
     //this.playersGroup.add(this.player3);
 
     //Controles de teclado
-    this.keyboardControlls = this.input.keyboard.createCursorKeys();
+    this.keyboardControlls2 = this.input.keyboard.createCursorKeys();
 
+    this.keyboardControlls = this.input.keyboard.addKeys({
+      up: Phaser.Input.Keyboard.KeyCodes.W,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
+    });
     //Controles de gamePads
     this.gamePadControlls = new GamePadController(this);
 
@@ -135,8 +156,8 @@ class Main extends Phaser.Scene {
       .setScrollFactor(0)
       .setAlpha(0.7);
 
-    this.btn1.visible = false;
-    this.btn2.visible = false;
+    this.btn1.visible = true;
+    this.btn2.visible = true;
 
     //Gui
     const gui = this.add
@@ -191,6 +212,16 @@ class Main extends Phaser.Scene {
     );
   }
   update() {
+    if (
+      (this.keyboardControlls2.up.isDown ||
+        this.keyboardControlls2.down.isDown ||
+        this.keyboardControlls2.left.isDown ||
+        this.keyboardControlls2.right.isDown) &&
+      !this.keyboardControlls2Active
+    ) {
+      this.newPlayer(this.keyboardControlls2);
+      this.keyboardControlls2Active = true;
+    }
     //Esto se encarga de reducir el llamado al update del nivel para reducir
     //consumo de recursos
     if (this.clock === this.clockRate) {
