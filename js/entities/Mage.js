@@ -84,14 +84,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  //Metodo de checkeo de colisiones, Desabilitados por ahora
-  checkMeleeCollision() {
-    //const playerBounds = this.player.body;
-  }
-  checkRangeCollision() {
-    //const playerBounds = this.player.body;
-  }
-
   //Crea las animaciones del enemigo
   createAnimations() {
     //Crea variables constantes con una key, y con los frames necesairos desde el player sheet

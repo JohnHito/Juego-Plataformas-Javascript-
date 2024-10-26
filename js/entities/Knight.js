@@ -21,16 +21,18 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.playersGroup = player;
     this.attacking = false;
     this.attackingRange = false;
-    this.health = 5;
+    this.health = 8;
     this.stop = false;
     this.inmmune = false;
-    this.scale = 0.7;
+    this.scale = 0.8;
     this.maxVelocityY = 3000;
     this.closestTarget = null;
     this.closestDistance = Infinity;
-    this.meleeRange = 100;
-    this.attackingRange = 800;
-    this.timerStarted = false;
+    this.meleeRange = 150;
+    this.firstHit = true;
+    this.jumpState = true;
+    this.dash = true;
+    this.block = true;
     // Create attack hitbox
     this.pathHitbox = this.scene.add.rectangle(this.x, this.y, 30, 200);
     this.scene.physics.add.existing(this.pathHitbox);
@@ -39,23 +41,22 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     //Si el enemigo esta atacando, detecta si la animacion termino
     this.on("animationcomplete-attack", () => {
       //Cuando la animacion termina, pone a atacando como false
-      this.attacking = false;
-      this.stop = false;
-    });
-    this.on("animationcomplete-tpIn", () => {
-      //Cuando la animacion termina, pone a atacando como false
-      this.stop = false;
-    });
-    //Si el enemigo esta atacando, detecta si la animacion termino
-    this.on("animationcomplete-tpOut", () => {
-      //Cuando la animacion termina, pone a atacando como false
-      this.teleport(this.closestTarget);
-      this.play("tpIn");
+      if (this.firstHit) {
+        this.play("attack2");
+      } else {
+        this.attacking = false;
+        this.stop = false;
+      }
     });
     this.on("animationcomplete-attack2", () => {
       //Cuando la animacion termina, pone a atacando como false
       this.attacking = false;
       this.stop = false;
+      this.firstHit = false;
+      this.defensive = true;
+      setTimeout(() => {
+        this.defensive = false;
+      }, 2000);
     });
 
     //Detecta si se esta reproduciendo la animacion de morir
@@ -69,27 +70,31 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.on("animationupdate", (animation, frame) => {
       if (animation.key === "attack" && frame.index === 7) {
         console.log("try attack");
+        if (this.flipX) {
+          this.setVelocityX(-2000);
+        } else {
+          this.setVelocityX(2000);
+        }
         if (this.closestDistance < this.meleeRange) {
           this.closestTarget.takeDamage(1);
-          console.log("ATTACK HIT");
+          this.firstHit = true;
         }
       }
     });
 
     this.on("animationupdate", (animation, frame) => {
-      if (animation.key === "attack2" && frame.index === 8) {
+      if (animation.key === "attack2" && frame.index === 2) {
         console.log("try attack");
-        this.shotFireBall(this.closestTarget);
+        if (this.flipX) {
+          this.setVelocityX(-2000);
+        } else {
+          this.setVelocityX(2000);
+        }
+        if (this.closestDistance < this.meleeRange) {
+          this.closestTarget.takeDamage(1);
+        }
       }
     });
-  }
-
-  //Metodo de checkeo de colisiones, Desabilitados por ahora
-  checkMeleeCollision() {
-    //const playerBounds = this.player.body;
-  }
-  checkRangeCollision() {
-    //const playerBounds = this.player.body;
   }
 
   //Crea las animaciones del enemigo
@@ -97,113 +102,120 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     //Crea variables constantes con una key, y con los frames necesairos desde el player sheet
     const walk = {
       key: "walk",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 0,
-        end: 7,
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 55,
+        end: 62,
+      }),
+      frameRate: 8,
+      repeat: -1,
+    };
+    const walkReverse = {
+      key: "walkReverse",
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 62,
+        end: 55,
       }),
       frameRate: 8,
       repeat: -1,
     };
     const idle = {
       key: "idle",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 13,
-        end: 18,
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 44,
+        end: 50,
       }),
       frameRate: 16,
       repeat: -1,
     };
     const attack = {
       key: "attack",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 39,
-        end: 51,
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 12,
+        end: 22,
       }),
-      frameRate: 16,
+      frameRate: 14,
       repeat: 0,
     };
     const attack2 = {
       key: "attack2",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 91,
-        end: 103,
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 23,
+        end: 29,
       }),
-      frameRate: 8,
+      frameRate: 14,
       repeat: 0,
     };
     const dead = {
       key: "dead",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 26,
-        end: 36,
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 0,
+        end: 10,
       }),
       frameRate: 8,
       repeat: 0,
     };
-    const tpOut = {
-      key: "tpOut",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 52,
-        end: 77,
+    const dashStart = {
+      key: "dashStart",
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 34,
+        end: 35,
       }),
-      frameRate: 16,
+      frameRate: 8,
       repeat: 0,
     };
-    const tpIn = {
-      key: "tpIn",
-      frames: this.anims.generateFrameNumbers("enemySheet", {
-        start: 78,
-        end: 88,
+    const dashEnd = {
+      key: "dashEnd",
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        start: 35,
+        end: 34,
       }),
-      frameRate: 16,
+      frameRate: 8,
+      repeat: 0,
+    };
+    const block = {
+      key: "block",
+      frames: this.anims.generateFrameNumbers("knightSheet", {
+        frames: [31],
+      }),
+      frameRate: 1,
       repeat: 0,
     };
 
     //Utiliza funcciones del Phaser para crear las animaciones anteriormente definidas
     this.anims.create(walk);
-    this.anims.create(tpIn);
-    this.anims.create(tpOut);
+    this.anims.create(walkReverse);
+    this.anims.create(dashEnd);
+    this.anims.create(dashStart);
     this.anims.create(attack);
     this.anims.create(attack2);
     this.anims.create(dead);
     this.anims.create(idle);
+    this.anims.create(block);
     //this.play("dead", true);
   }
 
-  update() {
-    if (
-      !this.timerStarted &&
-      this.closestDistance < this.attackingRange &&
-      this.closestDistance > 200
-    ) {
+  jump() {
+    if (this.jumpState) {
+      this.setVelocityY(-700);
+      if (this.flipX) {
+        this.setVelocityX(-900);
+      } else {
+        this.setVelocityX(900);
+      }
+      this.jumpState = false;
       setTimeout(() => {
-        const randomNum = Math.floor(Math.random() * 4) + 1;
-        switch (randomNum) {
-          case 1:
-            if (this.scene.projectilesGroup.children.size < 5) {
-              this.stop = true;
-              this.play("attack2");
-            }
-
-            break;
-          case 2:
-            this.play("tpOut");
-            this.stop = true;
-
-            break;
-        }
-
-        this.timerStarted = false;
-      }, 3000);
-      this.timerStarted = true;
+        this.jumpState = true;
+      }, 2000);
     }
+  }
 
+  update() {
     if (this.flipX) {
       this.pathHitbox.x = this.x - 40;
     } else {
       this.pathHitbox.x = this.x + 40;
     }
-    this.pathHitbox.y = this.y + 160;
+    this.pathHitbox.y = this.y + 180;
 
     //Limita la velocidad maxima a la que el enemigo puede caer
     if (this.body.velocity.y > this.maxVelocityY) {
@@ -222,57 +234,91 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.pathFind(this.determineTarget());
   }
 
-  shotFireBall(target) {
-    this.proyectile = new Proyectile(this.scene, this.x, this.y, null, target);
-    this.scene.projectilesGroup.add(this.proyectile);
-  }
-
-  teleport(target) {
-    this.x = target.x;
-    this.y = target.y - 50;
-  }
   pathFind(target) {
     //IA
-    if (!this.stop) {
-      // Si se encontró un jugador cercano, mover hacia él
-      if (target.closestPlayer) {
-        if (target.closestPlayer.x > this.x + 10 && !this.stop) {
-          this.flipX = false;
+    if (target.closestPlayer.x > this.x + 10 && !this.stop) {
+      this.flipX = false;
+    } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
+      this.flipX = true;
+    }
+    if (!this.defensive) {
+      if (
+        this.body.velocity.x == 0 &&
+        this.y > target.closestPlayer.y + 10 &&
+        target.closestDistance < 300
+      ) {
+        this.jump();
+      }
 
-          if (this.detectCollision()) {
-            this.setVelocityX(this.speed);
-          }
+      if (!this.stop) {
+        // Si se encontró un jugador cercano, mover hacia él
+        if (target.closestPlayer) {
+          if (target.closestPlayer.x > this.x + 10 && !this.stop) {
+            this.flipX = false;
 
-          if (this.body.velocity.x !== 0 && this.detectCollision()) {
-            this.play("walk", true);
-          } else {
+            if (this.detectCollision()) {
+              this.setVelocityX(this.speed);
+            }
+
+            if (this.body.velocity.x !== 0 && this.detectCollision()) {
+              this.play("walk", true);
+            } else {
+              this.play("idle", true);
+            }
+          } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
+            this.flipX = true;
+
+            if (this.detectCollision()) {
+              this.setVelocityX(-this.speed);
+            }
+
+            if (this.body.velocity.x !== 0) {
+              this.play("walk", true);
+            } else {
+              this.play("idle", true);
+            }
+          } else if (!this.stop) {
             this.play("idle", true);
           }
-        } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
-          this.flipX = true;
 
-          if (this.detectCollision()) {
-            this.setVelocityX(-this.speed);
+          if (target.closestDistance < this.meleeRange) {
+            this.stop = true;
+            this.play("attack");
+            console.log(target.closestDistance);
           }
+        }
+      }
 
-          if (this.body.velocity.x !== 0) {
-            this.play("walk", true);
-          } else {
-            this.play("idle", true);
-          }
-        } else if (!this.stop) {
-          this.play("idle", true);
+      //Si el enemigo esta a la defensiva se intentara alejar del jugador
+      //camiando hacia atras
+    } else if (target.closestPlayer) {
+      if (target.closestPlayer.x > this.x + 10 && !this.stop) {
+        this.flipX = false;
+
+        if (this.detectCollision()) {
+          this.setVelocityX(-this.speed / 1.5);
         }
 
-        if (target.closestDistance < this.meleeRange) {
-          this.stop = true;
-          this.play("attack");
-          console.log(target.closestDistance);
+        if (this.body.velocity.x !== 0 && this.detectCollision()) {
+          this.play("walkReverse", true).reverse = true;
+        } else {
+          this.play("idle", true);
+        }
+      } else if (target.closestPlayer.x < this.x - 10 && !this.stop) {
+        this.flipX = true;
+
+        if (this.detectCollision()) {
+          this.setVelocityX(this.speed / 1.5);
+        }
+
+        if (this.body.velocity.x !== 0) {
+          this.play("walkReverse", true);
+        } else {
+          this.play("idle", true);
         }
       }
     }
   }
-
   determineTarget() {
     this.closestDistance = Infinity;
     this.closestTarget = null;

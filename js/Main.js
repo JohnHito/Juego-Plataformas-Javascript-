@@ -58,6 +58,10 @@ class Main extends Phaser.Scene {
       frameWidth: 270,
       frameHeight: 164,
     });
+    this.load.spritesheet("knightSheet", "/assets/sprites/knight_sheet.png", {
+      frameWidth: 291,
+      frameHeight: 164,
+    });
 
     //Effectos
     this.load.spritesheet(
@@ -111,20 +115,25 @@ class Main extends Phaser.Scene {
       base: this.add.circle(0, 0, 70, 0x5c65c0).setAlpha(0.5), // El valor 0.5 hace el color semitransparente
       thumb: this.add.circle(0, 0, 25, 0x6f95ff).setAlpha(0.5),
     });
+
     this.tactileControlls = this.joyStick.createCursorKeys();
 
+    this.joyStick.thumb.setVisible(false);
+    this.joyStick.base.setVisible(false);
+
+    // this.tactileControlls.setVisible(false);
+
     //Gui de celular
-    const btn1 = this.add
+    this.btn1 = this.add
       .image(635, 390, "btn_attack")
       .setInteractive()
       .setScrollFactor(0)
-      .setAlpha(0.7);
-
-    const btn2 = this.add
+      .setAlpha(0.7).visible = false;
+    this.btn2 = this.add
       .image(730, 280, "btn_jump")
       .setInteractive()
       .setScrollFactor(0)
-      .setAlpha(0.7);
+      .setAlpha(0.7).visible = false;
 
     //Gui
     const gui = this.add
@@ -161,14 +170,15 @@ class Main extends Phaser.Scene {
     //?POSIBLE MAP
     //this.UI_CAM_1 = this.cameras.add(-150,-150 ,300,300);
     //this.UI_CAM_1.setZoom(0.05);
+    
+    if (this.hasTouchScreen()) {
+      this.playersGroup.getFirst(true).cursors = this.tactileControlls;
 
-    this.proyectile = new Proyectile(
-      this,
-      200,
-      200,
-      null,
-      this.playersGroup.getFirstAlive()
-    );
+      this.joyStick.thumb.setVisible(true);
+      this.joyStick.base.setVisible(true);
+      this.btn2.visible = true;
+      this.btn1.visible = true;
+    }
   }
   hasTouchScreen() {
     return (
@@ -178,9 +188,7 @@ class Main extends Phaser.Scene {
     );
   }
   update() {
-    if (this.hasTouchScreen()) {
-      this.playersGroup.getFirst(true).cursors = this.tactileControlls;
-    }
+    
     //Esto se encarga de reducir el llamado al update del nivel para reducir
     //consumo de recursos
     if (this.clock === this.clockRate) {
