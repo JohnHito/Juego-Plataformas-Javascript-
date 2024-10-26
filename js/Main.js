@@ -176,8 +176,8 @@ class Main extends Phaser.Scene {
 
       this.joyStick.thumb.setVisible(true);
       this.joyStick.base.setVisible(true);
-      this.btn2.visible = true;
-      this.btn1.visible = true;
+      //this.btn2.visible = true;
+     // this.btn1.visible = true;
     }
   }
   hasTouchScreen() {
