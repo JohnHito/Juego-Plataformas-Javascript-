@@ -564,7 +564,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           146, 147, 148, 149,
         ],
       }),
-      frameRate: 18,
+      frameRate: 10,
       repeat: 0,
     };
 

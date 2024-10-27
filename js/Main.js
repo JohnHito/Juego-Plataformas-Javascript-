@@ -124,14 +124,13 @@ class Main extends Phaser.Scene {
       down: Phaser.Input.Keyboard.KeyCodes.S,
     });
 
-
     this.keyboardControlls = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
       down: Phaser.Input.Keyboard.KeyCodes.S,
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
-    
+
     this.keyboardExtraControlls = this.input.keyboard.addKeys({
       btn1: Phaser.Input.Keyboard.KeyCodes.E,
       up: Phaser.Input.Keyboard.KeyCodes.w,
@@ -183,7 +182,6 @@ class Main extends Phaser.Scene {
   }
 
   createTouchControls() {
-    this.playersGroup.getFirst(true).cursors = this.tactileControlls;
     //Crea un joystick para moverse desde celular a partir de un pluguin
     this.joyStick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
       x: 100,
@@ -214,6 +212,7 @@ class Main extends Phaser.Scene {
     this.btn2.visible = true;
     this.joyStick.thumb.setVisible(true);
     this.joyStick.base.setVisible(true);
+    this.playersGroup.getFirst(true).cursors = this.tactileControlls;
   }
   hasTouchScreen() {
     return (
