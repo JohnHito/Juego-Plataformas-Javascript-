@@ -68,17 +68,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     //el como se controla el ataque del enemigo para mejor rendimiento
     this.on("animationupdate", (animation, frame) => {
       if (animation.key === "attack" && frame.index === 7) {
-        console.log("try attack");
         if (this.closestDistance < this.meleeRange) {
           this.closestTarget.takeDamage(1);
-          console.log("ATTACK HIT");
         }
       }
     });
 
     this.on("animationupdate", (animation, frame) => {
       if (animation.key === "attack2" && frame.index === 8) {
-        console.log("try attack");
         this.shotFireBall(this.closestTarget);
       }
     });
@@ -260,7 +257,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
           if (target.closestDistance < this.meleeRange) {
             this.stop = true;
             this.play("attack");
-            console.log(target.closestDistance);
           }
         }
       }

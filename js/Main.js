@@ -80,7 +80,7 @@ class Main extends Phaser.Scene {
     });
   }
 
-  newPlayer(cursors) {
+  newPlayer(cursors, btns) {
     this.player = new Player(
       this,
       this.playersGroup.getFirstAlive().x,
@@ -88,12 +88,13 @@ class Main extends Phaser.Scene {
       "playerSheet"
     );
     this.playersGroup.add(this.player);
-    this.player.setControls(cursors, this.btn1, this.btn2);
+    this.player.setControls(cursors, btns);
     this.player.normalTint = "0x8be78b";
     this.player.setTint("0x8be78b");
   }
 
   create() {
+    this.HUDcont = this.add.container();
     //Instancia a la clase que controla los niveles
     this.roomController = new RoomController(this, 0, 0);
     //Llama el metodo create, el cual llama al metodo para dibujar la parte visual del nivel
@@ -116,24 +117,24 @@ class Main extends Phaser.Scene {
     //this.playersGroup.add(this.player2);
     //this.playersGroup.add(this.player3);
 
-    //Controles de teclado
+    //Controles de teclado2
     this.keyboardControlls2 = this.input.keyboard.createCursorKeys();
     this.keyboardExtraControlls2 = this.input.keyboard.addKeys({
-      btn1: Phaser.Input.Keyboard.KeyCodes.E,
-      up: Phaser.Input.Keyboard.KeyCodes.w,
-      down: Phaser.Input.Keyboard.KeyCodes.S,
+      btn1: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+      up: Phaser.Input.Keyboard.KeyCodes.UP,
+      down: Phaser.Input.Keyboard.KeyCodes.DOWN,
     });
 
+    //Controles de teclado1
     this.keyboardControlls = this.input.keyboard.addKeys({
-      up: Phaser.Input.Keyboard.KeyCodes.W,
-      down: Phaser.Input.Keyboard.KeyCodes.S,
+      //up: Phaser.Input.Keyboard.KeyCodes.W,
+      //down: Phaser.Input.Keyboard.KeyCodes.S,
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
-
     this.keyboardExtraControlls = this.input.keyboard.addKeys({
       btn1: Phaser.Input.Keyboard.KeyCodes.E,
-      up: Phaser.Input.Keyboard.KeyCodes.w,
+      up: Phaser.Input.Keyboard.KeyCodes.W,
       down: Phaser.Input.Keyboard.KeyCodes.S,
     });
 
@@ -149,7 +150,7 @@ class Main extends Phaser.Scene {
     gui.scale = 0.7;
 
     //Le manda los controles al jugador
-    this.player.setControls(this.keyboardControlls, this.btn1, this.btn2);
+    this.player.setControls(this.keyboardControlls, this.keyboardExtraControlls);
     //this.player2.setControls(this.tactileControlls, this.btn1, this.btn2);
     //this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
 
@@ -229,7 +230,7 @@ class Main extends Phaser.Scene {
         this.keyboardControlls2.right.isDown) &&
       !this.keyboardControlls2Active
     ) {
-      this.newPlayer(this.keyboardControlls2);
+      this.newPlayer(this.keyboardControlls2,this.keyboardExtraControlls2);
       this.keyboardControlls2Active = true;
     }
     //Esto se encarga de reducir el llamado al update del nivel para reducir
@@ -339,7 +340,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 2500 },
-      debug: false,
+      debug: true,
     },
   },
   fps: {
