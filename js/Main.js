@@ -125,13 +125,20 @@ class Main extends Phaser.Scene {
       down: Phaser.Input.Keyboard.KeyCodes.DOWN,
     });
 
+<<<<<<< HEAD
     //Controles de teclado1
+=======
+>>>>>>> 33a2a7d4d81bcb107ddd0bbbfa21ab188935989d
     this.keyboardControlls = this.input.keyboard.addKeys({
       //up: Phaser.Input.Keyboard.KeyCodes.W,
       //down: Phaser.Input.Keyboard.KeyCodes.S,
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 33a2a7d4d81bcb107ddd0bbbfa21ab188935989d
     this.keyboardExtraControlls = this.input.keyboard.addKeys({
       btn1: Phaser.Input.Keyboard.KeyCodes.E,
       up: Phaser.Input.Keyboard.KeyCodes.W,
