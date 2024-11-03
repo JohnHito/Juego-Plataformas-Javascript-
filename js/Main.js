@@ -98,7 +98,7 @@ class Main extends Phaser.Scene {
     //Instancia a la clase que controla los niveles
     this.roomController = new RoomController(this, 0, 0);
     //Llama el metodo create, el cual llama al metodo para dibujar la parte visual del nivel
-    this.roomController.create();
+    //this.roomController.create();
     // Crear un grupo para los jugadores
     this.playersGroup = this.physics.add.group();
     this.projectilesGroup = this.physics.add.group();
@@ -161,7 +161,7 @@ class Main extends Phaser.Scene {
     this.roomController.colliders = this.colliders;
     this.roomController.player = this.playersGroup;
     //Crea las colisiones del nivel
-    this.roomController.generateRoom();
+    //this.roomController.generateRoom();
     //Le manda al jugador los enemigos generados
     this.playersGroup.enemies = this.roomController.enemies;
 
