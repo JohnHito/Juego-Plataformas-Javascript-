@@ -42,29 +42,6 @@ export default class LevelController extends Phaser.GameObjects.Container {
         this.right_top = data.segmentos["1"].right_top.positions;
         this.top = data.segmentos["1"].top.positions;
 
-        // Log each to verify
-     /*   console.log(
-          "bottom:",
-          this.bottom,
-          this.bottom.length,
-          "left bottom:",
-          this.left_bottom,
-          "right bottom:",
-          this.right_bottom,
-          "left:",
-          this.left,
-          "midle:",
-          this.middle,
-          "right:",
-          this.right,
-          "left_top:",
-          this.left_top,
-          "right top:",
-          this.right_top,
-          "top:",
-          this.top
-        );*/
-
         this.create();
         this.generateRoom();
       })
@@ -72,23 +49,17 @@ export default class LevelController extends Phaser.GameObjects.Container {
   }
 
   //Este metodo se encarga de cargar las colisiones y decoraciones de los niveles en la carpeta data
-  loadCollisions(data) {
+  loadPositions(data) {
     this.positionsArray = [];
     //Guarda las colisiones solidas
     for (let i = 0; i < data.length; i += 30) {
       this.positionsArray.push(data.slice(i, i + 30));
     }
-
-    // retorna los arrays guardados
     return {
-      /*solidCollisions: this.solidCollisions,
-      plataformCollisions: this.plataformCollisions,
-      torchs: this.torchs,
-      water: this.water,
-      spawns: this.spawns,*/
       positions: this.positionsArray,
     };
   }
+
   create() {
     //Llama al metodo encargado de dibujar lo meramente visual
     this.generateRoomBg();
@@ -128,7 +99,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex + 1,
             "left_bottom1"
           );
-          collisions = this.loadCollisions(this.left_bottom);
+          collisions = this.loadPositions(this.left_bottom);
         } else if (
           rowIndex === this.roomSizeY - 1 &&
           colIndex > 0 &&
@@ -140,7 +111,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex + 1,
             "bottom1"
           );
-          collisions = this.loadCollisions(this.bottom);
+          collisions = this.loadPositions(this.bottom);
         } else if (
           rowIndex === this.roomSizeY - 1 &&
           colIndex === this.roomSizeX - 1
@@ -151,14 +122,14 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex + 1,
             "right_bottom1"
           );
-          collisions = this.loadCollisions(this.right_bottom);
+          collisions = this.loadPositions(this.right_bottom);
         } else if (
           colIndex === 0 &&
           rowIndex > 0 &&
           rowIndex < this.roomSizeY - 1
         ) {
           bg = new Background(this.scene, colIndex + 1, rowIndex + 1, "left");
-          collisions = this.loadCollisions(this.left);
+          collisions = this.loadPositions(this.left);
         } else if (
           rowIndex > 0 &&
           rowIndex < this.roomSizeY - 1 &&
@@ -166,14 +137,14 @@ export default class LevelController extends Phaser.GameObjects.Container {
           colIndex < this.roomSizeX - 1
         ) {
           bg = new Background(this.scene, colIndex + 1, rowIndex + 1, "middle");
-          collisions = this.loadCollisions(this.middle);
+          collisions = this.loadPositions(this.middle);
         } else if (
           colIndex === this.roomSizeX - 1 &&
           rowIndex > 0 &&
           rowIndex < this.roomSizeY - 1
         ) {
           bg = new Background(this.scene, colIndex + 1, rowIndex + 1, "right");
-          collisions = this.loadCollisions(this.right);
+          collisions = this.loadPositions(this.right);
         } else if (rowIndex === 0 && colIndex === 0) {
           bg = new Background(
             this.scene,
@@ -181,14 +152,14 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex + 1,
             "left_top"
           );
-          collisions = this.loadCollisions(this.left_top);
+          collisions = this.loadPositions(this.left_top);
         } else if (
           rowIndex === 0 &&
           colIndex > 0 &&
           colIndex < this.roomSizeX - 1
         ) {
           bg = new Background(this.scene, colIndex + 1, rowIndex + 1, "top");
-          collisions = this.loadCollisions(top, 1);
+          collisions = this.loadPositions(top, 1);
         } else if (rowIndex === 0 && colIndex === this.roomSizeX - 1) {
           bg = new Background(
             this.scene,
@@ -196,7 +167,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex + 1,
             "right_top"
           );
-          collisions = this.loadCollisions(this.right_top);
+          collisions = this.loadPositions(this.right_top);
         }
         //Despues de haber dibujado el fondo, aplica un tinte al nivel
         bg.setTint(this.randomTint);
@@ -301,7 +272,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
                 esquina inferior derecha, una piezasolo del borde izquierdo, derwevcho, una pieza que va en el medio etc...
                 por ahora solo hay una pieza de cada, pero ya esta la logica para tener piezas aleatorias*/
         if (rowIndex === this.roomSizeY - 1 && colIndex === 0) {
-          collisions = this.loadCollisions(this.left_bottom);
+          collisions = this.loadPositions(this.left_bottom);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -319,7 +290,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           colIndex > 0 &&
           colIndex < this.roomSizeX - 1
         ) {
-          collisions = this.loadCollisions(this.bottom);
+          collisions = this.loadPositions(this.bottom);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -336,7 +307,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           rowIndex === this.roomSizeY - 1 &&
           colIndex === this.roomSizeX - 1
         ) {
-          collisions = this.loadCollisions(this.right_bottom);
+          collisions = this.loadPositions(this.right_bottom);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -354,7 +325,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           rowIndex > 0 &&
           rowIndex < this.roomSizeY - 1
         ) {
-          collisions = this.loadCollisions(this.left);
+          collisions = this.loadPositions(this.left);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -373,7 +344,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           colIndex > 0 &&
           colIndex < this.roomSizeX - 1
         ) {
-          collisions = this.loadCollisions(this.middle);
+          collisions = this.loadPositions(this.middle);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -391,7 +362,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           rowIndex > 0 &&
           rowIndex < this.roomSizeY - 1
         ) {
-          collisions = this.loadCollisions(this.right);
+          collisions = this.loadPositions(this.right);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -405,7 +376,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex
           );
         } else if (rowIndex === 0 && colIndex === 0) {
-          collisions = this.loadCollisions(this.left_top);
+          collisions = this.loadPositions(this.left_top);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -423,7 +394,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           colIndex > 0 &&
           colIndex < this.roomSizeX - 1
         ) {
-          collisions = this.loadCollisions(this.top);
+          collisions = this.loadPositions(this.top);
           this.generateRoomSegment(
             collisions.positions,
             true,
@@ -437,7 +408,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             rowIndex
           );
         } else if (rowIndex === 0 && colIndex === this.roomSizeX - 1) {
-          collisions = this.loadCollisions(this.right_top);
+          collisions = this.loadPositions(this.right_top);
           this.generateRoomSegment(
             collisions.positions,
             true,

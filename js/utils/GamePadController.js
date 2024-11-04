@@ -7,11 +7,15 @@ export default class GamePadController {
     this.down = { isDown: false, isUp: true };
     this.left = { isDown: false, isUp: true };
     this.right = { isDown: false, isUp: true };
+    this.btn1 = { isDown: false, isUp: true };
+
+    this.lastButtonStates = Array(10).fill(false); // Assuming a max of 10 buttons
 
     // Listen for gamepad connection
     this.scene.input.gamepad.on("connected", (pad) => {
       this.isConnected = true;
       console.log("CONTROL CONNECTED");
+      this.scene.newPlayer(this, this);
     });
 
     // Listen for gamepad disconnection
@@ -27,23 +31,28 @@ export default class GamePadController {
 
     if (gamepad) {
       // Update axes for left/right and up/down
-      this.left.isDown = gamepad.axes[0].getValue() < -0.1; // Threshold for left
-      this.right.isDown = gamepad.axes[0].getValue() > 0.1; // Threshold for right
-      this.up.isDown = gamepad.axes[1].getValue() < -0.1; // Threshold for up
-      this.down.isDown = gamepad.axes[1].getValue() > 0.1; // Threshold for down
+      this.left.isDown = gamepad.axes[0].getValue() < -0.1;
+      this.right.isDown = gamepad.axes[0].getValue() > 0.1;
+    //  this.up.isDown = gamepad.axes[1].getValue() < -0.1;
+      this.down.isDown = gamepad.axes[1].getValue() > 0.1;
 
-      // Log button states
+      this.btn1.isDown = gamepad.buttons[2]?.pressed || false;
+      this.up.isDown = gamepad.buttons[0]?.pressed || false;
+
+      // Log button states only when changed
       for (let i = 0; i < gamepad.buttons.length; i++) {
-        if (gamepad.buttons[i].pressed) {
+        if (gamepad.buttons[i].pressed && !this.lastButtonStates[i]) {
           console.log(`Button ${i} pressed`);
         }
+        this.lastButtonStates[i] = gamepad.buttons[i].pressed; // Track last state
       }
 
-      // Update isUp property based on the state
+      // Update isUp properties
       this.left.isUp = !this.left.isDown;
       this.right.isUp = !this.right.isDown;
       this.up.isUp = !this.up.isDown;
       this.down.isUp = !this.down.isDown;
+      this.btn1.isUp = !this.btn1.isDown;
     } else {
       // Reset inputs if no gamepad is connected
       this.resetInputs();
@@ -60,5 +69,8 @@ export default class GamePadController {
     this.up.isUp = true;
     this.down.isDown = false;
     this.down.isUp = true;
+    this.btn1.isDown = false;
+    this.btn1.isUp = true;
+
   }
 }

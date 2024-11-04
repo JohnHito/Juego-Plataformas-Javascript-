@@ -1,7 +1,6 @@
 //Import de clases
+import UIScene from "/js/gui/UIScene.js";
 import Player from "/js/entities/Player.js";
-import Effect from "/js/entities/Effect.js";
-import Proyectile from "/js/entities/Proyectile.js";
 import RoomController from "./utils/RoomController.js";
 import GamePadController from "./utils/GamePadController.js";
 
@@ -9,9 +8,11 @@ class Main extends Phaser.Scene {
   //Metodo constructor
   constructor() {
     super({ key: "Main" });
-
+    this.playersAmount=1;
+    this.playersGroup = null;
     this.player = null;
     this.bg = null;
+    this.guiScene = null;
 
     this.clock = 0;
     this.clockRate = 3;
@@ -47,7 +48,6 @@ class Main extends Phaser.Scene {
     this.load.image("btn_attack", "/assets/sprites/btn_attack.png");
     this.load.image("btn_summon", "/assets/sprites/btn_summon.png");
     this.load.image("btn_fall", "/assets/sprites/btn_fall.png");
-    this.load.image("gui", "/assets/sprites/gui.png");
 
     //Spritesheets
     //Entidades
@@ -91,10 +91,13 @@ class Main extends Phaser.Scene {
     this.player.setControls(cursors, btns);
     this.player.normalTint = "0x8be78b";
     this.player.setTint("0x8be78b");
+    this.playersAmount++;
+    this.guiScene.newPlayer(this.player, this.playersAmount, "0x8be78b", "0x26bb65");
   }
 
   create() {
-    this.HUDcont = this.add.container();
+    this.guiScene = this.scene.get("UIScene");
+
     //Instancia a la clase que controla los niveles
     this.roomController = new RoomController(this, 0, 0);
     //Llama el metodo create, el cual llama al metodo para dibujar la parte visual del nivel
@@ -102,11 +105,11 @@ class Main extends Phaser.Scene {
     // Crear un grupo para los jugadores
     this.playersGroup = this.physics.add.group();
     this.projectilesGroup = this.physics.add.group();
-
+    
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
     this.playersGroup.add(this.player);
-
+    this.guiScene.newPlayer(this.player, 1, "0x84dcff", "0x34adff");
     //this.player2 = new Player(this, 440, 440, "playerSheet");
     // this.player3 = new Player(this, 460, 440, "playerSheet");
 
@@ -141,16 +144,11 @@ class Main extends Phaser.Scene {
     //Controles de gamePads
     this.gamePadControlls = new GamePadController(this);
 
-    //Gui
-    const gui = this.add
-      .image(140, 60, "gui")
-      .setInteractive()
-      .setScrollFactor(0)
-      .setAlpha(0.7);
-    gui.scale = 0.7;
-
     //Le manda los controles al jugador
-    this.player.setControls(this.keyboardControlls, this.keyboardExtraControlls);
+    this.player.setControls(
+      this.keyboardControlls,
+      this.keyboardExtraControlls
+    );
     //this.player2.setControls(this.tactileControlls, this.btn1, this.btn2);
     //this.player3.setControls(this.gamePadControlls, this.btn1, this.btn2);
 
@@ -180,6 +178,9 @@ class Main extends Phaser.Scene {
     if (this.hasTouchScreen()) {
       this.createTouchControls();
     }
+
+    this.scene.launch("UIScene", this.player);
+    console.log(this.player);
   }
 
   createTouchControls() {
@@ -230,7 +231,7 @@ class Main extends Phaser.Scene {
         this.keyboardControlls2.right.isDown) &&
       !this.keyboardControlls2Active
     ) {
-      this.newPlayer(this.keyboardControlls2,this.keyboardExtraControlls2);
+      this.newPlayer(this.keyboardControlls2, this.keyboardExtraControlls2);
       this.keyboardControlls2Active = true;
     }
     //Esto se encarga de reducir el llamado al update del nivel para reducir
@@ -334,7 +335,7 @@ const config = {
   width: 840,
   height: 460,
   backgroundColor: "#2a6c6d",
-  scene: Main,
+  scene: [Main, UIScene],
   //Añade fisicas
   physics: {
     default: "arcade",

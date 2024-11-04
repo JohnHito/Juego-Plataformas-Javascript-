@@ -49,6 +49,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.createAnimations();
 
     this.normalTint = null;
+
   }
 
   controlFisicas() {
@@ -319,6 +320,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
         this.inmmune = false;
       }, 100);
+      this.scene.events.emit("hurt", this);
     }
   }
 
