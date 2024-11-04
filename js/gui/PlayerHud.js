@@ -24,16 +24,26 @@ export default class PlayerHud {
       case 1:
         x = 10;
         y = 10;
+        this.tint = "0x84dcff";
+        this.tint2 = "0x34adff";
         break;
       case 2:
-        x = 600;
+        x = 630;
         y = 10;
+        this.tint = "0x8be78b";
+        this.tint2 = "0x26bb65";
         break;
       case 3:
         x = 10;
-        y = 400;
+        y = 415;
+        this.tint = "0xffe66f";
+        this.tint2 = "0xccb758";
         break;
       case 4:
+        x = 630;
+        y = 415;
+        this.tint = "0xff6d68";
+        this.tint2 = "0xb24c48";
         break;
     }
     // Clear previous graphics
@@ -43,7 +53,7 @@ export default class PlayerHud {
     // Draw background
     this.healthBg.fillStyle(this.tint, 1); // Background color
     this.healthBg.fillRoundedRect(x, y, 200, 35, 5); // Draw rounded rectangle
-    
+
     // Draw health bar
     const healthBarWidth = (this.currentHealth / this.maxHealth) * 200; // Calculate width based on current health
     this.health.fillStyle(this.tint2, 1); // Health color

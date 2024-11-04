@@ -8,7 +8,7 @@ class Main extends Phaser.Scene {
   //Metodo constructor
   constructor() {
     super({ key: "Main" });
-    this.playersAmount=1;
+    this.playersAmount = 1;
     this.playersGroup = null;
     this.player = null;
     this.bg = null;
@@ -89,10 +89,30 @@ class Main extends Phaser.Scene {
     );
     this.playersGroup.add(this.player);
     this.player.setControls(cursors, btns);
-    this.player.normalTint = "0x8be78b";
-    this.player.setTint("0x8be78b");
     this.playersAmount++;
-    this.guiScene.newPlayer(this.player, this.playersAmount, "0x8be78b", "0x26bb65");
+
+    switch (this.playersAmount) {
+      case 2:
+        this.tint = "0x8be78b";
+        this.tint2 = "0x8be78b";
+        break;
+      case 3:
+        this.tint = "0xffe66f";
+        this.tint2 = "0xccb758";
+        break;
+      case 4:
+        this.tint = "0xff6d68";
+        this.tint2 = "0xb24c48";
+        break;
+    }
+    this.player.normalTint = this.tint;
+    this.player.setTint(this.tint2);
+    this.guiScene.newPlayer(
+      this.player,
+      this.playersAmount,
+      "0x8be78b",
+      "0x26bb65"
+    );
   }
 
   create() {
@@ -105,11 +125,11 @@ class Main extends Phaser.Scene {
     // Crear un grupo para los jugadores
     this.playersGroup = this.physics.add.group();
     this.projectilesGroup = this.physics.add.group();
-    
+
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
     this.playersGroup.add(this.player);
-    this.guiScene.newPlayer(this.player, 1, "0x84dcff", "0x34adff");
+    this.guiScene.newPlayer(this.player, 1);
     //this.player2 = new Player(this, 440, 440, "playerSheet");
     // this.player3 = new Player(this, 460, 440, "playerSheet");
 
