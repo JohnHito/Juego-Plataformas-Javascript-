@@ -15,8 +15,8 @@ export default class UIScene extends Phaser.Scene {
     this.player = player;
   }
 
-  newPlayer(player, pos, tint, tint2){
-    this.huds.push(new PlayerHud(this, player, pos, tint, tint2));
+  newPlayer(player, pos, type){
+    this.huds.push(new PlayerHud(this, player, pos, type));
   }
 
   preload() {

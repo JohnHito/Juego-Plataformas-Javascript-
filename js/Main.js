@@ -49,6 +49,30 @@ class Main extends Phaser.Scene {
     this.load.image("btn_summon", "/assets/sprites/btn_summon.png");
     this.load.image("btn_fall", "/assets/sprites/btn_fall.png");
 
+    this.load.image("gui_face", "/assets/gui/gui_face.png");
+    this.load.image("gui_coin", "/assets/gui/gui_coin.png");
+    this.load.image("gui_key", "/assets/gui/gui_key.png");
+    this.load.image("gui_skull", "/assets/gui/gui_skull.png");
+    //GUI info
+    this.load.image("key_A", "/assets/gui/A.png");
+    this.load.image("key_S", "/assets/gui/S.png");
+    this.load.image("key_D", "/assets/gui/D.png");
+    this.load.image("key_W", "/assets/gui/W.png");
+    this.load.image("key_E", "/assets/gui/E.png");
+
+    this.load.image("key_up", "/assets/gui/up.png");
+    this.load.image("key_down", "/assets/gui/down.png");
+    this.load.image("key_left", "/assets/gui/left.png");
+    this.load.image("key_right", "/assets/gui/right.png");
+
+    this.load.image("key_shift", "/assets/gui/shift.png");
+    this.load.image("btn_menu", "/assets/gui/btn-menu.png");
+
+    this.load.image("btn_A", "/assets/gui/btn-A.png");
+    this.load.image("btn_B", "/assets/gui/btn-B.png");
+    this.load.image("btn_X", "/assets/gui/btn-X.png");
+    this.load.image("btn_Y", "/assets/gui/btn-Y.png");
+
     //Spritesheets
     //Entidades
     this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", {
@@ -80,7 +104,7 @@ class Main extends Phaser.Scene {
     });
   }
 
-  newPlayer(cursors, btns) {
+  newPlayer(cursors, btns, type) {
     this.player = new Player(
       this,
       this.playersGroup.getFirstAlive().x,
@@ -107,12 +131,7 @@ class Main extends Phaser.Scene {
     }
     this.player.normalTint = this.tint;
     this.player.setTint(this.tint2);
-    this.guiScene.newPlayer(
-      this.player,
-      this.playersAmount,
-      "0x8be78b",
-      "0x26bb65"
-    );
+    this.guiScene.newPlayer(this.player, this.playersAmount, type);
   }
 
   create() {
@@ -129,7 +148,7 @@ class Main extends Phaser.Scene {
     //Crea a un nuevo jugador, y le manda la escena, cordenadas y el sprite sheet
     this.player = new Player(this, 420, 440, "playerSheet");
     this.playersGroup.add(this.player);
-    this.guiScene.newPlayer(this.player, 1);
+    this.guiScene.newPlayer(this.player, 1, "wasd");
     //this.player2 = new Player(this, 440, 440, "playerSheet");
     // this.player3 = new Player(this, 460, 440, "playerSheet");
 
@@ -251,7 +270,7 @@ class Main extends Phaser.Scene {
         this.keyboardControlls2.right.isDown) &&
       !this.keyboardControlls2Active
     ) {
-      this.newPlayer(this.keyboardControlls2, this.keyboardExtraControlls2);
+      this.newPlayer(this.keyboardControlls2, this.keyboardExtraControlls2,"arrows");
       this.keyboardControlls2Active = true;
     }
     //Esto se encarga de reducir el llamado al update del nivel para reducir

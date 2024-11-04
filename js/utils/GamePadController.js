@@ -15,7 +15,7 @@ export default class GamePadController {
     this.scene.input.gamepad.on("connected", (pad) => {
       this.isConnected = true;
       console.log("CONTROL CONNECTED");
-      this.scene.newPlayer(this, this);
+      this.scene.newPlayer(this, this, "gamepad");
     });
 
     // Listen for gamepad disconnection
