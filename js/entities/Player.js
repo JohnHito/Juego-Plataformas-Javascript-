@@ -22,22 +22,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.btn2Down = false;
     this.btns = null;
 
+    this.coins = 0;
+    this.kills = 0;
+    this.keys = 0;
+
     //Control para animaciones y mecanicas
     this.falling = false;
     this.isHitGroundComplete = false;
     this.isJumpComplete = true;
     this.attacking = false;
     this.canJump = true;
-    this.hasWeapon = false;
+    this.hasWeapon = true;
     this.inGround = false;
     this.summoning = false;
     this.stop = false;
 
     //Atributos del personaje
     this.jumpHight = 1100;
-    this.health = 10;
+    this.health = 100;
     this.speed = 350;
     this.maxVelocityY = 3000;
+    this.attackDamage = 2;
     this.inmmune = false;
     this.scale = 0.7;
     this.attackHitbox = new Effect(this.scene, 0, 0, "effect_hammer_smash");
@@ -266,10 +271,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  kill(enemy){
+    let reward = enemy.reward();
+    this.coins += reward.coins;
+    this.keys += reward.key;
+    this.kills ++;
+    console.log("coins: ", this.coins,"keys:",this.keys,"kills:",this.kills)
+    this.scene.events.emit("kill", this);
+  }
+
   onEnemyHit(attackHitbox, enemy) {
     //Provoca daño al enemigo
-    enemy.takeDamage(4);
-    console.log("Enemy hit!", enemy);
+    enemy.takeDamage(this.attackDamage, this);
+   // console.log("Enemy hit!", enemy);
     //Apaga la hitbox de ataque para reducir consumo de recursos
     this.attackHitbox.body.enable = false;
   }
@@ -304,14 +318,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.health -= damage;
       this.inmmune = true;
       if (this.flipX) {
-        this.setVelocityX(1600);
+        this.setVelocityX(1000);
       } else {
-        this.setVelocityX(-1600);
+        this.setVelocityX(-1000);
       }
 
-      this.setVelocityY(-500);
+      //this.setVelocityY(-500);
       this.setTint(0xff0000);
-      this.reset();
+      //this.reset();
       setTimeout(() => {
         if (this.normalTint) {
           this.setTint(this.normalTint);
@@ -319,7 +333,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           this.clearTint();
         }
         this.inmmune = false;
-      }, 100);
+      }, 200);
+      this.scene.cameras.main.shake(80, 0.02);
       this.scene.events.emit("hurt", this);
     }
   }

@@ -1,4 +1,3 @@
-
 import Background from "/js/Background.js";
 import Effect from "/js/entities/Effect.js";
 import Mage from "/js/entities/Mage.js";
@@ -425,11 +424,19 @@ export default class LevelController extends Phaser.GameObjects.Container {
         this.generateEnemies(collisions.positions, colIndex, rowIndex);
       });
     });
+
+   
   }
 
+  setEnemiesToPlayers(){
+    this.player.getChildren().forEach((playerInstance) => {
+      playerInstance.enemies = this.enemies;
+    });
+
+  }
   //Recorre el array de decoraciones anviado por paramtro para dibujarlas
   generateDeco(array, key, segmentX, segmentY) {
-/*
+    /*
     console.log("Tipo de array:", Array.isArray(array), array);
     if (!Array.isArray(array)) {
       console.error("El argumento no es un array:", array);
@@ -446,9 +453,9 @@ export default class LevelController extends Phaser.GameObjects.Container {
             (rowIndex + 1) * 32 + 960 * segmentY,
             key
           );
-          if (symbol === 3){
-          deco.play("torch");
-          } else if (symbol === 4){
+          if (symbol === 3) {
+            deco.play("torch");
+          } else if (symbol === 4) {
             deco.play("water");
           }
           deco.setTint(this.randomTint);
@@ -471,12 +478,10 @@ export default class LevelController extends Phaser.GameObjects.Container {
     let meshing = false;
     let type = 0;
 
-    if(isSolid){
+    if (isSolid) {
       type = 1;
-
-    }else{
+    } else {
       type = 2;
-
     }
     //Creacion de collisiones con meshing horizontales
     collisions.forEach((row, rowIndex) => {

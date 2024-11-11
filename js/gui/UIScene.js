@@ -27,8 +27,11 @@ export default class UIScene extends Phaser.Scene {
     this.mainScene = this.scene.get("Main");
 
     this.mainScene.events.on("hurt", (damage) => {
-      console.log(`Player took ${damage} damage.`);
       this.huds.forEach(hud => hud.updateHealth());
+    });
+
+    this.mainScene.events.on("kill", () => {
+      this.huds.forEach(hud => hud.updateText());
     });
 
     //  Our Text object to display the Score

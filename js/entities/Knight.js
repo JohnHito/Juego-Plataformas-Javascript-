@@ -33,6 +33,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.jumpState = true;
     this.dash = true;
     this.block = true;
+    this.sourceDamage = null;
     // Create attack hitbox
     this.pathHitbox = this.scene.add.rectangle(this.x, this.y, 30, 200);
     this.scene.physics.add.existing(this.pathHitbox);
@@ -353,13 +354,50 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   //Metodo para matar al enemigo
   dead() {
+    this.inmmune = true;
     this.stop = true;
+    this.sourceDamage.kill(this);
     this.play("dead", true);
   }
 
+  reward() {
+    let randomNumber = Math.floor(Math.random() * 4);
+    let coins = Math.floor(Math.random() * (200 - 10 + 1)) + 10;
+
+    let key = 0;
+    switch (randomNumber) {
+      case (0, 1, 2):
+        break;
+
+      case 4:
+        key++;
+        break;
+    }
+
+    return { coins, key };
+  }
+
   //Metodo para que el enemigo reciba daño
-  takeDamage(damage) {
-    if (!this.inmmune) {
+  takeDamage(damage, sourceDamage) {
+    if(this.block && !this.inmmune){
+      this.play("block")
+      this.stop = true;
+      this.setTint(0xf9f9ff);
+
+      setTimeout(() => {
+        this.play("idle");
+        this.block = false
+        this.stop = false;
+        this.clearTint();
+
+      }, 400);
+
+      setTimeout(() => {
+        this.block = true
+
+      }, 5000);
+
+    } else {
       //Reduce la vida del enemigo
       this.health -= damage;
       //Lo vuelve inmmune momentanemente
@@ -367,7 +405,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       //Aplica un ligero empuje en la direccion en la que el jugador
       //Esta atacando para mas dinamismo
-      if (this.player.flipX) {
+      if (this.flipX) {
         this.setVelocityX(-1600);
       } else {
         this.setVelocityX(1600);
@@ -382,6 +420,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.clearTint();
         this.inmmune = false;
       }, 400);
+      this.sourceDamage = sourceDamage;
     }
   }
 

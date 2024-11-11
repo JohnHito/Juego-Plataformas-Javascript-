@@ -12,13 +12,12 @@ export default class PlayerHud {
     // Create the health bar background and health bar
     this.healthBg = null;
     this.health = null;
-    this.side = "";
     this.guiContainer = this.scene.add.container(0, 0);
     this.drawHealthBar(); // Draw the initial health bar
-
     this.coinCounter = null;
     this.killCounter = null;
     this.keyCounter = null;
+    this.once = false;
   }
 
   create() {}
@@ -67,10 +66,19 @@ export default class PlayerHud {
     this.healthBg.fillRoundedRect(x, y, 250, 30, 5); // Draw rounded rectangle
 
     // Draw health bar
-    const healthBarWidth = (this.currentHealth / this.maxHealth) * 200; // Calculate width based on current health
+    const healthBarWidth = (this.currentHealth / this.maxHealth) * 250; // Calculate width based on current health
     this.health.fillStyle(this.tint2, 1); // Health color
     this.health.fillRoundedRect(x, y, healthBarWidth, 30, 5); // Draw rounded rectangle
 
+    if (!this.once) {
+      this.once = true;
+
+      this.createText(x, y);
+    }
+    this.guiContainer.setScale(0.7);
+  }
+
+  createText(x, y) {
     if (this.pos === 1) {
       const imgFace = this.scene.add.image(x - 32, y + 25, "gui_face");
       imgFace.setScale(0.4);
@@ -83,21 +91,21 @@ export default class PlayerHud {
       const imgKeys = this.scene.add.image(x + 70, y + 75, "gui_key");
       imgKeys.setScale(0.5);
 
-      this.coinCounter = this.scene.add.text(x - 55, y + 60, "900", {
+      this.coinCounter = this.scene.add.text(x - 55, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.coinCounter.setScale(0.5);
 
-      this.killCounter = this.scene.add.text(x - 15, y + 60, "90", {
+      this.killCounter = this.scene.add.text(x - 15, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.killCounter.setScale(0.5);
 
-      this.keyCounter = this.scene.add.text(x + 25, y + 60, "9", {
+      this.keyCounter = this.scene.add.text(x + 25, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
@@ -165,21 +173,21 @@ export default class PlayerHud {
       const imgKeys = this.scene.add.image(x + 175, y + 75, "gui_key");
       imgKeys.setScale(0.5);
 
-      this.coinCounter = this.scene.add.text(x - 75, y + 60, "900", {
+      this.coinCounter = this.scene.add.text(x - 75, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.coinCounter.setScale(0.5);
 
-      this.killCounter = this.scene.add.text(x - 110, y + 60, "90", {
+      this.killCounter = this.scene.add.text(x - 110, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.killCounter.setScale(0.5);
 
-      this.keyCounter = this.scene.add.text(x - 140, y + 60, "9", {
+      this.keyCounter = this.scene.add.text(x - 140, y + 60, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
@@ -247,21 +255,21 @@ export default class PlayerHud {
       const imgKeys = this.scene.add.image(x + 70, y - 30, "gui_key");
       imgKeys.setScale(0.5);
 
-      this.coinCounter = this.scene.add.text(x - 55, y - 225, "900", {
+      this.coinCounter = this.scene.add.text(x - 55, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.coinCounter.setScale(0.5);
 
-      this.killCounter = this.scene.add.text(x - 15, y - 225, "90", {
+      this.killCounter = this.scene.add.text(x - 15, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.killCounter.setScale(0.5);
 
-      this.keyCounter = this.scene.add.text(x + 25, y - 225, "9", {
+      this.keyCounter = this.scene.add.text(x + 25, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
@@ -319,8 +327,8 @@ export default class PlayerHud {
         this.guiContainer.add(keyAttack);
       }
     } else if (this.pos === 4) {
-        const imgFace = this.scene.add.image(x + 285, y + 25, "gui_face");
-        imgFace.setScale(0.4);
+      const imgFace = this.scene.add.image(x + 285, y + 25, "gui_face");
+      imgFace.setScale(0.4);
       imgFace.setTint(this.tint);
 
       const imgCoins = this.scene.add.image(x + 285, y - 30, "gui_coin");
@@ -330,21 +338,21 @@ export default class PlayerHud {
       const imgKeys = this.scene.add.image(x + 175, y - 30, "gui_key");
       imgKeys.setScale(0.5);
 
-      this.coinCounter = this.scene.add.text(x - 75, y -225, "900", {
+      this.coinCounter = this.scene.add.text(x - 75, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.coinCounter.setScale(0.5);
 
-      this.killCounter = this.scene.add.text(x - 110, y -225, "90", {
+      this.killCounter = this.scene.add.text(x - 110, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
       });
       this.killCounter.setScale(0.5);
 
-      this.keyCounter = this.scene.add.text(x - 140, y -225, "9", {
+      this.keyCounter = this.scene.add.text(x - 140, y - 225, "", {
         font: "24px Arial", // Font size and font family
         fill: "#ffffff", // Text color
         align: "center", // Alignment (center, left, right)
@@ -352,11 +360,11 @@ export default class PlayerHud {
       this.keyCounter.setScale(0.5);
 
       this.keyCounter.setScale(0.5);
-      const btnJump = this.scene.add.image(x + 115, y -30, "btn_jump");
+      const btnJump = this.scene.add.image(x + 115, y - 30, "btn_jump");
       btnJump.setScale(0.5);
-      const btnSummon = this.scene.add.image(x + 65, y -30, "btn_summon");
+      const btnSummon = this.scene.add.image(x + 65, y - 30, "btn_summon");
       btnSummon.setScale(0.5);
-      const btnAttack = this.scene.add.image(x + 15, y -30, "btn_attack");
+      const btnAttack = this.scene.add.image(x + 15, y - 30, "btn_attack");
       btnAttack.setScale(0.5);
 
       this.guiContainer.add(imgFace);
@@ -368,33 +376,33 @@ export default class PlayerHud {
       this.guiContainer.add(btnAttack);
 
       if (this.type === "wasd") {
-        const keyJump = this.scene.add.image(x + 115, y -60, "key_W");
+        const keyJump = this.scene.add.image(x + 115, y - 60, "key_W");
         keyJump.setScale(0.5);
-        const keySummon = this.scene.add.image(x + 65, y -60, "key_E");
+        const keySummon = this.scene.add.image(x + 65, y - 60, "key_E");
         keySummon.setScale(0.5);
-        const keyAttack = this.scene.add.image(x + 15, y -60, "key_S");
+        const keyAttack = this.scene.add.image(x + 15, y - 60, "key_S");
         keyAttack.setScale(0.5);
 
         this.guiContainer.add(keyJump);
         this.guiContainer.add(keySummon);
         this.guiContainer.add(keyAttack);
       } else if (this.type === "arrows") {
-        const keyJump = this.scene.add.image(x + 115, y -60, "key_up");
+        const keyJump = this.scene.add.image(x + 115, y - 60, "key_up");
         keyJump.setScale(0.5);
-        const keySummon = this.scene.add.image(x + 65, y -60, "key_shift");
+        const keySummon = this.scene.add.image(x + 65, y - 60, "key_shift");
         keySummon.setScale(0.5);
-        const keyAttack = this.scene.add.image(x + 15, y -60, "key_down");
+        const keyAttack = this.scene.add.image(x + 15, y - 60, "key_down");
         keyAttack.setScale(0.5);
 
         this.guiContainer.add(keyJump);
         this.guiContainer.add(keySummon);
         this.guiContainer.add(keyAttack);
       } else if (this.type === "gamepad") {
-        const keyJump = this.scene.add.image(x + 115, y -60, "btn_A");
+        const keyJump = this.scene.add.image(x + 115, y - 60, "btn_A");
         keyJump.setScale(0.5);
-        const keySummon = this.scene.add.image(x + 65, y -60, "btn_X");
+        const keySummon = this.scene.add.image(x + 65, y - 60, "btn_X");
         keySummon.setScale(0.5);
-        const keyAttack = this.scene.add.image(x + 15, y -60, "key_down");
+        const keyAttack = this.scene.add.image(x + 15, y - 60, "key_down");
         keyAttack.setScale(0.5);
 
         this.guiContainer.add(keyJump);
@@ -402,14 +410,17 @@ export default class PlayerHud {
         this.guiContainer.add(keyAttack);
       }
     }
-
-    this.guiContainer.setScale(0.7);
   }
-
   updateHealth() {
     const newHealth = this.player.health;
     this.currentHealth = Math.max(0, Math.min(newHealth, this.maxHealth)); // Clamp health between 0 and max
     this.drawHealthBar(); // Redraw health bar with updated value
+  }
+
+  updateText() {
+    this.coinCounter.setText(this.player.coins);
+    this.killCounter.setText(this.player.kills);
+    this.keyCounter.setText(this.player.keys);
   }
 
   // You can call this method to simulate health loss

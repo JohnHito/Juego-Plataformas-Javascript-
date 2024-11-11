@@ -132,6 +132,8 @@ class Main extends Phaser.Scene {
     this.player.normalTint = this.tint;
     this.player.setTint(this.tint2);
     this.guiScene.newPlayer(this.player, this.playersAmount, type);
+    this.roomController.setEnemiesToPlayers();
+
   }
 
   create() {
@@ -199,9 +201,7 @@ class Main extends Phaser.Scene {
     this.roomController.player = this.playersGroup;
     //Crea las colisiones del nivel
     //this.roomController.generateRoom();
-    //Le manda al jugador los enemigos generados
-    this.playersGroup.enemies = this.roomController.enemies;
-
+    this.roomController.setEnemiesToPlayers();
     //Agrega limite a la camara, para cuando llegue al borde no se salga
     this.cameras.main.setBounds(
       0,
@@ -219,7 +219,7 @@ class Main extends Phaser.Scene {
     }
 
     this.scene.launch("UIScene", this.player);
-    console.log(this.player);
+   // console.log(this.player);
   }
 
   createTouchControls() {

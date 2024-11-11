@@ -21,7 +21,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.playersGroup = player;
     this.attacking = false;
     this.attackingRange = false;
-    this.health = 5;
+    this.health = 12;
     this.stop = false;
     this.inmmune = false;
     this.scale = 0.7;
@@ -31,6 +31,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.meleeRange = 100;
     this.attackingRange = 800;
     this.timerStarted = false;
+    this.sourceDamage = null;
+
     // Create attack hitbox
     this.pathHitbox = this.scene.add.rectangle(this.x, this.y, 30, 200);
     this.scene.physics.add.existing(this.pathHitbox);
@@ -319,11 +321,32 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   //Metodo para matar al enemigo
   dead() {
     this.stop = true;
+    this.inmmune= true;
+
+    this.sourceDamage.kill(this);
     this.play("dead", true);
   }
+  reward() {
+    let randomNumber = Math.floor(Math.random() * 3);
+    let coins = 10;
+    let key = 0;
+    switch (randomNumber) {
+      case 0:
+        break;
 
+      case 1:
+        break;
+        coins += Math.floor(Math.random() * (200 - 10 + 1)) + 10;
+
+      case 2:
+        key ++;
+        break;
+    }
+
+    return { coins, key };
+  }
   //Metodo para que el enemigo reciba daño
-  takeDamage(damage) {
+  takeDamage(damage, sourceDamage) {
     if (!this.inmmune) {
       //Reduce la vida del enemigo
       this.health -= damage;
@@ -332,7 +355,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       //Aplica un ligero empuje en la direccion en la que el jugador
       //Esta atacando para mas dinamismo
-      if (this.player.flipX) {
+      if (this.flipX) {
         this.setVelocityX(-1600);
       } else {
         this.setVelocityX(1600);
@@ -347,6 +370,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.clearTint();
         this.inmmune = false;
       }, 400);
+      this.sourceDamage = sourceDamage;
     }
   }
 
