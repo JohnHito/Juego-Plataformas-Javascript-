@@ -1,7 +1,7 @@
-import Background from "/js/Background.js";
-import Effect from "/js/entities/Effect.js";
-import Mage from "/js/entities/Mage.js";
-import Knight from "/js/entities/Knight.js";
+import Background from "../Background.js";
+import Effect from "../entities/Effect.js";
+import Mage from "../entities/Mage.js";
+import Knight from "../entities/Knight.js";
 
 export default class LevelController extends Phaser.GameObjects.Container {
   constructor(scene, y, x) {
@@ -27,7 +27,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
     //Genera un tinte random para aplicarle al nivel
     this.randomTint = this.getRandomTint();
 
-    fetch("/js/data/segmentsPositions.json")
+    fetch("../js/data/segmentsPositions.json")
       .then((response) => response.json())
       .then((data) => {
         // Access your JSON data here

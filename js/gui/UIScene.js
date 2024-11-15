@@ -1,4 +1,4 @@
-import PlayerHud from "/js/gui/PlayerHud.js";
+import PlayerHud from "./PlayerHud.js";
 
 export default class UIScene extends Phaser.Scene {
   constructor() {
@@ -8,6 +8,8 @@ export default class UIScene extends Phaser.Scene {
     this.score = 0;
     this.mainScene = null;
     this.huds = [];
+    this.pauseScene = null;
+   
   }
 
   init(player) {
@@ -19,13 +21,10 @@ export default class UIScene extends Phaser.Scene {
     this.huds.push(new PlayerHud(this, player, pos, type));
   }
 
-  preload() {
-    //  Load images, sprites, audio, etc.
-    this.load.image("gui", "/assets/sprites/gui.png");
-  }
   create() {
-    this.mainScene = this.scene.get("Main");
-
+    this.mainScene = this.scene.get("Game");
+    this.pauseScene = this.scene.get("PauseScene");
+    
     this.mainScene.events.on("hurt", (damage) => {
       this.huds.forEach(hud => hud.updateHealth());
     });
@@ -34,30 +33,14 @@ export default class UIScene extends Phaser.Scene {
       this.huds.forEach(hud => hud.updateText());
     });
 
-    //  Our Text object to display the Score
-    /* const info = this.add.text(10, 10, "Score: 0", {
-        font: "48px Arial",
-        fill: "#000000",
-      });*/
-
-    //  Grab a reference to the Game Scene
-    //Gui
-    /*this.gui = this.add
-        .image(140, 60, "gui")
-        .setInteractive()
-        .setScrollFactor(0)
-        .setAlpha(0.7);
-  
-      this.gui.scale = 0.7;
-      //  Listen for events from it
-      ourGame.events.on(
-        "addScore",
-        function () {
-          this.score += 10;
-  
-          info.setText(`Score: ${this.score}`);
-        },
-        this
-      );*/
+     // Draw the pause button
+     this.pauseBtn = this.add.image(440, 35, "btn_pause").setInteractive();
+     this.pauseBtn.setScale(0.5);  // Adjust scale as needed
+     // Add click event listener for the pause button
+     this.pauseBtn.on("pointerup", () => {
+       this.scene.launch("PauseScene");
+     });
   }
+
+ 
 }

@@ -1,4 +1,4 @@
-import Proyectile from "/js/entities/Proyectile.js";
+import Proyectile from "../entities/Proyectile.js";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, y, x, key, player, speed) {

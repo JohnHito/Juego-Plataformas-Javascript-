@@ -1,12 +1,12 @@
-import Effect from "/js/entities/Effect.js";
-
+import Effect from "../entities/Effect.js";
+import Main from "../Main.js"
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, y, x, key) {
     super(scene, y, x, key);
     //Se añade a si mismo a la escena existente
     scene.add.existing(this);
     this.scene = scene;
-
+    this.mainMenu = null;
     //Se añade a si mismo a las fisicas de la escena existente
     scene.physics.add.existing(this);
 
@@ -39,10 +39,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     //Atributos del personaje
     this.jumpHight = 1100;
-    this.health = 100;
+    this.health = 11;
     this.speed = 350;
     this.maxVelocityY = 3000;
-    this.attackDamage = 2;
+    this.attackDamage = 10;
     this.inmmune = false;
     this.scale = 0.7;
     this.attackHitbox = new Effect(this.scene, 0, 0, "effect_hammer_smash");
@@ -264,6 +264,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.play("dead", true);
       this.setVelocityX(0);
       this.setVelocityY(0);
+      this.mainMenu = this.scene.scene.get('Main'); 
+      this.mainMenu.saveNewGameRun(this)
     } else if (this.alive) {
       this.controlFisicas();
       this.controlAnimaciones();
