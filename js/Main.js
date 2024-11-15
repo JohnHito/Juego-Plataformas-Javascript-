@@ -1,6 +1,6 @@
 //Import de clases
-import UIScene from "/js/gui/UIScene.js";
-import Player from "/js/entities/Player.js";
+import UIScene from "./gui/UIScene.js";
+import Player from "./entities/Player.js";
 import RoomController from "./utils/RoomController.js";
 import GamePadController from "./utils/GamePadController.js";
 
@@ -30,60 +30,60 @@ class Main extends Phaser.Scene {
 
     //Imagenes
     //Fondo
-    this.load.image("left_bottom1", "/assets/levels/left_bottom1.png");
-    this.load.image("bottom1", "/assets/levels/bottom1.png");
-    this.load.image("left_bottom1", "/assets/levels/left_bottom1.png");
-    this.load.image("bottom1", "/assets/levels/bottom1.png");
-    this.load.image("right_bottom1", "/assets/levels/right_bottom1.png");
-    this.load.image("left", "/assets/levels/left.png");
-    this.load.image("middle", "/assets/levels/middle1.png");
-    this.load.image("right", "/assets/levels/right1.png");
-    this.load.image("left_top", "/assets/levels/left_top1.png");
-    this.load.image("top", "/assets/levels/top1.png");
-    this.load.image("right_top", "/assets/levels/right_top1.png");
-    this.load.image("fire_spark", "/assets/sprites/fire_spark.png");
+    this.load.image("left_bottom1", "../assets/levels/left_bottom1.png");
+    this.load.image("bottom1", "../assets/levels/bottom1.png");
+    this.load.image("left_bottom1", "../assets/levels/left_bottom1.png");
+    this.load.image("bottom1", "../assets/levels/bottom1.png");
+    this.load.image("right_bottom1", "../assets/levels/right_bottom1.png");
+    this.load.image("left", "../assets/levels/left.png");
+    this.load.image("middle", "../assets/levels/middle1.png");
+    this.load.image("right", "../assets/levels/right1.png");
+    this.load.image("left_top", "../assets/levels/left_top1.png");
+    this.load.image("top", "../assets/levels/top1.png");
+    this.load.image("right_top", "../assets/levels/right_top1.png");
+    this.load.image("fire_spark", "../assets/sprites/fire_spark.png");
 
     //Gui
-    this.load.image("btn_jump", "/assets/sprites/btn_jump.png");
-    this.load.image("btn_attack", "/assets/sprites/btn_attack.png");
-    this.load.image("btn_summon", "/assets/sprites/btn_summon.png");
-    this.load.image("btn_fall", "/assets/sprites/btn_fall.png");
+    this.load.image("btn_jump", "../assets/sprites/btn_jump.png");
+    this.load.image("btn_attack", "../assets/sprites/btn_attack.png");
+    this.load.image("btn_summon", "../assets/sprites/btn_summon.png");
+    this.load.image("btn_fall", "../assets/sprites/btn_fall.png");
 
-    this.load.image("gui_face", "/assets/gui/gui_face.png");
-    this.load.image("gui_coin", "/assets/gui/gui_coin.png");
-    this.load.image("gui_key", "/assets/gui/gui_key.png");
-    this.load.image("gui_skull", "/assets/gui/gui_skull.png");
+    this.load.image("gui_face", "../assets/gui/gui_face.png");
+    this.load.image("gui_coin", "../assets/gui/gui_coin.png");
+    this.load.image("gui_key", "../assets/gui/gui_key.png");
+    this.load.image("gui_skull", "../assets/gui/gui_skull.png");
     //GUI info
-    this.load.image("key_A", "/assets/gui/A.png");
-    this.load.image("key_S", "/assets/gui/S.png");
-    this.load.image("key_D", "/assets/gui/D.png");
-    this.load.image("key_W", "/assets/gui/W.png");
-    this.load.image("key_E", "/assets/gui/E.png");
+    this.load.image("key_A", "../assets/gui/A.png");
+    this.load.image("key_S", "../assets/gui/S.png");
+    this.load.image("key_D", "../assets/gui/D.png");
+    this.load.image("key_W", "../assets/gui/W.png");
+    this.load.image("key_E", "../assets/gui/E.png");
 
-    this.load.image("key_up", "/assets/gui/up.png");
-    this.load.image("key_down", "/assets/gui/down.png");
-    this.load.image("key_left", "/assets/gui/left.png");
-    this.load.image("key_right", "/assets/gui/right.png");
+    this.load.image("key_up", "../assets/gui/up.png");
+    this.load.image("key_down", "../assets/gui/down.png");
+    this.load.image("key_left", "../assets/gui/left.png");
+    this.load.image("key_right", "../assets/gui/right.png");
 
-    this.load.image("key_shift", "/assets/gui/shift.png");
-    this.load.image("btn_menu", "/assets/gui/btn-menu.png");
+    this.load.image("key_shift", "../assets/gui/shift.png");
+    this.load.image("btn_menu", "../assets/gui/btn-menu.png");
 
-    this.load.image("btn_A", "/assets/gui/btn-A.png");
-    this.load.image("btn_B", "/assets/gui/btn-B.png");
-    this.load.image("btn_X", "/assets/gui/btn-X.png");
-    this.load.image("btn_Y", "/assets/gui/btn-Y.png");
+    this.load.image("btn_A", "../assets/gui/btn-A.png");
+    this.load.image("btn_B", "../assets/gui/btn-B.png");
+    this.load.image("btn_X", "../assets/gui/btn-X.png");
+    this.load.image("btn_Y", "../assets/gui/btn-Y.png");
 
     //Spritesheets
     //Entidades
-    this.load.spritesheet("playerSheet", "/assets/sprites/player_sheet.png", {
+    this.load.spritesheet("playerSheet", "../assets/sprites/player_sheet.png", {
       frameWidth: 270,
       frameHeight: 164,
     });
-    this.load.spritesheet("enemySheet", "/assets/sprites/enemy_sheet.png", {
+    this.load.spritesheet("enemySheet", "../assets/sprites/enemy_sheet.png", {
       frameWidth: 270,
       frameHeight: 164,
     });
-    this.load.spritesheet("knightSheet", "/assets/sprites/knight_sheet.png", {
+    this.load.spritesheet("knightSheet", "../assets/sprites/knight_sheet.png", {
       frameWidth: 291,
       frameHeight: 164,
     });
@@ -91,14 +91,14 @@ class Main extends Phaser.Scene {
     //Effectos
     this.load.spritesheet(
       "effect_hammer_smash",
-      "/assets/sprites/hammer_smash.png",
+      "../assets/sprites/hammer_smash.png",
       { frameWidth: 270, frameHeight: 164 }
     );
-    this.load.spritesheet("torch", "/assets/sprites/torch.png", {
+    this.load.spritesheet("torch", "../assets/sprites/torch.png", {
       frameWidth: 32,
       frameHeight: 32,
     });
-    this.load.spritesheet("water", "/assets/sprites/water.png", {
+    this.load.spritesheet("water", "../assets/sprites/water.png", {
       frameWidth: 32,
       frameHeight: 32,
     });

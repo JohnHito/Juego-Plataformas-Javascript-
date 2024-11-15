@@ -1,4 +1,4 @@
-import Effect from "/js/entities/Effect.js";
+import Effect from "../entities/Effect.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, y, x, key) {
