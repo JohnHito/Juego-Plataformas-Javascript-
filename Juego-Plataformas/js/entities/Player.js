@@ -267,9 +267,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
       this.mainMenu = this.scene.scene.get('Main'); 
       this.mainMenu.saveNewGameRun(this)
-      setTimeout(()=>{
-        this.scene.events.emit("dead", this);
-      },2500);
+      
       
 
     } else if (this.alive) {

@@ -7,25 +7,24 @@ import GamePadController from "./utils/GamePadController.js";
 export default class Game extends Phaser.Scene {
   //Metodo constructor
   constructor() {
-    super({ key: "Game"});
+    super({ key: "Game" });
     this.playersAmount = 1;
     this.playersGroup = null;
     this.player = null;
     this.bg = null;
     this.guiScene = null;
     this.pauseScene = null;
-
+    this.gameover = false;
     this.clock = 0;
     this.clockRate = 3;
     this.gamePadControlls = null;
     this.keyboardControlls2Active = false;
-    console.log("CONSTRUCTOR")
-
+    console.log("CONSTRUCTOR");
   }
 
   preload() {
     //Se añade el pluguin del joystick
-    console.log("PRELOAD")
+    console.log("PRELOAD");
 
     this.load.plugin(
       "rexvirtualjoystickplugin",
@@ -140,7 +139,6 @@ export default class Game extends Phaser.Scene {
     this.player.setTint(this.tint2);
     this.guiScene.newPlayer(this.player, this.playersAmount, type);
     this.roomController.setEnemiesToPlayers();
-
   }
 
   create() {
@@ -227,7 +225,7 @@ export default class Game extends Phaser.Scene {
     }
 
     this.scene.launch("UIScene", this.player);
-   // console.log(this.player);
+    // console.log(this.player);
   }
 
   createTouchControls() {
@@ -271,7 +269,7 @@ export default class Game extends Phaser.Scene {
     );
   }
   update() {
-    console.log("GAME")
+    console.log("GAME");
     if (
       (this.keyboardControlls2.up.isDown ||
         this.keyboardControlls2.down.isDown ||
@@ -279,7 +277,11 @@ export default class Game extends Phaser.Scene {
         this.keyboardControlls2.right.isDown) &&
       !this.keyboardControlls2Active
     ) {
-      this.newPlayer(this.keyboardControlls2, this.keyboardExtraControlls2,"arrows");
+      this.newPlayer(
+        this.keyboardControlls2,
+        this.keyboardExtraControlls2,
+        "arrows"
+      );
       this.keyboardControlls2Active = true;
     }
     //Esto se encarga de reducir el llamado al update del nivel para reducir
@@ -308,6 +310,20 @@ export default class Game extends Phaser.Scene {
     this.updateCameraToPlayers();
 
     this.gamePadControlls.update();
+
+    // Verificar si todos los jugadores están muertos
+    const allDead = this.playersGroup
+      .getChildren()
+      .every((player) => !player.alive);
+
+    this.playersGroup.getChildren().forEach((player) => {
+      if (allDead && !this.gameover) {
+        setTimeout(() => {
+          this.events.emit("dead", this);
+          this.gameover = true;
+        }, 2300);
+      }
+    });
   }
   calculateBoundsForPlayers() {
     let minX = Infinity,
@@ -376,4 +392,3 @@ export default class Game extends Phaser.Scene {
     }
   }
 }
-

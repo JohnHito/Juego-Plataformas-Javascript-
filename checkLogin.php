@@ -1,6 +1,6 @@
 <?php
 session_start();
-//var_dump($_SESSION);
+//var_dump($_SESSION);a
 // Check if the user is logged in
 if (isset($_SESSION['username'])) {
     // Assuming you store the user ID in the session when the user logs in
