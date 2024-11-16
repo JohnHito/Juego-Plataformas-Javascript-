@@ -21,6 +21,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.btn1Down = false;
     this.btn2Down = false;
     this.btns = null;
+    this.time = "";
 
     this.coins = 0;
     this.kills = 0;
@@ -39,7 +40,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     //Atributos del personaje
     this.jumpHight = 1100;
-    this.health = 2;
+    this.health = 12;
     this.speed = 350;
     this.maxVelocityY = 3000;
     this.attackDamage = 10;
@@ -166,6 +167,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.currentAnim.key === "attack" &&
         this.anims.currentFrame.index === 7
       ) {
+        this.scene.playRandomHammerSound();
         //Reactiva la colision de ataque
         this.attackHitbox.body.enable = true;
         //Utiliza los grupos de phaser para detectar si esta colisionando con un enemigo,
@@ -265,8 +267,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(0);
       this.setVelocityY(0);
 
-      this.mainMenu = this.scene.scene.get('Main'); 
-      this.mainMenu.saveNewGameRun(this)
+      //this.mainMenu.saveNewGameRun(this.scene.playersGroup)
       
       
 

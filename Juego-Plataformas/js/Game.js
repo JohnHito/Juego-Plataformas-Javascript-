@@ -19,6 +19,8 @@ export default class Game extends Phaser.Scene {
     this.clockRate = 3;
     this.gamePadControlls = null;
     this.keyboardControlls2Active = false;
+
+    this.FXparry = null;
     console.log("CONSTRUCTOR");
   }
 
@@ -108,6 +110,31 @@ export default class Game extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     });
+
+    //AUDIO
+    //MUSICA
+    this.load.audio('bg_music', '../assets/music/background-music.mp3'); 
+    //Sonidos
+    this.load.audio('fire_in_air', '../assets/sounds/fire_in_air.mp3'); 
+    this.load.audio('fire_hit', '../assets/sounds/fire_hit.mp3'); 
+
+    this.load.audio('sword1', '../assets/sounds/sword1.mp3'); 
+    this.load.audio('sword2', '../assets/sounds/sword2.mp3'); 
+    this.load.audio('parry', '../assets/sounds/parry.mp3'); 
+
+    this.load.audio('scream1', '../assets/sounds/scream1.mp3'); 
+    this.load.audio('scream2', '../assets/sounds/scream2.mp3'); 
+    this.load.audio('scream3', '../assets/sounds/scream3.mp3'); 
+    this.load.audio('scream4', '../assets/sounds/scream4.mp3'); 
+
+    this.load.audio('hurt1', '../assets/sounds/hurt1.mp3'); 
+    this.load.audio('hurt2', '../assets/sounds/hurt2.mp3'); 
+    this.load.audio('hurt3', '../assets/sounds/hurt3.mp3'); 
+
+    this.load.audio('hammer1', '../assets/sounds/hammer_hit1.mp3'); 
+    this.load.audio('hammer2', '../assets/sounds/hammer_hit2.mp3'); 
+    this.load.audio('hammer3', '../assets/sounds/hammer_hit3.mp3'); 
+
   }
 
   newPlayer(cursors, btns, type) {
@@ -142,6 +169,35 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    this.FXhurt1 = this.sound.add("hurt1", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXhurt2 = this.sound.add("hurt2", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXhurt3 = this.sound.add("hurt3", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXhammer1 = this.sound.add("hammer1", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXhammer2 = this.sound.add("hammer2", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXhammer3 = this.sound.add("hammer3", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXparry = this.sound.add("parry", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+
     this.guiScene = this.scene.get("UIScene");
     this.pauseScene = this.scene.get("PauseScene");
 
@@ -372,6 +428,7 @@ export default class Game extends Phaser.Scene {
 
     // Smoothly interpolate the zoom level
     this.smoothZoom(targetZoom);
+
   }
   smoothZoom(targetZoom) {
     const currentZoom = this.cameras.main.zoom;
@@ -390,5 +447,25 @@ export default class Game extends Phaser.Scene {
     } else {
       this.cameras.main.setZoom(targetZoom); // Set to exact target zoom when close enough
     }
+  }
+  playRandomHurtSound() {
+    // Array of sound references
+    const hurtSounds = [this.FXhurt1, this.FXhurt2, this.FXhurt3];
+  
+    // Select a random index
+    const randomIndex = Math.floor(Math.random() * hurtSounds.length);
+  
+    // Play the selected sound
+    hurtSounds[randomIndex].play();
+  }
+  playRandomHammerSound() {
+    // Array of sound references
+    const hammerSounds = [this.FXhammer1, this.FXhammer2, this.FXhammer3];
+  
+    // Select a random index
+    const randomIndex = Math.floor(Math.random() * hammerSounds.length);
+  
+    // Play the selected sound
+    hammerSounds[randomIndex].play();
   }
 }

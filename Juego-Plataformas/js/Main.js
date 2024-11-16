@@ -14,6 +14,9 @@ export default class Main extends Phaser.Scene {
   }
 
   async create() {
+
+    this.showScores();
+
     const logo = this.add.image(440, 100, "logo");
     logo.setScale(0.7);
 
@@ -57,6 +60,52 @@ export default class Main extends Phaser.Scene {
     }
   }
 
+  async showScores() {
+    // Fetch the top scores
+    const scores = await this.fetchTopScores();
+    
+    // Set up the starting position and style for the table
+    let startX = 50; // X position to start drawing
+    let startY = 50; // Y position to start drawing
+    const rowHeight = 25;
+    const colWidth = 50;
+  
+    // Draw the table headers
+    this.add.text(startX + 2 * colWidth-20, startY-30, "Top 10", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+
+    this.add.text(startX-30, startY, "Username", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+    this.add.text(startX + colWidth, startY, "Score", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+    this.add.text(startX + 2 * colWidth, startY, "Coins", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+    this.add.text(startX + 3 * colWidth, startY, "Kills", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+    this.add.text(startX + 4 * colWidth, startY, "Time", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
+    
+    startY += rowHeight; // Move to the next row
+    
+    // Loop through the scores and display them
+    scores.forEach((item, index) => {
+      this.add.text(startX-30, startY, item.username, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
+      this.add.text(startX + colWidth+10, startY, item.total_score, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
+      this.add.text(startX + 2 * colWidth+10, startY, item.coins, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
+      this.add.text(startX + 3 * colWidth+10, startY, item.kills, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
+      this.add.text(startX + 4 * colWidth, startY, item.time, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
+  
+      startY += rowHeight; // Move to the next row for the next score
+    });
+  }
+  
+
+  async fetchTopScores() {
+    try {
+      const response = await fetch("../../get_top_scores.php"); // Fetching data from the PHP endpoint
+      const data = await response.json(); // Parse JSON data from the server
+      return data; // Return the fetched data
+    } catch (error) {
+      console.error("Error fetching top scores:", error);
+      return []; // Return an empty array if there's an error
+    }
+  }
+  
+
   createBtn(x, y, w, h, text, color, Xorigin) {
     // Add a blue rectangle button with text "Resume"
     const btn = this.add
@@ -78,18 +127,32 @@ export default class Main extends Phaser.Scene {
     return btn;
   }
 
-  async saveNewGameRun(player) {
+  async saveNewGameRun(players) {
     // Generate a random seed (you can use any logic to generate a seed)
     const seed = "default"; // Random seed between 0 and 999999
+    let time = null;
+    let kills = 0;
+    let coins = 0;
+    let keys = 0;
+
+    players.getChildren().forEach((player) => {
+      kills += player.kills || 0;
+      coins += player.coins || 0;
+      keys += player.keys || 0;
+      if (!time) {
+        time = player.time;
+      }
+    });
 
     // Create a game_run object
     const gameRun = {
       user_id: this.user.id,
-      total_score: player.kills + player.coins + player.keys, // Initial score, can be updated
-      keys: player.keys, // Initial coins, can be updated
-      coins: player.coins, // Initial coins, can be updated
-      kills: player.kills, // Initial kills, can be updated as the game progresses
-      seed: seed
+      total_score: kills + coins + keys, // Initial score, can be updated
+      keys: keys, // Initial coins, can be updated
+      coins: coins, // Initial coins, can be updated
+      kills: kills, // Initial kills, can be updated as the game progresses
+      seed: seed,
+      time: time, // Initial kills, can be updated as the game progresses
     };
 
     // Send the game_run object to the backend (PHP) to store in the database
@@ -114,16 +177,18 @@ export default class Main extends Phaser.Scene {
     } catch (error) {
       console.error("Error creating game run:", error);
     }
-  //  window.location.href = "../../save_game_run.php";
+    //  window.location.href = "../../save_game_run.php";
   }
 
   async checkLoginStatus() {
     try {
       const response = await fetch("../../checkLogin.php"); // This will check the login status
       const data = await response.json(); // Parse the JSON response
-        this.user = data;
+      this.user = data;
       if (data.loggedIn) {
-        console.log("User is logged in. Username: " + data.username + " Id:" +data.id );
+        console.log(
+          "User is logged in. Username: " + data.username + " Id:" + data.id
+        );
         return data; // Return true if logged in
       } else {
         console.log("User is not logged in.");

@@ -38,6 +38,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.scene.physics.add.existing(this.pathHitbox);
     this.pathHitbox.body.setAllowGravity(false);
 
+    this.FXfire_hit = this.scene.sound.add("fire_hit", {
+      volume: 1, // Set volume
+      rate: 1.2, // Playback rate
+    });
+
+    this.FXscream = this.scene.sound.add("scream2", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+
     //Si el enemigo esta atacando, detecta si la animacion termino
     this.on("animationcomplete-attack", () => {
       //Cuando la animacion termina, pone a atacando como false
@@ -47,12 +57,20 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.on("animationcomplete-tpIn", () => {
       //Cuando la animacion termina, pone a atacando como false
       this.stop = false;
+      
     });
     //Si el enemigo esta atacando, detecta si la animacion termino
     this.on("animationcomplete-tpOut", () => {
       //Cuando la animacion termina, pone a atacando como false
       this.teleport(this.closestTarget);
       this.play("tpIn");
+      this.FXfire_hit.play({
+        seek: 5.2, // Start playback from 2 seconds
+      });
+      setTimeout(() => {
+        this.FXfire_hit.stop();
+      }, 2000);
+      
     });
     this.on("animationcomplete-attack2", () => {
       //Cuando la animacion termina, pone a atacando como false
@@ -180,7 +198,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
           case 2:
             this.play("tpOut");
             this.stop = true;
-
+            this.FXfire_hit.play({
+              seek: 5.2, // Start playback from 2 seconds
+            });
+            setTimeout(() => {
+              this.FXfire_hit.stop();
+            }, 2000);
             break;
         }
 
@@ -221,6 +244,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   teleport(target) {
     this.x = target.x;
     this.y = target.y - 50;
+    
   }
   pathFind(target) {
     //IA
@@ -321,10 +345,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   //Metodo para matar al enemigo
   dead() {
     this.stop = true;
-    this.inmmune= true;
+    this.inmmune = true;
 
     this.sourceDamage.kill(this);
     this.play("dead", true);
+    this.FXscream.play();
+
   }
   reward() {
     let randomNumber = Math.floor(Math.random() * 3);
@@ -339,7 +365,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         coins += Math.floor(Math.random() * (200 - 10 + 1)) + 10;
 
       case 2:
-        key ++;
+        key++;
         break;
     }
 
@@ -371,6 +397,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.inmmune = false;
       }, 400);
       this.sourceDamage = sourceDamage;
+      this.scene.playRandomHurtSound();
     }
   }
 

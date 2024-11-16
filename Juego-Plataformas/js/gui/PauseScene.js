@@ -21,6 +21,9 @@ export default class PauseScene extends Phaser.Scene {
 
     // Add button click functionality
     resumeButton.on("pointerdown", () => {
+      const uIScene = this.scene.get("UIScene");
+      uIScene.bg_music.resume();
+
       this.scene.resume("Game"); // Add resume functionality here
       this.scene.stop();
     });

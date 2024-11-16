@@ -39,11 +39,26 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.scene.physics.add.existing(this.pathHitbox);
     this.pathHitbox.body.setAllowGravity(false);
 
+    this.FXsword1 = this.scene.sound.add("sword1", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXsword2 = this.scene.sound.add("sword2", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+    this.FXscream = this.scene.sound.add("scream1", {
+      volume: 0.2, // Set volume
+      rate: 1, // Playback rate
+    });
+
     //Si el enemigo esta atacando, detecta si la animacion termino
     this.on("animationcomplete-attack", () => {
       //Cuando la animacion termina, pone a atacando como false
       if (this.firstHit) {
         this.play("attack2");
+        this.FXsword2.play();
+
       } else {
         this.attacking = false;
         this.stop = false;
@@ -284,6 +299,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             if (target.closestDistance < this.meleeRange) {
               this.stop = true;
               this.play("attack");
+
+              this.FXsword1.play();
             }
           }
         }
@@ -358,6 +375,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.stop = true;
     this.sourceDamage.kill(this);
     this.play("dead", true);
+    this.FXscream.play();
   }
 
   reward() {
@@ -379,24 +397,24 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   //Metodo para que el enemigo reciba daño
   takeDamage(damage, sourceDamage) {
-    if(this.block && !this.inmmune){
-      this.play("block")
+    if (this.block && !this.inmmune) {
+      this.play("block");
+      this.scene.FXparry.play({
+        seek: 0.7, // Start playback from 2 seconds
+      });
       this.stop = true;
       this.setTint(0xf9f9ff);
 
       setTimeout(() => {
         this.play("idle");
-        this.block = false
+        this.block = false;
         this.stop = false;
         this.clearTint();
-
       }, 400);
 
       setTimeout(() => {
-        this.block = true
-
+        this.block = true;
       }, 5000);
-
     } else {
       //Reduce la vida del enemigo
       this.health -= damage;
@@ -421,6 +439,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.inmmune = false;
       }, 400);
       this.sourceDamage = sourceDamage;
+      this.scene.playRandomHurtSound();
+
     }
   }
 

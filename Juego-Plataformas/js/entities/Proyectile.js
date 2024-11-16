@@ -7,26 +7,46 @@ export default class Proyectile extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
     this.target = target;
-
+    this.FXfire_in_air = null;
+    this.FXfire_hit = null;
     this.create();
   }
 
   create() {
+    this.FXfire_in_air = this.scene.sound.add("fire_in_air", {
+      volume: 0.2, // Set volume
+      rate: 0.7, // Playback rate
+    });
+    this.FXfire_in_air.play({
+      seek: 1, // Start playback from 2 seconds
+    });
+
+    this.FXfire_hit = this.scene.sound.add("fire_hit", {
+      volume: 1, // Set volume
+      rate: 1.2, // Playback rate
+    });
+
     this.particles = this.scene.add.particles(9, 0, "fire_spark", {
       speed: 80,
       scale: { start: 0.2, end: 0 },
       blendMode: "ADD",
       alpha: { start: 1, end: 0 },
     });
+
     this.particles.startFollow(this);
     this.visible = false;
 
     setTimeout(() => {
       this.particles.explode(16);
-
+      this.FXfire_hit.play({
+        seek: 5.2, // Start playback from 2 seconds
+      });
       this.destroy();
       setTimeout(() => {
         this.particles.destroy();
+        setTimeout(() => {
+          this.FXfire_hit.stop();
+        }, 2000);
       }, 1000);
     }, 4000);
   }
@@ -44,10 +64,17 @@ export default class Proyectile extends Phaser.Physics.Arcade.Sprite {
       if (distance <= 40) {
         this.target.takeDamage(1);
         this.particles.explode(16);
+        this.FXfire_in_air.stop();
+        this.FXfire_hit.play({
+          seek: 5.2, // Start playback from 2 seconds
+        });
         this.destroy();
 
         setTimeout(() => {
           this.particles.destroy();
+          setTimeout(() => {
+            this.FXfire_hit.stop();
+          }, 2000);
         }, 1000);
       } else {
         // Calculate the angle between the projectile and the target

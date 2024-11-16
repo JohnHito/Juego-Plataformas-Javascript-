@@ -14,6 +14,7 @@ if ($data) {
     $coins = $data['coins'];
     $kills = $data['kills'];
     $seed = $data['seed'];
+    $time = $data['time'];
 
     // Insert the game_run data into the database
     $result = $database->insert("game_runs", [
@@ -23,6 +24,8 @@ if ($data) {
         "coins" => $coins,
         "kills" => $kills,
         "seed" => $seed,
+        "time" => $time,
+
     ]);
 
     if ($result) {
