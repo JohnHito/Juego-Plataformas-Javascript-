@@ -42,7 +42,7 @@ export default class UIScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.timeEvent = this.time.addEvent({
-      delay: 30, // Cada 1000 ms (1 segundo)
+      delay: 1000, // Cada 1000 ms (1 segundo)
       callback: this.updateTimer,
       callbackScope: this,
       loop: true, // Se repite continuamente
@@ -64,6 +64,15 @@ export default class UIScene extends Phaser.Scene {
         this.mainMenu = this.scene.get("Main");
         this.gameScene = this.scene.get("Game");
         this.mainMenu.saveNewGameRun(this.gameScene.playersGroup);
+
+        this.gameScene.saveData();
+
+        if(!this.gameScene.hasFeched){
+          this.gameScene.hasFeched = true;
+          this.gameScene.saveData( "No",1);  // Almacenar datos correctamente
+  
+        }
+
         console.log(this.gameScene.playersGroup);
       }
     });

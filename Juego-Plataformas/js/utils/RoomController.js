@@ -27,7 +27,9 @@ export default class LevelController extends Phaser.GameObjects.Container {
     //Genera un tinte random para aplicarle al nivel
     this.randomTint = this.getRandomTint();
 
-    fetch("../js/data/segmentsPositions.json")
+
+   // fetch("../js/data/segmentsPositions.json")
+    fetch("../../editor/api.php?id=1")
       .then((response) => response.json())
       .then((data) => {
         // Access your JSON data here

@@ -2,11 +2,16 @@ import Game from "./Game.js";
 import UIScene from "./gui/UIScene.js";
 import PauseScene from "./gui/PauseScene.js";
 import DeadScene from "./gui/DeadScene.js";
+
+let timer;
+
 export default class Main extends Phaser.Scene {
   //Metodo constructor
   constructor() {
     super({ key: "Main" });
     this.user = null;
+
+    
   }
 
   preload() {
@@ -14,7 +19,6 @@ export default class Main extends Phaser.Scene {
   }
 
   async create() {
-
     this.showScores();
 
     const logo = this.add.image(440, 100, "logo");
@@ -58,41 +62,92 @@ export default class Main extends Phaser.Scene {
         this.stop;
       });
     }
+
+    
   }
 
   async showScores() {
     // Fetch the top scores
     const scores = await this.fetchTopScores();
-    
+
     // Set up the starting position and style for the table
     let startX = 50; // X position to start drawing
     let startY = 50; // Y position to start drawing
     const rowHeight = 25;
     const colWidth = 50;
-  
-    // Draw the table headers
-    this.add.text(startX + 2 * colWidth-20, startY-30, "Top 10", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
 
-    this.add.text(startX-30, startY, "Username", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
-    this.add.text(startX + colWidth, startY, "Score", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
-    this.add.text(startX + 2 * colWidth, startY, "Coins", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
-    this.add.text(startX + 3 * colWidth, startY, "Kills", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
-    this.add.text(startX + 4 * colWidth, startY, "Time", { fontFamily: 'Arial', fontSize: 14, color: '#fff', fontStyle: 'bold' });
-    
+    // Draw the table headers
+    this.add.text(startX + 2 * colWidth - 20, startY - 30, "Top 10", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+
+    this.add.text(startX - 30, startY, "Username", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+    this.add.text(startX + colWidth, startY, "Score", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+    this.add.text(startX + 2 * colWidth, startY, "Coins", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+    this.add.text(startX + 3 * colWidth, startY, "Kills", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+    this.add.text(startX + 4 * colWidth, startY, "Time", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      color: "#fff",
+      fontStyle: "bold",
+    });
+
     startY += rowHeight; // Move to the next row
-    
+
     // Loop through the scores and display them
     scores.forEach((item, index) => {
-      this.add.text(startX-30, startY, item.username, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
-      this.add.text(startX + colWidth+10, startY, item.total_score, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
-      this.add.text(startX + 2 * colWidth+10, startY, item.coins, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
-      this.add.text(startX + 3 * colWidth+10, startY, item.kills, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
-      this.add.text(startX + 4 * colWidth, startY, item.time, { fontFamily: 'Arial', fontSize: 12, color: '#fff' });
-  
+      this.add.text(startX - 30, startY, item.username, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        color: "#fff",
+      });
+      this.add.text(startX + colWidth + 10, startY, item.total_score, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        color: "#fff",
+      });
+      this.add.text(startX + 2 * colWidth + 10, startY, item.coins, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        color: "#fff",
+      });
+      this.add.text(startX + 3 * colWidth + 10, startY, item.kills, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        color: "#fff",
+      });
+      this.add.text(startX + 4 * colWidth, startY, item.time, {
+        fontFamily: "Arial",
+        fontSize: 12,
+        color: "#fff",
+      });
+
       startY += rowHeight; // Move to the next row for the next score
     });
   }
-  
 
   async fetchTopScores() {
     try {
@@ -104,7 +159,6 @@ export default class Main extends Phaser.Scene {
       return []; // Return an empty array if there's an error
     }
   }
-  
 
   createBtn(x, y, w, h, text, color, Xorigin) {
     // Add a blue rectangle button with text "Resume"
@@ -128,6 +182,7 @@ export default class Main extends Phaser.Scene {
   }
 
   async saveNewGameRun(players) {
+
     // Generate a random seed (you can use any logic to generate a seed)
     const seed = "default"; // Random seed between 0 and 999999
     let time = null;
@@ -218,6 +273,8 @@ export default class Main extends Phaser.Scene {
       console.error("Logout error:", error);
     }
   }
+
+  
 }
 
 //Configuracion del proyecto

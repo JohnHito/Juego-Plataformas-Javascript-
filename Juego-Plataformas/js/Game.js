@@ -4,6 +4,7 @@ import Player from "./entities/Player.js";
 import RoomController from "./utils/RoomController.js";
 import GamePadController from "./utils/GamePadController.js";
 
+let timer;
 export default class Game extends Phaser.Scene {
   //Metodo constructor
   constructor() {
@@ -22,8 +23,15 @@ export default class Game extends Phaser.Scene {
 
     this.FXparry = null;
     console.log("CONSTRUCTOR");
-  }
 
+    this.conteo;
+    this.hasFeched;
+    window.instancia = this;
+  }
+  init() {
+    this.conteo = 0;
+    this.hasFeched = false;
+  }
   preload() {
     //Se añade el pluguin del joystick
     console.log("PRELOAD");
@@ -168,7 +176,7 @@ export default class Game extends Phaser.Scene {
     this.roomController.setEnemiesToPlayers();
   }
 
-  create() {
+  createSounds(){
     this.FXhurt1 = this.sound.add("hurt1", {
       volume: 0.2, // Set volume
       rate: 1, // Playback rate
@@ -197,7 +205,11 @@ export default class Game extends Phaser.Scene {
       volume: 0.2, // Set volume
       rate: 1, // Playback rate
     });
+  }
 
+  create() {
+   
+    this.createSounds();
     this.guiScene = this.scene.get("UIScene");
     this.pauseScene = this.scene.get("PauseScene");
 
@@ -282,6 +294,12 @@ export default class Game extends Phaser.Scene {
 
     this.scene.launch("UIScene", this.player);
     // console.log(this.player);
+    timer = this.time.addEvent({
+      delay: 1000,
+      loop: true,
+      callbackScope: this,
+      callback: this.startTracking,
+    });
   }
 
   createTouchControls() {
@@ -325,7 +343,6 @@ export default class Game extends Phaser.Scene {
     );
   }
   update() {
-    console.log("GAME");
     if (
       (this.keyboardControlls2.up.isDown ||
         this.keyboardControlls2.down.isDown ||
@@ -468,4 +485,40 @@ export default class Game extends Phaser.Scene {
     // Play the selected sound
     hammerSounds[randomIndex].play();
   }
+  saveData(hasClosed, kill) {
+    console.log("se ingresaron los datos");
+    fetch("http://player_db.test/tracking.php", {
+      method: "POST",
+      mode: "same-origin",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        browser: navigator.userAgent,
+        screen: screen.width + "x" + screen.height,
+        length: this.conteo,
+        kill: kill,
+        closed: hasClosed,
+      }),
+      keepalive: true,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
+  }
+
+  startTracking(){
+    this.conteo += 1;  // Incrementa el valor de length
+    console.log("tracking ->", this.conteo); 
+  }
 }
+//check if browser will be closed
+window.addEventListener('beforeunload', function (event) {
+  // Triggered when the tab or browser is closing
+  console.log('Browser tab is being closed or navigated away.');
+  if(window.instancia ){
+    window.instancia.saveData("yes",1)
+  }
+});
