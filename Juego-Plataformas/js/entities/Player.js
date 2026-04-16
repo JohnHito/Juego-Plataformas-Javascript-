@@ -40,8 +40,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     //Atributos del personaje
     this.jumpHight = 1100;
-    this.health = 2;
-    this.speed = 350;
+    this.health = 10;
+    this.speed = 300;
     this.maxVelocityY = 3000;
     this.attackDamage = 10;
     this.inmmune = false;

@@ -17,7 +17,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
 
     //Crea un array con el tamaño aleatorio creado
     this.rooms = Array.from({ length: this.roomSizeY }, () =>
-      Array(this.roomSizeX).fill(0)
+      Array(this.roomSizeX).fill(0),
     );
 
     //Crea un grupo usando metodos de phaser para gaurdar enemigos
@@ -27,9 +27,8 @@ export default class LevelController extends Phaser.GameObjects.Container {
     //Genera un tinte random para aplicarle al nivel
     this.randomTint = this.getRandomTint();
 
-
-   // fetch("../js/data/segmentsPositions.json")
-    fetch("../../editor/api.php?id=1")
+    // fetch("../js/data/segmentsPositions.json")
+    fetch("../js/data/segmentsPositions.json")
       .then((response) => response.json())
       .then((data) => {
         // Access your JSON data here
@@ -98,7 +97,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             colIndex + 1,
             rowIndex + 1,
-            "left_bottom1"
+            "left_bottom1",
           );
           collisions = this.loadPositions(this.left_bottom);
         } else if (
@@ -110,7 +109,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             colIndex + 1,
             rowIndex + 1,
-            "bottom1"
+            "bottom1",
           );
           collisions = this.loadPositions(this.bottom);
         } else if (
@@ -121,7 +120,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             colIndex + 1,
             rowIndex + 1,
-            "right_bottom1"
+            "right_bottom1",
           );
           collisions = this.loadPositions(this.right_bottom);
         } else if (
@@ -151,7 +150,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             colIndex + 1,
             rowIndex + 1,
-            "left_top"
+            "left_top",
           );
           collisions = this.loadPositions(this.left_top);
         } else if (
@@ -166,7 +165,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             colIndex + 1,
             rowIndex + 1,
-            "right_top"
+            "right_top",
           );
           collisions = this.loadPositions(this.right_top);
         }
@@ -243,7 +242,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
               (rowIndex + 1) * 32 + 960 * segmentY - 64,
               "enemySheet",
               this.player,
-              90 + Math.floor(Math.random() * (109 - 0 + 1))
+              90 + Math.floor(Math.random() * (109 - 0 + 1)),
             );
             this.enemies.add(enemy); // Add enemy to the group
             this.enemiesAmout--;
@@ -254,7 +253,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
               (rowIndex + 1) * 32 + 960 * segmentY - 200,
               "knightSheet",
               this.player,
-              100 + Math.floor(Math.random() * (180 - 0 + 1))
+              100 + Math.floor(Math.random() * (180 - 0 + 1)),
             );
             this.enemies.add(enemy); // Add enemy to the group
             this.enemiesAmout--;
@@ -278,13 +277,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           rowIndex === this.roomSizeY - 1 &&
@@ -296,13 +295,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           rowIndex === this.roomSizeY - 1 &&
@@ -313,13 +312,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           colIndex === 0 &&
@@ -331,13 +330,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           rowIndex > 0 &&
@@ -350,13 +349,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           colIndex === this.roomSizeX - 1 &&
@@ -368,13 +367,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (rowIndex === 0 && colIndex === 0) {
           collisions = this.loadPositions(this.left_top);
@@ -382,13 +381,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (
           rowIndex === 0 &&
@@ -400,13 +399,13 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         } else if (rowIndex === 0 && colIndex === this.roomSizeX - 1) {
           collisions = this.loadPositions(this.right_top);
@@ -414,27 +413,24 @@ export default class LevelController extends Phaser.GameObjects.Container {
             collisions.positions,
             true,
             colIndex,
-            rowIndex
+            rowIndex,
           );
           this.generateRoomSegment(
             collisions.positions,
             false,
             colIndex,
-            rowIndex
+            rowIndex,
           );
         }
         this.generateEnemies(collisions.positions, colIndex, rowIndex);
       });
     });
-
-   
   }
 
-  setEnemiesToPlayers(){
+  setEnemiesToPlayers() {
     this.player.getChildren().forEach((playerInstance) => {
       playerInstance.enemies = this.enemies;
     });
-
   }
   //Recorre el array de decoraciones anviado por paramtro para dibujarlas
   generateDeco(array, key, segmentX, segmentY) {
@@ -453,7 +449,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             this.scene,
             (colIndex + 1) * 32 + 960 * segmentX - 16,
             (rowIndex + 1) * 32 + 960 * segmentY,
-            key
+            key,
           );
           if (symbol === 3) {
             deco.play("torch");
@@ -510,7 +506,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
               sizeX - 18,
               isSolid,
               segmentX,
-              segmentY
+              segmentY,
             );
           }
           //Reinicia las variables
@@ -529,7 +525,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
               sizeX - 18,
               isSolid,
               segmentX,
-              segmentY
+              segmentY,
             );
           }
           //Reinicia las variables
@@ -576,7 +572,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
             sizeX,
             isSolid,
             segmentX,
-            segmentY
+            segmentY,
           );
           rowStart = null;
           sizeY = 32;
@@ -592,7 +588,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
           sizeX,
           isSolid,
           segmentX,
-          segmentY
+          segmentY,
         );
       }
     });
