@@ -7,18 +7,18 @@ module.exports = merge(common, {
   mode: "production",
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./Juego-Plataformas/index.html",
+      template: "./index.html",
     }),
     new CopyPlugin({
       patterns: [
-        { from: "Juego-Plataformas/img", to: "img" },
-        { from: "Juego-Plataformas/css", to: "css" },
-        { from: "Juego-Plataformas/js/vendor", to: "js/vendor" },
-        { from: "Juego-Plataformas/icon.svg", to: "icon.svg" },
-        { from: "Juego-Plataformas/icon.ico", to: "favicon.ico" },
-        { from: "Juego-Plataformas/robots.txt", to: "robots.txt" },
-        { from: "Juego-Plataformas/icon.png", to: "icon.png" },
-        { from: "Juego-Plataformas/site.webmanifest", to: "site.webmanifest" },
+        { from: "img", to: "img" },
+        { from: "css", to: "css" },
+        { from: "js/vendor", to: "js/vendor" },
+        { from: "icon.svg", to: "icon.svg" },
+        { from: "icon.ico", to: "favicon.ico" },
+        { from: "robots.txt", to: "robots.txt" },
+        { from: "icon.png", to: "icon.png" },
+        { from: "site.webmanifest", to: "site.webmanifest" },
       ],
     }),
   ],
