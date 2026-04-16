@@ -28,7 +28,7 @@ export default class LevelController extends Phaser.GameObjects.Container {
     this.randomTint = this.getRandomTint();
 
     // fetch("../js/data/segmentsPositions.json")
-    fetch("../js/data/segmentsPositions.json")
+    fetch("/js/data/segmentsPositions.json")
       .then((response) => response.json())
       .then((data) => {
         // Access your JSON data here

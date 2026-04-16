@@ -15,6 +15,7 @@ module.exports = merge(common, {
         { from: "css", to: "css" },
         { from: "js/vendor", to: "js/vendor" },
         { from: "assets", to: "assets" },
+        { from: "js/data", to: "js/data" },
         { from: "html", to: "html" },
         { from: "icon.svg", to: "icon.svg" },
         { from: "icon.ico", to: "favicon.ico" },
