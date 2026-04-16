@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --open --config webpack.config.dev.js",
+    "start": "npx serve dist",
     "build": "webpack --config webpack.config.prod.js",
     "sass-dev": "sass --watch --update --style=compressed --no-source-map --color ./scss:./css"
   },
@@ -20,6 +20,7 @@
     "webpack-merge": "^5.10.0"
   },
   "dependencies": {
-    "sass": "^1.77.8"
+    "sass": "^1.77.8",
+    "serve": "^14.2.6"
   }
 }
